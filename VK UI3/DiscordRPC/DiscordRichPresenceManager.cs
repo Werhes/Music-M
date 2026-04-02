@@ -23,23 +23,23 @@ namespace VK_UI3.DiscordRPC
 
             _client.OnReady += (sender, e) =>
             {
-                Console.WriteLine($"Connected to Discord as {e.User.Username}");
+                Console.WriteLine($"Подключено к Discord как {e.User.Username}");
             };
 
             _client.OnPresenceUpdate += (sender, e) =>
             {
-                Console.WriteLine($"Presence updated: {e.Presence}");
+                Console.WriteLine($"Статус Discord RPC обновлён: {e.Presence}");
             };
 
             _client.OnError += (sender, e) =>
             {
-                Console.WriteLine($"An error occurred: {e.Message}");
+                Console.WriteLine($"Произошла ошибка: {e.Message}");
                 AttemptReconnect();
             };
 
             _client.OnClose += (sender, e) =>
             {
-                Console.WriteLine("Connection to Discord closed.");
+                Console.WriteLine("Подключение к  Discord закрыто.");
                 AttemptReconnect();
             };
 
@@ -53,12 +53,12 @@ namespace VK_UI3.DiscordRPC
                 if (!_client.IsInitialized)
                 {
                     _client.Initialize();
-                    Console.WriteLine("Discord RPC initialized successfully.");
+                    Console.WriteLine("Discord RPC запущен.");
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Failed to initialize Discord RPC: {ex.Message}");
+                Console.WriteLine($"Ошибка инициализации Discord RPC: {ex.Message}");
                 AttemptReconnect();
             }
         }
@@ -68,7 +68,7 @@ namespace VK_UI3.DiscordRPC
             _reconnectTimer?.Dispose(); // Останавливаем предыдущий таймер, если он был
             _reconnectTimer = new Timer(_ =>
             {
-                Console.WriteLine("Attempting to reconnect to Discord...");
+                Console.WriteLine("Попытка переподключения к Discord...");
                 InitializeClient();
             }, null, ReconnectDelay, Timeout.Infinite); // Повторная попытка через ReconnectDelay миллисекунд
         }
@@ -103,7 +103,7 @@ namespace VK_UI3.DiscordRPC
                         Assets = new Assets()
                         {
                             LargeImageKey = image,
-                            LargeImageText = "VK Music",
+                            LargeImageText = "VK M",
                             SmallImageKey = imageSmall,
                             SmallImageText = "Слушает"
                         },
@@ -111,12 +111,12 @@ namespace VK_UI3.DiscordRPC
                         {
                             new Button()
                             {
-                                Label = "Слушать в VK M",
+                                Label = "Скачать VK M",
                                 Url = "https://github.com/MaKrotos/Music-M"
                             },
                             new Button()
                             {
-                                Label = "ТГ Канал",
+                                Label = "Телеграмм Канал",
                                 Url = "https://t.me/VK_M_creator"
                             }
                         }
@@ -151,7 +151,7 @@ namespace VK_UI3.DiscordRPC
             try
             {
                 _currentTrack = trackDataThis.audio.Title;
-                _currentArtist = trackDataThis.audio.Artist ?? "Неизвестен";
+                _currentArtist = trackDataThis.audio.Artist ?? "Неизвестен  ";
                 media = mediaPlayer;
 
              
