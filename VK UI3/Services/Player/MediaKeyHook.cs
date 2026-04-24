@@ -61,9 +61,9 @@ namespace VK_UI3.Services.Player
                     case 10: // APPCOMMAND_VOLUME_UP
                         VolumeKeyPressed?.Invoke(this, new VolumeKeyEventArgs(VolumeKey.VolumeUp));
                         return IntPtr.Zero;
-                    case 46: // APPCOMMAND_MEDIA_PLAY_PAUSE
-                    case 47: // APPCOMMAND_MEDIA_PLAY
-                    case 48: // APPCOMMAND_MEDIA_PAUSE
+                    case 14: // APPCOMMAND_MEDIA_PLAY_PAUSE
+                    case 46: // APPCOMMAND_MEDIA_PLAY
+                    case 47: // APPCOMMAND_MEDIA_PAUSE
                         MediaKeyPressed?.Invoke(this, new MediaKeyEventArgs(MediaKey.PlayPause));
                         return IntPtr.Zero;
                     case 11: // APPCOMMAND_MEDIA_NEXTTRACK
