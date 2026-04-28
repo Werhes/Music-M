@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿﻿using Microsoft.Extensions.DependencyInjection;
 using MusicX.Core.Models;
 using MusicX.Core.Models.General;
 using MusicX.Core.Services;
@@ -212,22 +212,24 @@ public class CustomSectionsService : ICustomSectionsService
 
     private async Task<Section> GetCatalogsSectionAsync()
     {
-        var convs = await _vkCategories.Messages.GetConversationsAsync(new()
+        var convsTask = _vkCategories.Messages.GetConversationsAsync(new()
         {
             Extended = true,
             Count = 10
         });
 
-        List<Station> stations = null;
+        var stationsTask = _userRadioService.GetStationsList();
         try
         {
-            stations = await _userRadioService.GetStationsList();
-
+            await Task.WhenAll(convsTask, stationsTask);
         }
         catch (Exception ex)
         {
 
         }
+
+        var convs = await convsTask;
+        var stations = stationsTask.Status == TaskStatus.RanToCompletion ? stationsTask.Result : null;
 
         var buttons = convs.Count > 10
             ? new()

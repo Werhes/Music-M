@@ -1,4 +1,4 @@
-﻿using System;
+﻿﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
@@ -36,6 +36,12 @@ public class VkBridgeService(IVkApiInvoke vkApi, Logger log, VkService vkService
         }
     };
 
+    private static readonly string[] _supportedHandlers = typeof(VkBridgeService)
+        .GetMethods(BindingFlags.Public | BindingFlags.Instance)
+        .Select(b => b.Name)
+        .Where(b => b.StartsWith("VK"))
+        .ToArray();
+
     private string? _nextRequestId;
     private string? _accessToken;
 
@@ -63,12 +69,14 @@ public class VkBridgeService(IVkApiInvoke vkApi, Logger log, VkService vkService
     private string _currentAppId = "app0";
     private string _currentUrl = "https://vk.ru/";
     private string _storagePath = "";
+    private Dictionary<string, string>? _storageCache;
 
     internal void Load(string appId, string url)
     {
         _currentAppId = appId;
         _currentUrl = url;
         _storagePath = Path.Join(StaticService.UserDataFolder.FullName, $"{appId}.json");
+        _storageCache = null;
     }
     
     public void SetNextRequestId(string requestId)
@@ -229,11 +237,7 @@ public class VkBridgeService(IVkApiInvoke vkApi, Logger log, VkService vkService
 
     public void SetSupportedHandlers()
     {
-        DispatchEvent(nameof(SetSupportedHandlers), new SetSupportedHandlersResponse(typeof(VkBridgeService)
-            .GetMethods(BindingFlags.Public | BindingFlags.Instance)
-            .Select(b => b.Name)
-            .Where(b => b.StartsWith("VK"))
-            .ToArray()));
+        DispatchEvent(nameof(SetSupportedHandlers), new SetSupportedHandlersResponse(_supportedHandlers));
     }
     
     // vk moment
@@ -273,25 +277,30 @@ public class VkBridgeService(IVkApiInvoke vkApi, Logger log, VkService vkService
 
     private async Task<IReadOnlyDictionary<string, string>> ReadStorageAsync()
     {
+        if (_storageCache != null) return _storageCache;
+
         if (!File.Exists(_storagePath))
-            return ImmutableDictionary<string, string>.Empty;
+        {
+            _storageCache = new Dictionary<string, string>();
+            return _storageCache;
+        }
 
         await using var stream = File.OpenRead(_storagePath);
         
-        var result = await JsonSerializer.DeserializeAsync<IReadOnlyDictionary<string, string>>(stream);
+        var result = await JsonSerializer.DeserializeAsync<Dictionary<string, string>>(stream);
         
-        return result ?? ImmutableDictionary<string, string>.Empty;
+        _storageCache = result ?? new Dictionary<string, string>();
+        return _storageCache;
     }
 
     private async Task WriteStorageAsync(string key, string value)
     {
-        var storage = await ReadStorageAsync();
-
-        var modified = storage.Append(new(key, value)).ToImmutableDictionary();
+        var storage = (Dictionary<string, string>)await ReadStorageAsync();
+        storage[key] = value;
         
         await using var stream = File.Create(_storagePath);
         
-        await JsonSerializer.SerializeAsync(stream, modified);
+        await JsonSerializer.SerializeAsync(stream, storage);
     }
 
 

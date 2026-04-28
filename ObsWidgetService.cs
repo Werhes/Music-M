@@ -20,6 +20,7 @@ namespace VK_UI3.Services
         private HttpListener _listener;
         private bool _isRunning;
         private TrackInfo _currentTrack;
+        private static readonly byte[] _widgetHtmlBytes = Encoding.UTF8.GetBytes(WidgetHtml);
 
         public void Start(int port = 8080)
         {
@@ -57,7 +58,7 @@ namespace VK_UI3.Services
                 try
                 {
                     var context = await _listener.GetContextAsync();
-                    ProcessRequest(context);
+                    _ = Task.Run(() => ProcessRequest(context));
                 }
                 catch (HttpListenerException)
                 {
@@ -86,10 +87,9 @@ namespace VK_UI3.Services
                 {
                     // Отдаем HTML-страницу виджета
                     response.ContentType = "text/html; charset=utf-8";
-                    var buffer = Encoding.UTF8.GetBytes(WidgetHtml);
                     
-                    response.ContentLength64 = buffer.Length;
-                    response.OutputStream.Write(buffer, 0, buffer.Length);
+                    response.ContentLength64 = _widgetHtmlBytes.Length;
+                    response.OutputStream.Write(_widgetHtmlBytes, 0, _widgetHtmlBytes.Length);
                 }
             }
             catch (Exception ex)
