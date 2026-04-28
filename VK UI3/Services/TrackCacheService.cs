@@ -5,11 +5,8 @@ using System.Threading.Tasks;
 
 namespace VK_UI3.Services
 {
-    public class TrackCacheService
+    public class TrackCacheService : ITrackCacheService
     {
-        private static readonly Lazy<TrackCacheService> _instance = new(() => new TrackCacheService());
-        public static TrackCacheService Instance => _instance.Value;
-
         private readonly HttpClient _httpClient;
         private readonly string _cacheDirectory;
 
