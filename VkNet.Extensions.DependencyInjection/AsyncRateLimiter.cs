@@ -3,65 +3,95 @@
 public class AsyncRateLimiter : IAsyncRateLimiter
 {
     private readonly SemaphoreSlim _semaphore;
-    private readonly CancellationTokenSource _tokenSource = new();
-    
+    private readonly TimeSpan _window;
+    private int _requestsInWindow;
+    private DateTime _windowStart;
+    private readonly int _maxRequestsPerWindow;
+    private readonly object _lock = new();
+
     public AsyncRateLimiter(TimeSpan window, int maxRequestsPerWindow)
     {
-        Window = window;
-        MaxRequestsPerWindow = maxRequestsPerWindow;
-        _semaphore = new(maxRequestsPerWindow);
+        _window = window;
+        _maxRequestsPerWindow = maxRequestsPerWindow;
+        _semaphore = new SemaphoreSlim(1, 1);
+        _windowStart = DateTime.UtcNow;
     }
 
-    public TimeSpan Window { get; }
-    public int MaxRequestsPerWindow { get; }
-    
+    public TimeSpan Window => _window;
+    public int MaxRequestsPerWindow => _maxRequestsPerWindow;
+
+    // ⚡ Быстрый путь - без ожидания
+    public bool TryGetNext()
+    {
+        lock (_lock)
+        {
+            var now = DateTime.UtcNow;
+
+            // Сброс окна
+            if (now - _windowStart >= _window)
+            {
+                _windowStart = now;
+                _requestsInWindow = 0;
+            }
+
+            // Проверяем лимит
+            if (_requestsInWindow < _maxRequestsPerWindow)
+            {
+                _requestsInWindow++;
+                return true;
+            }
+
+            return false;
+        }
+    }
+
     public async ValueTask WaitNextAsync(CancellationToken cancellationToken = default)
     {
+        // Используем семафор для всей логики
+        await _semaphore.WaitAsync(cancellationToken);
         try
         {
-            if (TryGetNext())
-                return;
+            while (true)
+            {
+                var now = DateTime.UtcNow;
+                lock (_lock)
+                {
+                    // Правильный сброс окна
+                    if (now - _windowStart >= _window)
+                    {
+                        var excess = now - (_windowStart + _window);
+                        _windowStart = excess > TimeSpan.Zero
+                            ? now
+                            : _windowStart + _window;
+                        _requestsInWindow = 0;
+                    }
 
-            var source = cancellationToken != default
-                ? CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _tokenSource.Token)
-                : null;
+                    if (_requestsInWindow < _maxRequestsPerWindow)
+                    {
+                        _requestsInWindow++;
+                        return;
+                    }
+                }
 
-            await _semaphore.WaitAsync(source?.Token ?? cancellationToken);
-
-            source?.Dispose();
+                // Рассчитываем точное время ожидания
+                var waitTime = _windowStart + _window - now;
+                await Task.Delay(waitTime > TimeSpan.Zero ? waitTime : TimeSpan.FromMilliseconds(1), cancellationToken);
+            }
         }
         finally
         {
-            await ReleaseAsync();
+            _semaphore.Release();
         }
     }
 
-    private async Task ReleaseAsync()
-    {
-        await Task.Delay(Window, _tokenSource.Token).ConfigureAwait(false);
-        _semaphore.Release();
-    }
-
-    public ValueTask WaitNextAsync(int timeout) => WaitNextAsync(TimeSpan.FromMilliseconds(timeout));
+    public ValueTask WaitNextAsync(int timeout) =>
+        WaitNextAsync(TimeSpan.FromMilliseconds(timeout));
 
     public async ValueTask WaitNextAsync(TimeSpan timeout)
     {
-        using var source = new CancellationTokenSource(timeout);
-        await WaitNextAsync(source.Token);
+        using var cts = new CancellationTokenSource(timeout);
+        await WaitNextAsync(cts.Token);
     }
 
-    public bool TryGetNext()
-    {
-        if (_semaphore.CurrentCount == 0) return false;
-        
-        _semaphore.Wait();
-        return true;
-    }
-
-    public void Dispose()
-    {
-        _tokenSource.Cancel();
-        _tokenSource.Dispose();
-        _semaphore.Dispose();
-    }
+    public void Dispose() => _semaphore.Dispose();
 }
