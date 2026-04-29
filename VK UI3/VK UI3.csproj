@@ -7,6 +7,7 @@
         <TargetFramework>net8.0-windows10.0.22000.0</TargetFramework>
         <TargetPlatformMinVersion>10.0.22000.0</TargetPlatformMinVersion>
         <WindowsSdkPackageVersion>10.0.22000.38</WindowsSdkPackageVersion>
+        <Creator>MaKrotos, Werhes<Creator>
 
 
         <CsWinRTEnabled>false</CsWinRTEnabled>
