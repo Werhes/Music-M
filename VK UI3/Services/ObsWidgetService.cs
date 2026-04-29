@@ -1,5 +1,4 @@
 using System;
-using System.IO;
 using System.Net;
 using System.Text;
 using System.Text.Json;
@@ -7,51 +6,56 @@ using System.Threading.Tasks;
 
 namespace VK_UI3.Services
 {
-    public class TrackInfo
-    {
-        public string Title { get; set; }
-        public string Artist { get; set; }
-        public string CoverUrl { get; set; }
-        public bool IsPlaying { get; set; }
-        public double Duration { get; set; }
-        public double CurrentTime { get; set; }
-    }
-
     public class ObsWidgetService : IObsWidgetService
     {
         private HttpListener _listener;
         private bool _isRunning;
-        private TrackInfo _currentTrack;
+
+        // Текущая информация о треке
+        private string _title = "";
+        private string _artist = "";
+        private string _coverUrl = "";
+        private bool _isPlaying = false;
+        private double _duration = 0;
+        private double _currentTime = 0;
 
         public void Start(int port = 8080)
         {
             if (_isRunning) return;
 
-            _listener = new HttpListener();
-            _listener.Prefixes.Add($"http://localhost:{port}/");
-            _listener.Start();
-            _isRunning = true;
+            try
+            {
+                _listener = new HttpListener();
+                _listener.Prefixes.Add($"http://localhost:{port}/");
+                _listener.Prefixes.Add($"http://127.0.0.1:{port}/");
+                _listener.Start();
+                _isRunning = true;
 
-            Task.Run(ListenAsync);
+                Task.Run(ListenAsync);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Ошибка запуска OBS Widget Server: {ex.Message}");
+            }
         }
 
         public void Stop()
         {
+            if (!_isRunning) return;
+
             _isRunning = false;
             _listener?.Stop();
+            _listener?.Close();
         }
 
         public void UpdateTrackInfo(string title, string artist, string coverUrl, bool isPlaying, double duration, double currentTime)
         {
-            _currentTrack = new TrackInfo
-            {
-                Title = title,
-                Artist = artist,
-                CoverUrl = coverUrl,
-                IsPlaying = isPlaying,
-                Duration = duration,
-                CurrentTime = currentTime
-            };
+            _title = title;
+            _artist = artist;
+            _coverUrl = coverUrl ?? "";
+            _isPlaying = isPlaying;
+            _duration = duration;
+            _currentTime = currentTime;
         }
 
         private async Task ListenAsync()
@@ -61,118 +65,136 @@ namespace VK_UI3.Services
                 try
                 {
                     var context = await _listener.GetContextAsync();
-                    ProcessRequest(context);
+                    _ = ProcessRequestAsync(context);
                 }
                 catch (HttpListenerException)
                 {
-                    // Игнорируем ошибку при остановке листенера
+                    // Игнорируем исключения при штатной остановке listener'а
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"OBS Widget Server Error: {ex.Message}");
                 }
             }
         }
 
-        private void ProcessRequest(HttpListenerContext context)
+        private async Task ProcessRequestAsync(HttpListenerContext context)
         {
-            var request = context.Request;
-            var response = context.Response;
-
             try
             {
-                if (request.Url.AbsolutePath.Equals("/api/current", StringComparison.OrdinalIgnoreCase))
+                var request = context.Request;
+                var response = context.Response;
+
+                response.AppendHeader("Access-Control-Allow-Origin", "*");
+
+                string responseString = "";
+                string contentType = "text/html; charset=utf-8";
+
+                if (request.Url.AbsolutePath.Equals("/api/track", StringComparison.OrdinalIgnoreCase))
                 {
-                    response.ContentType = "application/json; charset=utf-8";
-                    var json = JsonSerializer.Serialize(_currentTrack ?? new TrackInfo());
-                    var buffer = Encoding.UTF8.GetBytes(json);
-                    
-                    response.ContentLength64 = buffer.Length;
-                    response.OutputStream.Write(buffer, 0, buffer.Length);
+                    contentType = "application/json";
+                    var trackData = new
+                    {
+                        title = _title,
+                        artist = _artist,
+                        coverUrl = _coverUrl,
+                        isPlaying = _isPlaying,
+                        duration = _duration,
+                        currentTime = _currentTime
+                    };
+                    responseString = JsonSerializer.Serialize(trackData);
                 }
                 else
                 {
-                    // Отдаем HTML-страницу виджета
-                    response.ContentType = "text/html; charset=utf-8";
-                    var buffer = Encoding.UTF8.GetBytes(WidgetHtml);
-                    
-                    response.ContentLength64 = buffer.Length;
-                    response.OutputStream.Write(buffer, 0, buffer.Length);
+                    responseString = GetWidgetHtml();
                 }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"[OBS Widget] Error processing request: {ex.Message}");
-            }
-            finally
-            {
+
+                byte[] buffer = Encoding.UTF8.GetBytes(responseString);
+                response.ContentType = contentType;
+                response.ContentLength64 = buffer.Length;
+
+                await response.OutputStream.WriteAsync(buffer, 0, buffer.Length);
                 response.OutputStream.Close();
+            }
+            catch (Exception)
+            {
+                // Игнорируем ошибки записи (например, если клиент преждевременно закрыл соединение)
             }
         }
 
         public void Dispose()
         {
             Stop();
-            _listener?.Close();
+            GC.SuppressFinalize(this);
         }
 
-        private const string WidgetHtml = @"<!DOCTYPE html>
+        private string GetWidgetHtml()
+        {
+            return @"<!DOCTYPE html>
 <html lang='ru'>
 <head>
-    <meta charset='utf-8'>
+    <meta charset='UTF-8'>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: white; overflow: hidden; margin: 0; padding: 10px; box-sizing: border-box; }
-        .widget { display: flex; align-items: center; background: rgba(30, 30, 30, 0.85); padding: 10px; border-radius: 12px; width: 350px; opacity: 0; transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out; transform: translateY(20px); box-shadow: 0 4px 15px rgba(0,0,0,0.5); backdrop-filter: blur(10px); }
-        .widget.visible { opacity: 1; transform: translateY(0); }
-        .cover { width: 56px; height: 56px; border-radius: 8px; margin-right: 12px; object-fit: cover; background: #333; }
-        .info { display: flex; flex-direction: column; overflow: hidden; white-space: nowrap; flex: 1; }
-        .title { font-size: 16px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px; text-shadow: 1px 1px 2px rgba(0,0,0,0.8); }
-        .artist { font-size: 13px; color: #b3b3b3; overflow: hidden; text-overflow: ellipsis; text-shadow: 1px 1px 2px rgba(0,0,0,0.8); }
-        .progress-container { background-color: #444; border-radius: 2px; height: 4px; margin-top: 8px; overflow: hidden; }
-        .progress-bar { background-color: #1DB954; height: 100%; width: 0%; border-radius: 2px; transition: width 0.2s linear; }
+        body { margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; overflow: hidden; background: transparent; color: #fff; }
+        .widget { display: flex; align-items: center; background: rgba(30, 30, 30, 0.85); border-radius: 12px; padding: 12px; width: 350px; box-sizing: border-box; transition: opacity 0.5s ease, transform 0.5s ease; opacity: 1; transform: translateY(0); box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+        .hidden { opacity: 0; transform: translateY(20px); }
+        .cover { width: 64px; height: 64px; border-radius: 8px; object-fit: cover; background: #333; margin-right: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
+        .info { display: flex; flex-direction: column; justify-content: center; overflow: hidden; width: 100%; }
+        .title { font-size: 16px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px; }
+        .artist { font-size: 14px; color: #b3b3b3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .progress-bar { margin-top: 10px; height: 4px; background: rgba(255,255,255,0.2); border-radius: 2px; position: relative; overflow: hidden; }
+        .progress { height: 100%; background: #2787F5; border-radius: 2px; width: 0%; transition: width 1s linear; }
     </style>
 </head>
 <body>
-    <div class='widget' id='widget'>
-        <img id='cover' class='cover' src='' />
+    <div class='widget hidden' id='widget'>
+        <img id='cover' class='cover' src='' alt='' />
         <div class='info'>
-            <div class='title' id='title'>Ожидание...</div>
-            <div class='artist' id='artist'></div>
-            <div class='progress-container'>
-                <div id='progress-bar' class='progress-bar'></div>
+            <div id='title' class='title'>Загрузка...</div>
+            <div id='artist' class='artist'></div>
+            <div class='progress-bar'>
+                <div id='progress' class='progress'></div>
             </div>
         </div>
     </div>
     <script>
-        let currentTitle = '';
         async function update() {
             try {
-                let res = await fetch('/api/current');
-                let data = await res.json();
-                let widget = document.getElementById('widget');
-                
-                if (data && data.Title && data.IsPlaying) {
-                    if (currentTitle !== data.Title) {
-                        document.getElementById('title').innerText = data.Title;
-                        document.getElementById('artist').innerText = data.Artist;
-                        document.getElementById('cover').src = data.CoverUrl || '';
-                        currentTitle = data.Title;
-                    }
+                const res = await fetch('/api/track');
+                if (res.ok) {
+                    const data = await res.json();
+                    const widget = document.getElementById('widget');
                     
-                    const progressBar = document.getElementById('progress-bar');
-                    if (data.Duration > 0) {
-                        const progressPercent = (data.CurrentTime / data.Duration) * 100;
-                        progressBar.style.width = `${progressPercent}%`;
+                    if (data.isPlaying && data.title) {
+                        widget.classList.remove('hidden');
                     } else {
-                        progressBar.style.width = '0%';
+                        widget.classList.add('hidden');
                     }
-                    widget.classList.add('visible');
-                } else {
-                    widget.classList.remove('visible');
-                    document.getElementById('progress-bar').style.width = '0%';
-                    currentTitle = '';
+
+                    document.getElementById('title').innerText = data.title || 'Неизвестно';
+                    document.getElementById('artist').innerText = data.artist || 'Неизвестно';
+                    
+                    const coverEl = document.getElementById('cover');
+                    if (data.coverUrl && data.coverUrl !== coverEl.src) {
+                        coverEl.src = data.coverUrl;
+                    } else if (!data.coverUrl) {
+                        coverEl.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+                    }
+
+                    const progress = document.getElementById('progress');
+                    if (data.duration > 0) {
+                        progress.style.width = ((data.currentTime / data.duration) * 100) + '%';
+                    } else {
+                        progress.style.width = '0%';
+                    }
                 }
-            } catch(e) { console.error('Error fetching track:', e); }
+            } catch(e) { console.error(e); }
         }
         setInterval(update, 1000);
+        update();
     </script>
 </body>
 </html>";
+        }
     }
 }
