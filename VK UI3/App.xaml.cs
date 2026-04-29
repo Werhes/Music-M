@@ -71,7 +71,7 @@ namespace VK_UI3
             services.AddSingleton<GeniusService>();
 
             services.AddTransient<VkBridgeService>();
-
+            //для виджета в obs studio
             services.AddSingleton<IObsWidgetService, ObsWidgetService>();
 
             FFMediaToolkit.FFmpegLoader.FFmpegPath = new CheckFFmpeg().GetFFmpegDirectory() + "\\";
