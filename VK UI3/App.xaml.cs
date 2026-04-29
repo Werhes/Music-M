@@ -72,6 +72,8 @@ namespace VK_UI3
 
             services.AddTransient<VkBridgeService>();
 
+            services.AddSingleton<IObsWidgetService, ObsWidgetService>();
+
             FFMediaToolkit.FFmpegLoader.FFmpegPath = new CheckFFmpeg().GetFFmpegDirectory() + "\\";
 
             services.AddSingleton<ICustomSectionsService, CustomSectionsService>();
