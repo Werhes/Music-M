@@ -1,0 +1,508 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Page
+    x:Class="VK_UI3.Views.Messenger.MessengerView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="using:VK_UI3.Views.Messenger"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+    mc:Ignorable="d"
+    AutomationProperties.Name="Страница мессенджера"
+    AutomationProperties.HelpText="Управление переписками и сообщениями ВКонтакте">
+
+    <Page.Resources>
+        <local:UnreadCountToVisibilityConverter x:Key="UnreadCountToVisibilityConverter" />
+    </Page.Resources>
+
+    <Grid AutomationProperties.Name="Основная сетка мессенджера">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- Верхняя панель с поиском -->
+        <Grid
+            Grid.Row="0"
+            Padding="16,12"
+            Background="{ThemeResource SystemControlBackgroundChromeMediumBrush}"
+            BorderBrush="{ThemeResource SystemControlForegroundBaseLowBrush}"
+            BorderThickness="0,0,0,1"
+            AutomationProperties.Name="Панель поиска диалогов">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <TextBlock
+                Grid.Column="0"
+                VerticalAlignment="Center"
+                FontSize="22"
+                FontWeight="SemiBold"
+                Text="Мессенджер"
+                AutomationProperties.Name="Заголовок мессенджера" />
+
+            <TextBox
+                Grid.Column="1"
+                x:Name="SearchBox"
+                Margin="16,0,0,0"
+                VerticalAlignment="Center"
+                PlaceholderText="Поиск диалогов..."
+                TextChanged="SearchBox_TextChanged"
+                AutomationProperties.Name="Поле поиска диалогов" />
+
+            <Button
+                Grid.Column="2"
+                Margin="8,0,0,0"
+                VerticalAlignment="Center"
+                Click="NewMessageButton_Click"
+                Style="{StaticResource AccentButtonStyle}"
+                AutomationProperties.Name="Новое сообщение">
+                <StackPanel Orientation="Horizontal">
+                    <FontIcon Glyph="&#xE710;" FontSize="14" />
+                    <TextBlock Margin="6,0,0,0" Text="Новый диалог" FontSize="14" />
+                </StackPanel>
+            </Button>
+        </Grid>
+
+        <!-- Основная область: список диалогов + переписка -->
+        <Grid Grid.Row="1" AutomationProperties.Name="Область диалогов и переписки">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="360" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <!-- Список диалогов -->
+            <Grid Grid.Column="0" AutomationProperties.Name="Список диалогов">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <ListView
+                    x:Name="DialogsList"
+                    SelectionMode="Single"
+                    SelectionChanged="DialogsList_SelectionChanged"
+                    AutomationProperties.Name="Список диалогов">
+                    <ListView.ItemContainerStyle>
+                        <Style TargetType="ListViewItem">
+                            <Setter Property="Padding" Value="0" />
+                            <Setter Property="Margin" Value="0" />
+                            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                            <Setter Property="MinHeight" Value="72" />
+                        </Style>
+                    </ListView.ItemContainerStyle>
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <Grid
+                                Padding="12,8"
+                                AutomationProperties.Name="Элемент диалога">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="52" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+
+                                <!-- Аватар -->
+                                <Border
+                                    Grid.Column="0"
+                                    Width="52"
+                                    Height="52"
+                                    CornerRadius="26"
+                                    Background="{ThemeResource SystemControlBackgroundBaseLowBrush}"
+                                    AutomationProperties.Name="Аватар собеседника">
+                                    <Image
+                                        Width="52"
+                                        Height="52"
+                                        Source="{Binding PhotoUrl}"
+                                        Stretch="UniformToFill"
+                                        AutomationProperties.Name="Фото собеседника" />
+                                </Border>
+
+                                <!-- Информация о диалоге -->
+                                <StackPanel
+                                    Grid.Column="1"
+                                    Margin="12,0,0,0"
+                                    VerticalAlignment="Center">
+                                    <TextBlock
+                                        FontWeight="SemiBold"
+                                        FontSize="15"
+                                        Text="{Binding Title}"
+                                        TextTrimming="CharacterEllipsis"
+                                        AutomationProperties.Name="Имя собеседника" />
+                                    <TextBlock
+                                        Margin="0,4,0,0"
+                                        FontSize="13"
+                                        Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
+                                        Text="{Binding LastMessage}"
+                                        TextTrimming="CharacterEllipsis"
+                                        MaxLines="2"
+                                        AutomationProperties.Name="Последнее сообщение" />
+                                </StackPanel>
+
+                                <!-- Счётчик непрочитанных -->
+                                <Border
+                                    Grid.Column="2"
+                                    MinWidth="20"
+                                    Height="20"
+                                    Margin="8,0,0,0"
+                                    VerticalAlignment="Center"
+                                    CornerRadius="10"
+                                    Background="{ThemeResource SystemAccentColor}">
+                                    <TextBlock
+                                        Margin="4,0"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        FontSize="11"
+                                        FontWeight="Bold"
+                                        Foreground="White"
+                                        Text="{Binding UnreadCount}"
+                                        Visibility="{Binding UnreadCount, Converter={StaticResource UnreadCountToVisibilityConverter}}"
+                                        AutomationProperties.Name="Непрочитанные сообщения" />
+                                </Border>
+                            </Grid>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </Grid>
+
+            <!-- Разделитель -->
+            <Rectangle
+                Grid.Column="1"
+                Width="1"
+                VerticalAlignment="Stretch"
+                Fill="{ThemeResource SystemControlForegroundBaseLowBrush}"
+                AutomationProperties.Name="Разделитель панелей" />
+
+            <!-- Область переписки -->
+            <Grid Grid.Column="2" AutomationProperties.Name="Область переписки">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <!-- Шапка диалога -->
+                <Grid
+                    Grid.Row="0"
+                    Padding="16,10"
+                    Background="{ThemeResource SystemControlBackgroundChromeMediumBrush}"
+                    BorderBrush="{ThemeResource SystemControlForegroundBaseLowBrush}"
+                    BorderThickness="0,0,0,1"
+                    AutomationProperties.Name="Шапка диалога">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <Border
+                        Grid.Row="0"
+                        Grid.Column="0"
+                        Width="44"
+                        Height="44"
+                        CornerRadius="22"
+                        Background="{ThemeResource SystemControlBackgroundBaseLowBrush}"
+                        AutomationProperties.Name="Аватар в шапке">
+                        <Image
+                            Width="44"
+                            Height="44"
+                            Source="{Binding SelectedDialogPhotoUrl}"
+                            Stretch="UniformToFill"
+                            AutomationProperties.Name="Фото в шапке" />
+                    </Border>
+
+                    <StackPanel
+                        Grid.Row="0"
+                        Grid.Column="1"
+                        Margin="12,0,0,0"
+                        VerticalAlignment="Center">
+                        <TextBlock
+                            FontWeight="SemiBold"
+                            FontSize="16"
+                            Text="{Binding SelectedDialogTitle}"
+                            AutomationProperties.Name="Имя в шапке" />
+                        <TextBlock
+                            x:Name="OnlineStatus"
+                            Margin="0,2,0,0"
+                            FontSize="12"
+                            Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
+                            Text=""
+                            AutomationProperties.Name="Статус онлайн" />
+                    </StackPanel>
+
+                    <!-- Закреплённое сообщение -->
+                    <Border
+                        Grid.Row="1"
+                        Grid.Column="0"
+                        Grid.ColumnSpan="2"
+                        Margin="0,6,0,0"
+                        Padding="10,6"
+                        Background="{ThemeResource SystemControlBackgroundListLowBrush}"
+                        CornerRadius="8"
+                        Visibility="{Binding PinnedMessageVisibility}"
+                        AutomationProperties.Name="Закреплённое сообщение">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <FontIcon
+                                Grid.Column="0"
+                                Glyph="&#xE718;"
+                                FontSize="12"
+                                Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}" />
+                            <StackPanel Grid.Column="1" Margin="6,0,0,0">
+                                <TextBlock
+                                    FontSize="11"
+                                    FontWeight="SemiBold"
+                                    Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
+                                    Text="Закреплено"
+                                    AutomationProperties.Name="Метка закреплено" />
+                                <TextBlock
+                                    FontSize="12"
+                                    Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
+                                    Text="{Binding PinnedMessageText}"
+                                    TextTrimming="CharacterEllipsis"
+                                    MaxLines="1"
+                                    AutomationProperties.Name="Текст закреплённого сообщения" />
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                </Grid>
+
+                <!-- Список сообщений -->
+                <ScrollViewer
+                    Grid.Row="1"
+                    x:Name="MessagesScrollViewer"
+                    VerticalScrollBarVisibility="Auto"
+                    VerticalScrollMode="Auto"
+                    AutomationProperties.Name="Область сообщений">
+                    <ListView
+                        x:Name="MessagesList"
+                        Padding="16,8"
+                        SelectionMode="None"
+                        AutomationProperties.Name="Список сообщений">
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="ListViewItem">
+                                <Setter Property="Padding" Value="0" />
+                                <Setter Property="Margin" Value="0" />
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                            </Style>
+                        </ListView.ItemContainerStyle>
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Margin="0,6" AutomationProperties.Name="Сообщение">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <!-- Аватар отправителя (только для входящих) -->
+                                    <Border
+                                        Grid.Column="0"
+                                        Width="36"
+                                        Height="36"
+                                        Margin="0,0,10,0"
+                                        VerticalAlignment="Bottom"
+                                        CornerRadius="18"
+                                        Background="{ThemeResource SystemControlBackgroundBaseLowBrush}"
+                                        Visibility="{Binding SenderAvatarVisibility}"
+                                        AutomationProperties.Name="Аватар отправителя">
+                                        <Image
+                                            Width="36"
+                                            Height="36"
+                                            Source="{Binding SenderPhotoUrl}"
+                                            Stretch="UniformToFill"
+                                            AutomationProperties.Name="Фото отправителя" />
+                                    </Border>
+
+                                    <Border
+                                        Grid.Column="1"
+                                        MaxWidth="520"
+                                        Padding="12,8"
+                                        HorizontalAlignment="{Binding Alignment}"
+                                        CornerRadius="12"
+                                        Background="{Binding BubbleBrush}"
+                                        AutomationProperties.Name="Пузырёк сообщения">
+                                        <StackPanel>
+                                            <!-- Текст сообщения -->
+                                            <TextBlock
+                                                Text="{Binding Text}"
+                                                TextWrapping="Wrap"
+                                                FontSize="14"
+                                                Visibility="{Binding TextVisibility}"
+                                                AutomationProperties.Name="Текст" />
+
+                                            <!-- Вложения: фото -->
+                                            <ItemsControl
+                                                Margin="0,6,0,0"
+                                                ItemsSource="{Binding PhotoAttachments}"
+                                                Visibility="{Binding PhotoAttachmentsVisibility}">
+                                                <ItemsControl.ItemsPanel>
+                                                    <ItemsPanelTemplate>
+                                                        <StackPanel Orientation="Horizontal" />
+                                                    </ItemsPanelTemplate>
+                                                </ItemsControl.ItemsPanel>
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <Border
+                                                            Width="140"
+                                                            Height="140"
+                                                            Margin="0,0,6,0"
+                                                            CornerRadius="8"
+                                                            AutomationProperties.Name="Фото вложение">
+                                                            <Image
+                                                                Source="{Binding}"
+                                                                Stretch="UniformToFill"
+                                                                AutomationProperties.Name="Изображение" />
+                                                        </Border>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+
+                                            <!-- Вложения: видео -->
+                                            <ItemsControl
+                                                Margin="0,6,0,0"
+                                                ItemsSource="{Binding VideoAttachments}"
+                                                Visibility="{Binding VideoAttachmentsVisibility}">
+                                                <ItemsControl.ItemsPanel>
+                                                    <ItemsPanelTemplate>
+                                                        <StackPanel Orientation="Horizontal" />
+                                                    </ItemsPanelTemplate>
+                                                </ItemsControl.ItemsPanel>
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <Border
+                                                            Width="180"
+                                                            Height="100"
+                                                            Margin="0,0,6,0"
+                                                            CornerRadius="8"
+                                                            AutomationProperties.Name="Видео вложение">
+                                                            <Grid>
+                                                                <Image
+                                                                    Source="{Binding}"
+                                                                    Stretch="UniformToFill"
+                                                                    AutomationProperties.Name="Превью видео" />
+                                                                <Border
+                                                                    HorizontalAlignment="Center"
+                                                                    VerticalAlignment="Center"
+                                                                    Width="36"
+                                                                    Height="36"
+                                                                    CornerRadius="18"
+                                                                    Background="#80000000">
+                                                                    <FontIcon
+                                                                        HorizontalAlignment="Center"
+                                                                        VerticalAlignment="Center"
+                                                                        FontSize="18"
+                                                                        Foreground="White"
+                                                                        Glyph="&#xE768;" />
+                                                                </Border>
+                                                            </Grid>
+                                                        </Border>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+
+                                            <!-- Пересланные сообщения -->
+                                            <ItemsControl
+                                                Margin="0,6,0,0"
+                                                ItemsSource="{Binding ForwardedMessages}"
+                                                Visibility="{Binding ForwardedMessagesVisibility}">
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <Border
+                                                            Margin="0,3,0,0"
+                                                            Padding="10,6"
+                                                            Background="{ThemeResource SystemControlBackgroundListLowBrush}"
+                                                            CornerRadius="8"
+                                                            AutomationProperties.Name="Пересланное сообщение">
+                                                            <StackPanel>
+                                                                <TextBlock
+                                                                    FontWeight="SemiBold"
+                                                                    FontSize="12"
+                                                                    Foreground="{ThemeResource SystemAccentColor}"
+                                                                    Text="{Binding ForwardedFrom}"
+                                                                    AutomationProperties.Name="Отправитель" />
+                                                                <TextBlock
+                                                                    Margin="0,2,0,0"
+                                                                    FontSize="12"
+                                                                    Text="{Binding ForwardedText}"
+                                                                    TextTrimming="CharacterEllipsis"
+                                                                    AutomationProperties.Name="Текст пересланного" />
+                                                            </StackPanel>
+                                                        </Border>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+
+                                            <!-- Время -->
+                                            <TextBlock
+                                                Margin="0,4,0,0"
+                                                HorizontalAlignment="Right"
+                                                FontSize="11"
+                                                Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
+                                                Text="{Binding Time}"
+                                                AutomationProperties.Name="Время" />
+                                        </StackPanel>
+                                    </Border>
+                                </Grid>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </ScrollViewer>
+
+                <!-- Панель ввода сообщения -->
+                <Grid
+                    Grid.Row="2"
+                    Padding="16,10"
+                    Background="{ThemeResource SystemControlBackgroundChromeMediumBrush}"
+                    BorderBrush="{ThemeResource SystemControlForegroundBaseLowBrush}"
+                    BorderThickness="0,1,0,0"
+                    AutomationProperties.Name="Панель ввода">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <TextBox
+                        Grid.Column="0"
+                        x:Name="MessageInput"
+                        PlaceholderText="Введите сообщение..."
+                        TextWrapping="Wrap"
+                        AcceptsReturn="False"
+                        KeyDown="MessageInput_KeyDown"
+                        AutomationProperties.Name="Поле ввода сообщения" />
+
+                    <Button
+                        Grid.Column="1"
+                        Margin="10,0,0,0"
+                        VerticalAlignment="Stretch"
+                        Click="SendButton_Click"
+                        Style="{StaticResource AccentButtonStyle}"
+                        AutomationProperties.Name="Отправить сообщение">
+                        <StackPanel Orientation="Horizontal">
+                            <FontIcon Glyph="&#xE725;" FontSize="14" />
+                            <TextBlock Margin="6,0,0,0" Text="Отправить" FontSize="14" />
+                        </StackPanel>
+                    </Button>
+                </Grid>
+            </Grid>
+        </Grid>
+
+        <!-- Индикатор загрузки -->
+        <ProgressRing
+            Grid.Row="1"
+            x:Name="LoadingIndicator"
+            Width="50"
+            Height="50"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"
+            IsActive="False"
+            AutomationProperties.Name="Индикатор загрузки" />
+    </Grid>
+</Page>

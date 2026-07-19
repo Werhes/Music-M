@@ -11,6 +11,7 @@ using System.IO;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using VK_UI3.Services;
 
 namespace VK_UI3.Helpers.Animations
 {
@@ -33,6 +34,9 @@ namespace VK_UI3.Helpers.Animations
 
         static AnimationsChangeImage()
         {
+            // Загружаем настройки из CacheSettingsManager
+            _maxConcurrentDownloads = CacheSettingsManager.GetMaxConcurrentDownloads();
+            _enableQueue = CacheSettingsManager.IsDownloadQueueEnabled();
             _downloadSemaphore = new SemaphoreSlim(_maxConcurrentDownloads, _maxConcurrentDownloads);
         }
 

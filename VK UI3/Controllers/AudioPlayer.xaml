@@ -136,7 +136,7 @@
 				<ColumnDefinition Width="75" />
 				<ColumnDefinition Width="150" />
 				<ColumnDefinition Width="*" />
-				<ColumnDefinition Width="225" />
+				<ColumnDefinition Width="Auto" />
 			</Grid.ColumnDefinitions>
 
 
@@ -168,7 +168,7 @@
 						<FontIcon
 							x:Name="repeatBTNIcon"
 							FontSize="14"
-							Glyph="" />
+							Glyph="&#xE931;" />
 					</Button>
 
 
@@ -184,7 +184,7 @@
 						FocusVisualSecondaryThickness="0"
 						Tapped="PreviousBTN_Tapped"
 						AutomationProperties.Name="Предыдущий трек">
-						<FontIcon FontSize="12" Glyph="" />
+						<FontIcon FontSize="12" Glyph="&#xE100;" />
 					</Button>
 
 					<Button
@@ -198,7 +198,7 @@
 						<FontIcon
 							x:Name="PlayBTN"
 							FontSize="14"
-							Glyph="" />
+							Glyph="&#xE102;" />
 					</Button>
 
 					<Button
@@ -210,7 +210,7 @@
 						Background="Transparent"
 						Tapped="NextBTN_Tapped"
 						AutomationProperties.Name="Следующий трек">
-						<FontIcon FontSize="12" Glyph="" />
+						<FontIcon FontSize="12" Glyph="&#xE101;" />
 					</Button>
 
 
@@ -373,6 +373,22 @@
 				</Button>
 
 				<Button
+				    x:Name="FullScreenBtn"
+				    Grid.Column="0"
+				    Width="30"
+				    Height="30"
+				    Margin="8,0,0,0"
+				    Padding="0"
+				    Background="Transparent"
+				    Tapped="FullScreenBtn_Tapped"
+				    AutomationProperties.Name="Полноэкранный режим">
+				    <FontIcon FontSize="12" Glyph="&#xE740;" />
+				    <ToolTipService.ToolTip>
+				        <ToolTip Content="Полноэкранный режим" />
+				    </ToolTipService.ToolTip>
+				</Button>
+
+				<Button
 					Grid.Column="0"
 					Width="30"
 					Height="30"
@@ -399,7 +415,7 @@
 					<FontIcon
 						x:Name="StatusBTNIcon"
 						FontSize="12"
-						Glyph="" />
+						Glyph="&#xE701;" />
 					<ToolTipService.ToolTip>
 						<ToolTip Content="Транслировать в статус ВК" />
 					</ToolTipService.ToolTip>

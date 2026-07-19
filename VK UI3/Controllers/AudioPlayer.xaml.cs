@@ -314,6 +314,12 @@ namespace VK_UI3.Controllers
             PlayNextTrack();
         }
 
+        private void FullScreenBtn_Tapped(object sender, TappedRoutedEventArgs e)
+        {
+            var fullScreenWindow = new VK_UI3.Views.FullScreenWindow();
+            fullScreenWindow.Activate();
+        }
+
         private void goToPlayList_BTN(object sender, TappedRoutedEventArgs e)
         {
             MainView.mainView.TogglePlayNowPanel();

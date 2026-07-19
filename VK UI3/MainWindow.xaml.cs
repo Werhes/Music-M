@@ -163,7 +163,6 @@ namespace VK_UI3
 
 
 
-
         private void SetRegionsForCustomTitleBar()
         {
             // Specify the interactive regions of the title bar.
@@ -297,7 +296,7 @@ namespace VK_UI3
 
 
 
-        
+         
             // Если принудительное закрытие (justClose) – завершаем приложение.
             if (justClose)
             {
