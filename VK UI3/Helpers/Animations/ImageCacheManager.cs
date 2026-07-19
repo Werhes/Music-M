@@ -10,6 +10,7 @@ using System.Drawing.Imaging;
 using System.Security.Cryptography;
 using System.Text;
 using VK_UI3.DB;
+using VK_UI3.Services;
 
 namespace VK_UI3.Helpers.Animations
 {
@@ -18,7 +19,6 @@ namespace VK_UI3.Helpers.Animations
         private readonly string _cacheFolderPath;
         private readonly DispatcherQueue _dispatcherQueue;
         private const int ClearFileThresholdMinutes = 5;
-        private const int DefaultCacheSizeMb = 100;
 
         public ImageCacheManager(string cacheFolderName, DispatcherQueue dispatcherQueue)
         {
@@ -40,6 +40,10 @@ namespace VK_UI3.Helpers.Animations
         public async Task<BitmapImage> GetCachedImageAsync(Uri imageUri, bool setColorTheme = false)
         {
             if (imageUri == null)
+                return null;
+
+            // Проверяем, включено ли кеширование
+            if (!CacheSettingsManager.IsImageCacheEnabled())
                 return null;
 
             // Если путь ведёт к локальному файлу – загружаем его напрямую
@@ -64,6 +68,10 @@ namespace VK_UI3.Helpers.Animations
         public async Task SaveImageToCacheAsync(Uri imageUri, byte[] imageData, bool setColorTheme = false)
         {
             if (imageUri == null || imageData == null || imageData.Length == 0)
+                return;
+
+            // Проверяем, включено ли кеширование
+            if (!CacheSettingsManager.IsImageCacheEnabled())
                 return;
 
             string cacheFilePath = GetCachedFilePath(imageUri);
@@ -188,13 +196,7 @@ namespace VK_UI3.Helpers.Animations
                 if ((DateTime.Now - lastClearTime).TotalMinutes < ClearFileThresholdMinutes)
                     return;
 
-                int cacheSizeMb = DefaultCacheSizeMb;
-                var photoSizeCacheSetting = SettingsTable.GetSetting("photoCacheSize");
-                if (photoSizeCacheSetting != null && int.TryParse(photoSizeCacheSetting.settingValue, out int sizeValue))
-                {
-                    cacheSizeMb = sizeValue;
-                }
-
+                int cacheSizeMb = CacheSettingsManager.GetPhotoCacheSizeMb();
                 long maxCacheSizeBytes = cacheSizeMb * 1024L * 1024L;
                 if (Directory.Exists(_cacheFolderPath))
                 {
@@ -202,7 +204,9 @@ namespace VK_UI3.Helpers.Animations
                     FileInfo[] files = directoryInfo.GetFiles();
                     long currentCacheSize = files.Sum(f => f.Length);
 
-                    if (currentCacheSize > maxCacheSizeBytes)
+                    int maxFiles = CacheSettingsManager.GetImageCacheMaxFiles();
+
+                    if (currentCacheSize > maxCacheSizeBytes || files.Length > maxFiles)
                     {
                         foreach (var file in files.OrderBy(f => f.CreationTime))
                         {
@@ -219,7 +223,7 @@ namespace VK_UI3.Helpers.Animations
                                 // Если не удалось удалить файл – пропускаем
                             }
 
-                            if (currentCacheSize <= maxCacheSizeBytes)
+                            if (currentCacheSize <= maxCacheSizeBytes && new DirectoryInfo(_cacheFolderPath).GetFiles().Length <= maxFiles)
                                 break;
                         }
                     }

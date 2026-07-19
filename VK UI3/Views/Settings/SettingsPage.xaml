@@ -321,6 +321,12 @@
                                 </Grid>
                             </StackPanel>
                         </Border>
+
+                        <!--  Расширенные настройки кеширования  -->
+                        <local:CacheSettingsExpander
+                            Margin="0,8,0,0"
+                            AutomationProperties.HelpText="Расширенные настройки кеширования изображений и данных в памяти"
+                            AutomationProperties.Name="Расширенные настройки кеширования" />
                     </StackPanel>
                 </Expander.Content>
             </Expander>

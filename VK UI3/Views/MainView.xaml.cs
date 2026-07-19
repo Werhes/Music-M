@@ -1008,6 +1008,7 @@ namespace VK_UI3.Views
                     case "вложения":
                         OpenMyPage(SectionType.ConversDialogs);
                         break;
+
                     case "запросить повторно":
                         CreateNavigation();
                         return;

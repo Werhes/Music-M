@@ -20,6 +20,7 @@ using System.Threading.Tasks;
 using VK_UI3.DB;
 using VK_UI3.DownloadTrack;
 using VK_UI3.Helpers;
+using VK_UI3.Services;
 using VK_UI3.VKs.Ext;
 using VkNet.Abstractions;
 using VkNet.AudioBypassService.Abstractions;
@@ -229,6 +230,15 @@ namespace VK_UI3
                 Environment.Exit(1);
             };
             */
+
+            // Применяем настройки кеширования
+            CacheSettingsManager.ApplyAllCacheSettings();
+
+            // Автоочистка кеша изображений при запуске (если включено)
+            if (CacheSettingsManager.IsAutoClearImageCacheOnStart())
+            {
+                CacheSettingsManager.ClearImageCache();
+            }
 
             m_window = new MainWindow();
             m_window.Closed += M_window_Closed;
