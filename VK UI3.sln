@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.9.34407.89
+# Visual Studio Version 18
+VisualStudioVersion = 18.8.11925.187 insiders
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SetupLib", "SetupLib\SetupLib.csproj", "{238AFC25-373E-4F03-85C4-743B673CCEA3}"
 EndProject
@@ -42,6 +42,11 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FFMediaToolkit", "FFMediaToolkit\FFMediaToolkit.csproj", "{96668D2D-936C-29F9-A0C1-3E30AFD7C953}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SetupWinUI", "SetupWinUI\SetupWinUI.csproj", "{D931380E-FBA1-4F27-8C1B-84AB64FD162A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Элементы решения", "Элементы решения", "{47DC4C8C-CD99-4204-B736-F10B4DE34129}"
+	ProjectSection(SolutionItems) = preProject
+		..\Music-M_Addons\Addons\VkMusicTime\VkMusicTime.csproj = ..\Music-M_Addons\Addons\VkMusicTime\VkMusicTime.csproj
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

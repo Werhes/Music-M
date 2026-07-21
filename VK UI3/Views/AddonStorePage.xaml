@@ -7,10 +7,11 @@
     xmlns:local="using:VK_UI3.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
     AutomationProperties.Name="Магазин дополнений"
     AutomationProperties.HelpText="Страница для загрузки и установки дополнений и тем">
 
-    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
@@ -28,8 +29,8 @@
             <TextBlock
                 Grid.Column="0"
                 VerticalAlignment="Center"
+                FontFamily="{StaticResource VKSansBold}"
                 FontSize="24"
-                FontWeight="Bold"
                 Text="Магазин дополнений" />
 
             <Button
@@ -57,19 +58,28 @@
             <NavigationView.MenuItems>
                 <NavigationViewItem
                     x:Name="StoreTab"
-                    Icon="Shop"
                     Content="Магазин"
-                    Tag="store" />
+                    Tag="store">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE8DA;" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
                 <NavigationViewItem
                     x:Name="InstalledAddonsTab"
-                    Icon="Library"
                     Content="Установленные аддоны"
-                    Tag="installedAddons" />
+                    Tag="installedAddons">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE930;" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
                 <NavigationViewItem
                     x:Name="InstalledThemesTab"
-                    Icon="Paint"
                     Content="Установленные темы"
-                    Tag="installedThemes" />
+                    Tag="installedThemes">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE790;" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
             </NavigationView.MenuItems>
         </NavigationView>
 
@@ -143,6 +153,7 @@
                                 <TextBlock
                                     Grid.Row="0"
                                     Grid.Column="1"
+                                    FontFamily="{StaticResource VKSansMedium}"
                                     FontWeight="SemiBold"
                                     FontSize="15"
                                     Text="{Binding Name}"
@@ -156,12 +167,14 @@
                                     Orientation="Vertical"
                                     VerticalAlignment="Top">
                                     <TextBlock
+                                        FontFamily="{StaticResource VKSansRegular}"
                                         FontSize="11"
                                         Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                         Text="{Binding Author}"
                                         TextTrimming="CharacterEllipsis"
                                         MaxLines="1" />
                                     <TextBlock
+                                        FontFamily="{StaticResource VKSansRegular}"
                                         FontSize="11"
                                         Foreground="{ThemeResource TextFillColorTertiaryBrush}"
                                         Text="{Binding Version}"
@@ -169,6 +182,7 @@
                                         MaxLines="1" />
                                     <TextBlock
                                         Margin="0,4,0,0"
+                                        FontFamily="{StaticResource VKSansRegular}"
                                         FontSize="11"
                                         Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                         Text="{Binding Description}"
@@ -190,6 +204,7 @@
                                         MinWidth="90"
                                         Height="28"
                                         Padding="10,0"
+                                        FontFamily="{StaticResource VKSansMedium}"
                                         FontSize="11"
                                         Content="{Binding ButtonText}"
                                         Tag="{Binding}"
@@ -208,6 +223,7 @@
             Grid.Row="2"
             HorizontalAlignment="Center"
             VerticalAlignment="Center"
+            FontFamily="{StaticResource VKSansRegular}"
             FontSize="16"
             Foreground="{ThemeResource TextFillColorSecondaryBrush}"
             Text="Нет доступных элементов."
