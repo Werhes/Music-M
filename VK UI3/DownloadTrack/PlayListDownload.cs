@@ -168,8 +168,9 @@ namespace VK_UI3.DownloadTrack
                         }
                         if (!Directory.Exists(location)) Directory.CreateDirectory(location);
 
-                        // Используем FFmpeg.Autogen для загрузки и конвертации
-                        await FFMediaToolkit.FFmpegLoader.DownloadAndConvertWithFFmpegAutogen(input, outputTemp);
+                        // Используем FFmpeg.Autogen для загрузки и конвертации с настройками из FfmpegSettingsManager
+                        var ffmpegOptions = VK_UI3.Services.FfmpegSettingsManager.GetSettingsDictionary();
+                        await FFMediaToolkit.FFmpegLoader.DownloadAndConvertWithFFmpegAutogenWithOptions(input, outputTemp, ffmpegOptions);
 
                         MakeTags(outputTemp, a);
                         File.Move(outputTemp, output);

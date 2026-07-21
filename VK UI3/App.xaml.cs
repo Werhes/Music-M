@@ -240,6 +240,13 @@ namespace VK_UI3
                 CacheSettingsManager.ClearImageCache();
             }
 
+            // Применяем лимит кеша треков при запуске
+            if (CacheSettingsManager.IsTrackCacheEnabled())
+            {
+                int maxSizeMb = CacheSettingsManager.GetTrackCacheMaxSizeMb();
+                TrackCacheManager.EnforceCacheSizeLimit(maxSizeMb);
+            }
+
             m_window = new MainWindow();
             m_window.Closed += M_window_Closed;
 

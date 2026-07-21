@@ -10,7 +10,7 @@ namespace VK_UI3.Views.Settings
     /// <summary>
     /// Настройка максимального количества одновременных загрузок изображений
     /// </summary>
-    public class MaxConcurrentDownloadsSetting : Slider
+    public sealed class MaxConcurrentDownloadsSetting : Slider
     {
         public MaxConcurrentDownloadsSetting()
         {

@@ -10,7 +10,7 @@ namespace VK_UI3.Views.Settings
     /// <summary>
     /// Настройка времени жизни кеша в памяти (в минутах)
     /// </summary>
-    public class MemoryCacheTimeLiveSetting : Slider
+    public sealed class MemoryCacheTimeLiveSetting : Slider
     {
         public MemoryCacheTimeLiveSetting()
         {

@@ -288,45 +288,204 @@
                         HorizontalAlignment="Stretch"
                         VerticalAlignment="Stretch"
                         Spacing="8">
-                        <Border>
-                            <StackPanel>
+
+                        <!--  Кеш изображений  -->
+                        <Border Padding="12" CornerRadius="4">
+                            <StackPanel Spacing="8">
                                 <TextBlock
-                                    AutomationProperties.HelpText="Отображает размер кеша для хранения фотографий"
-                                    AutomationProperties.Name="Размер кеша фотографий"
-                                    Text="Размер кеша фотографий" />
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="Auto" />
-                                        <ColumnDefinition Width="Auto" />
-                                    </Grid.ColumnDefinitions>
-                                    <local:PhotoCacheSize
-                                        x:Name="photocache"
-                                        Grid.Column="0"
-                                        AutomationProperties.HelpText="Регулирует размер кеша для хранения фотографий в мегабайтах"
-                                        AutomationProperties.Name="Ползунок размера кеша фотографий" />
-                                    <TextBlock
-                                        Grid.Column="1"
-                                        Margin="10,0,0,0"
-                                        VerticalAlignment="Center"
-                                        AutomationProperties.HelpText="Текущее значение размера кеша фотографий в мегабайтах"
-                                        AutomationProperties.Name="Значение размера кеша фотографий"
-                                        Text="{x:Bind photocache.Value, Mode=OneWay}" />
-                                    <TextBlock
-                                        Grid.Column="2"
-                                        VerticalAlignment="Center"
-                                        AutomationProperties.HelpText="Единицы измерения размера кеша фотографий"
-                                        AutomationProperties.Name="Единицы измерения кеша фотографий"
-                                        Text="МБ" />
-                                </Grid>
+                                    FontWeight="SemiBold"
+                                    Text="Кеш изображений" />
+
+                                <local:ImageCacheEnabledSetting />
+
+                                <StackPanel>
+                                    <TextBlock Text="Максимум одновременных загрузок" />
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <local:MaxConcurrentDownloadsSetting
+                                            x:Name="maxDownloads"
+                                            Grid.Column="0" />
+                                        <TextBlock
+                                            x:Name="maxDownloadsValue"
+                                            Grid.Column="1"
+                                            Margin="10,0,0,0"
+                                            VerticalAlignment="Center" />
+                                    </Grid>
+                                </StackPanel>
+
+                                <local:EnableDownloadQueueSetting />
+
+                                <StackPanel>
+                                    <TextBlock Text="Максимум файлов в кеше" />
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <local:ImageCacheMaxFilesSetting
+                                            x:Name="maxFiles"
+                                            Grid.Column="0" />
+                                        <TextBlock
+                                            x:Name="maxFilesValue"
+                                            Grid.Column="1"
+                                            Margin="10,0,0,0"
+                                            VerticalAlignment="Center" />
+                                    </Grid>
+                                </StackPanel>
+
+                                <local:AutoClearImageCacheSetting />
+                                <local:ClearImageCacheButton Margin="0,8,0,0" />
                             </StackPanel>
                         </Border>
 
-                        <!--  Расширенные настройки кеширования  -->
-                        <local:CacheSettingsExpander
-                            Margin="0,8,0,0"
-                            AutomationProperties.HelpText="Расширенные настройки кеширования изображений и данных в памяти"
-                            AutomationProperties.Name="Расширенные настройки кеширования" />
+                        <!--  Кеш треков  -->
+                        <Border Padding="12" CornerRadius="4">
+                            <StackPanel Spacing="8">
+                                <TextBlock
+                                    FontWeight="SemiBold"
+                                    Text="Кеш треков" />
+
+                                <local:TrackCacheEnabledSetting />
+
+                                <StackPanel>
+                                    <TextBlock Text="Максимальный размер кеша" />
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <local:TrackCacheMaxSizeSetting
+                                            x:Name="trackCacheMaxSize"
+                                            Grid.Column="0" />
+                                        <TextBlock
+                                            x:Name="trackCacheMaxSizeValue"
+                                            Grid.Column="1"
+                                            Margin="10,0,0,0"
+                                            VerticalAlignment="Center" />
+                                    </Grid>
+                                </StackPanel>
+
+                                <local:ClearTrackCacheButton Margin="0,8,0,0" />
+                                <local:ShowCachedTracksButton Margin="0,4,0,0" />
+                            </StackPanel>
+                        </Border>
+
+                        <!--  Кеш в памяти  -->
+                        <Border Padding="12" CornerRadius="4">
+                            <StackPanel Spacing="8">
+                                <TextBlock FontWeight="SemiBold" Text="Кеш в памяти" />
+
+                                <local:MemoryCacheEnabledSetting />
+
+                                <StackPanel>
+                                    <TextBlock Text="Время жизни кеша (минут)" />
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <local:MemoryCacheTimeLiveSetting
+                                            x:Name="memoryTimeLive"
+                                            Grid.Column="0" />
+                                        <TextBlock
+                                            x:Name="memoryTimeLiveValue"
+                                            Grid.Column="1"
+                                            Margin="10,0,0,0"
+                                            VerticalAlignment="Center" />
+                                        <TextBlock
+                                            Grid.Column="2"
+                                            VerticalAlignment="Center"
+                                            Text="мин" />
+                                    </Grid>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+
+                        <!--  Размер кеша фотографий  -->
+                        <Border Padding="12" CornerRadius="4">
+                            <StackPanel Spacing="8">
+                                <TextBlock
+                                    FontWeight="SemiBold"
+                                    Text="Кеш фотографий" />
+                                <StackPanel>
+                                    <TextBlock Text="Размер кеша фотографий" />
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <local:PhotoCacheSize
+                                            x:Name="photocache"
+                                            Grid.Column="0"
+                                            AutomationProperties.HelpText="Регулирует размер кеша для хранения фотографий в мегабайтах"
+                                            AutomationProperties.Name="Ползунок размера кеша фотографий" />
+                                        <TextBlock
+                                            Grid.Column="1"
+                                            Margin="10,0,0,0"
+                                            VerticalAlignment="Center"
+                                            AutomationProperties.HelpText="Текущее значение размера кеша фотографий в мегабайтах"
+                                            AutomationProperties.Name="Значение размера кеша фотографий"
+                                            Text="{x:Bind photocache.Value, Mode=OneWay}" />
+                                        <TextBlock
+                                            Grid.Column="2"
+                                            VerticalAlignment="Center"
+                                            AutomationProperties.HelpText="Единицы измерения размера кеша фотографий"
+                                            AutomationProperties.Name="Единицы измерения кеша фотографий"
+                                            Text="МБ" />
+                                    </Grid>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+
+                        <!--  Информация  -->
+                        <Border
+                            Padding="12"
+                            Background="{ThemeResource InfoBarInformationalSeverityBackgroundBrush}"
+                            CornerRadius="4">
+                            <StackPanel Spacing="4">
+                                <TextBlock FontWeight="SemiBold" Text="Информация" />
+                                <TextBlock
+                                    FontSize="12"
+                                    Text="Изменения настроек кеширования изображений вступают в силу сразу. Настройки кеша в памяти применяются при создании новых экземпляров."
+                                    TextWrapping="Wrap" />
+                            </StackPanel>
+                        </Border>
+
+                    </StackPanel>
+                </Expander.Content>
+            </Expander>
+
+            <!--  Магазин дополнений  -->
+            <Expander
+                Margin="0,0,0,8"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Stretch"
+                IsExpanded="False">
+                <Expander.Header>
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <FontIcon
+                            VerticalAlignment="Center"
+                            FontSize="16"
+                            Glyph="&#xE943;" />
+                        <TextBlock
+                            VerticalAlignment="Center"
+                            FontWeight="SemiBold"
+                            Text="Магазин дополнений" />
+                    </StackPanel>
+                </Expander.Header>
+                <Expander.Content>
+                    <StackPanel
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Stretch"
+                        Spacing="8">
+                        <Border>
+                            <local:AddonStoreSettingsExpander AutomationProperties.HelpText="Управление установленными дополнениями и темами" AutomationProperties.Name="Магазин дополнений" />
+                        </Border>
                     </StackPanel>
                 </Expander.Content>
             </Expander>

@@ -4,6 +4,7 @@ using MusicX.Services.Player;
 using MusicX.Services.Player.Sources;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -747,6 +748,9 @@ namespace VK_UI3.Services
                    new DB.SkipPerformerDB().skipIsSet(trackdata.audio.Artist);
         }
 
+        // Храним ссылку на текущий хендлер MediaOpened для кеширования, чтобы отписывать старый
+        private static Windows.Foundation.TypedEventHandler<Windows.Media.Playback.MediaPlayer, object> _currentCacheOnOpenHandler = null;
+
         private static async Task LoadAndPlayTrack(ExtendedAudio trackdata, TimeSpan? position)
         {
             System.Diagnostics.Debug.WriteLine($"[TrackSwitch] LoadAndPlayTrack started for track: {trackdata.audio.Title}");
@@ -757,13 +761,58 @@ namespace VK_UI3.Services
                 oldItem.AudioTracksChanged -= MediaPlaybackItem_AudioTracksChanged;
                 oldItem.TimedMetadataTracksChanged -= MediaPlaybackItem_TimedMetadataTracksChanged;
             }
-            
+
+            // Отписываем старый хендлер кеширования, если он был
+            if (_currentCacheOnOpenHandler != null)
+            {
+                _mediaPlayer.MediaOpened -= _currentCacheOnOpenHandler;
+                _currentCacheOnOpenHandler = null;
+            }
+
             // Создаем новый CancellationToken для этой операции
             var loadCancellationToken = new CancellationTokenSource(TimeSpan.FromSeconds(30));
 
             try
             {
-                var mediaSource = Windows.Media.Core.MediaSource.CreateFromUri(new Uri(trackdata.audio.Url.ToString()));
+                // Проверяем кеш треков
+                bool isCachedTrack = false;
+                long ownerId = (long)trackdata.audio.OwnerId;
+                long audioId = (long)trackdata.audio.Id;
+
+                Windows.Media.Core.MediaSource mediaSource = null;
+                string? cachedPath = null;
+
+                if (CacheSettingsManager.IsTrackCacheEnabled())
+                {
+                    cachedPath = await TrackCacheManager.GetCachedTrackPathAsync(ownerId, audioId);
+                    if (cachedPath != null)
+                    {
+                        // Проверяем, что файл действительно существует (мог быть удалён EnforceCacheSizeLimit)
+                        if (File.Exists(cachedPath))
+                        {
+                            isCachedTrack = true;
+                            System.Diagnostics.Debug.WriteLine($"[TrackCache] Using cached track: {cachedPath}");
+                        }
+                        else
+                        {
+                            System.Diagnostics.Debug.WriteLine($"[TrackCache] Cached file no longer exists: {cachedPath}");
+                        }
+                    }
+                }
+
+                if (isCachedTrack)
+                {
+                    // Используем file:// URI для локальных файлов — это более надёжный способ,
+                    // чем StorageFile, который может требовать дополнительных разрешений
+                    var fileUri = new Uri("file:///" + cachedPath.Replace('\\', '/'));
+                    mediaSource = Windows.Media.Core.MediaSource.CreateFromUri(fileUri);
+                }
+                else
+                {
+                    var trackUri = new Uri(trackdata.audio.Url.ToString());
+                    mediaSource = Windows.Media.Core.MediaSource.CreateFromUri(trackUri);
+                }
+
                 var mediaPlaybackItem = new Windows.Media.Playback.MediaPlaybackItem(mediaSource);
 
                 // Подписываемся на события для корректной очистки
@@ -783,7 +832,13 @@ namespace VK_UI3.Services
                     useFfmpeg = false;
                 }
 
-                if (ffmpegExists && useFfmpeg)
+                // Для кешированных треков используем только базовый путь (FFmpeg может не работать с локальными файлами)
+                if (isCachedTrack)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[TrackSwitch] Cached track, using basic media item path");
+                    LoadBasicMediaItem(trackdata, mediaPlaybackItem);
+                }
+                else if (ffmpegExists && useFfmpeg)
                 {
                     System.Diagnostics.Debug.WriteLine($"[TrackSwitch] Using FFmpeg path");
                     await LoadWithMediaSources(trackdata);
@@ -810,6 +865,30 @@ namespace VK_UI3.Services
                 _mediaPlayer.Play();
 
                 System.Diagnostics.Debug.WriteLine($"[TrackSwitch] LoadAndPlayTrack completed for track: {trackdata.audio.Title}");
+
+                // Если кеш включён и трек не был в кеше — сохраняем в фоне сразу после начала проигрывания
+                if (CacheSettingsManager.IsTrackCacheEnabled() && !isCachedTrack)
+                {
+                    var url = trackdata.audio.Url;
+                    var capturedOwnerId = ownerId;
+                    var capturedAudioId = audioId;
+
+                    System.Diagnostics.Debug.WriteLine($"[TrackCache] Scheduling background cache for track {capturedOwnerId}_{capturedAudioId}");
+
+                    // Подписываемся на MediaOpened — когда трек начал играть, начинаем кеширование в фоне
+                    Windows.Foundation.TypedEventHandler<Windows.Media.Playback.MediaPlayer, object> onOpenedHandler = null;
+                    onOpenedHandler = async (s, e) =>
+                    {
+                        _mediaPlayer.MediaOpened -= onOpenedHandler;
+                        if (_currentCacheOnOpenHandler == onOpenedHandler)
+                            _currentCacheOnOpenHandler = null;
+
+                        System.Diagnostics.Debug.WriteLine($"[TrackCache] Track started playing, saving to cache in background: {capturedOwnerId}_{capturedAudioId}");
+                        TrackCacheManager.CacheTrackInBackground(url, capturedOwnerId, capturedAudioId);
+                    };
+                    _currentCacheOnOpenHandler = onOpenedHandler;
+                    _mediaPlayer.MediaOpened += onOpenedHandler;
+                }
 
                 // Начинаем предзагрузку следующего трека
                 //_ = PreloadNextTrack();
@@ -934,9 +1013,10 @@ namespace VK_UI3.Services
             }
 
             mediaPlaybackItem.ApplyDisplayProperties(props);
-            _mediaPlayer.PlaybackSession.Position = TimeSpan.FromMilliseconds(1);
-            // Note: MainWindow.mainWindow.requstDownloadFFMpegAsync(); will need to be handled elsewhere
+
+            // Сначала устанавливаем Source, потом Position (иначе PlaybackSession может быть недоступен)
             _mediaPlayer.Source = mediaPlaybackItem;
+            _mediaPlayer.PlaybackSession.Position = TimeSpan.FromMilliseconds(1);
 
             System.Diagnostics.Debug.WriteLine($"[MemoryLeakDebug] LoadBasicMediaItem completed for track: {trackdata.audio.Title}");
         }

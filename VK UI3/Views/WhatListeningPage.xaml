@@ -12,6 +12,8 @@
     <Grid>
         <ScrollViewer VerticalScrollBarVisibility="Auto">
             <StackPanel Padding="20" Spacing="10">
+
+                <!--  Динамический список с сервера  -->
                 <ListView x:Name="ListeningList" SelectionMode="None">
                     <ListView.ItemContainerStyle>
                         <Style TargetType="ListViewItem">

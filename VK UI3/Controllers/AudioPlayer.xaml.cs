@@ -314,12 +314,6 @@ namespace VK_UI3.Controllers
             PlayNextTrack();
         }
 
-        private void FullScreenBtn_Tapped(object sender, TappedRoutedEventArgs e)
-        {
-            var fullScreenWindow = new VK_UI3.Views.FullScreenWindow();
-            fullScreenWindow.Activate();
-        }
-
         private void goToPlayList_BTN(object sender, TappedRoutedEventArgs e)
         {
             MainView.mainView.TogglePlayNowPanel();
@@ -339,6 +333,12 @@ namespace VK_UI3.Controllers
         {
             if (VK_UI3.Services.MediaPlayerService.PlayingTrack == null) return;
             FlyOutControl.ShowAt(sender as Button);
+        }
+
+        private void OpenFullScreen_Tapped(object sender, TappedRoutedEventArgs e)
+        {
+            var fullScreenWindow = new Views.FullScreenWindow();
+            fullScreenWindow.Activate();
         }
 
         private void Grid_Tapped(object sender, TappedRoutedEventArgs e)

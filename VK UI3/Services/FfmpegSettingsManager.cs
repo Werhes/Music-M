@@ -22,12 +22,9 @@ namespace VK_UI3.Services
             ["stimeout"] = "10000000",
             ["timeout"] = "10000000",
             ["rw_timeout"] = "10000000",
-            ["avioflags"] = "direct",
             ["multiple_requests"] = "1",
             ["buffer_size"] = "1024000",
             ["max_delay"] = "500000",
-            ["fflags"] = "+nobuffer+fastseek",
-            ["http_proxy"] = "",
             ["user_agent"] = "MusicM Player"
         };
 
@@ -266,7 +263,6 @@ namespace VK_UI3.Services
                     // Проверяем формат типа "4xx,5xx"
                     return !string.IsNullOrWhiteSpace(value) && value.Length <= 50;
 
-                case "fflags":
                 case "user_agent":
                     return !string.IsNullOrWhiteSpace(value) && value.Length <= 500;
 

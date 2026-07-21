@@ -10,7 +10,7 @@ namespace VK_UI3.Views.Settings
     /// <summary>
     /// Настройка максимального количества файлов в кеше изображений
     /// </summary>
-    public class ImageCacheMaxFilesSetting : Slider
+    public sealed class ImageCacheMaxFilesSetting : Slider
     {
         public ImageCacheMaxFilesSetting()
         {

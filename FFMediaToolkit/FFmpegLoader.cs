@@ -3,6 +3,7 @@
     using FFMediaToolkit.Interop;
     using FFmpeg.AutoGen;
     using System;
+    using System.Collections.Generic;
     using System.IO;
     using System.Runtime.InteropServices;
     using System.Threading.Tasks;
@@ -179,6 +180,11 @@
 
         public static unsafe Task DownloadAndConvertWithFFmpegAutogen(string inputUrl, string outputPath)
         {
+            return DownloadAndConvertWithFFmpegAutogenWithOptions(inputUrl, outputPath, null);
+        }
+
+        public static unsafe Task DownloadAndConvertWithFFmpegAutogenWithOptions(string inputUrl, string outputPath, IReadOnlyDictionary<string, string>? options)
+        {
             return Task.Run(() =>
             {
                 // Регистрируем все кодеки и форматы
@@ -186,24 +192,40 @@
 
                 AVFormatContext* pFormatContext = null;
                 AVFormatContext* pOutputFormatContext = null;
-                AVDictionary* options = null;
-                ffmpeg.av_dict_set(&options, "http_persistent", "0", 0);
-                ffmpeg.av_dict_set(&options, "reconnect_streamed", "1", 0);
-                ffmpeg.av_dict_set(&options, "reconnect_at_eof", "1", 0);
-                ffmpeg.av_dict_set(&options, "reconnect_delay_max", "5", 0);
-                ffmpeg.av_dict_set(&options, "rw_timeout", "20000000", 0);
-                ffmpeg.av_dict_set(&options, "buffer_size", "16777216", 0);
-                ffmpeg.av_dict_set(&options, "user_agent", "Mozilla/5.0 ...", 0);
+                AVDictionary* avOptions = null;
+
+                // Применяем переданные опции
+                if (options != null)
+                {
+                    foreach (var kvp in options)
+                    {
+                        if (!string.IsNullOrEmpty(kvp.Key) && !string.IsNullOrEmpty(kvp.Value))
+                        {
+                            ffmpeg.av_dict_set(&avOptions, kvp.Key, kvp.Value, 0);
+                        }
+                    }
+                }
+                else
+                {
+                    // Значения по умолчанию, если опции не переданы
+                    ffmpeg.av_dict_set(&avOptions, "http_persistent", "0", 0);
+                    ffmpeg.av_dict_set(&avOptions, "reconnect_streamed", "1", 0);
+                    ffmpeg.av_dict_set(&avOptions, "reconnect_at_eof", "1", 0);
+                    ffmpeg.av_dict_set(&avOptions, "reconnect_delay_max", "5", 0);
+                    ffmpeg.av_dict_set(&avOptions, "rw_timeout", "20000000", 0);
+                    ffmpeg.av_dict_set(&avOptions, "buffer_size", "16777216", 0);
+                    ffmpeg.av_dict_set(&avOptions, "user_agent", "MusicM Player", 0);
+                }
 
                 try
                 {
                     // Открываем входной поток
-                    if (ffmpeg.avformat_open_input(&pFormatContext, inputUrl, null, &options) != 0)
+                    if (ffmpeg.avformat_open_input(&pFormatContext, inputUrl, null, &avOptions) != 0)
                     {
-                        ffmpeg.av_dict_free(&options);
+                        ffmpeg.av_dict_free(&avOptions);
                         throw new Exception("Could not open input file.");
                     }
-                    ffmpeg.av_dict_free(&options);
+                    ffmpeg.av_dict_free(&avOptions);
 
                     // Получаем информацию о потоке
                     if (ffmpeg.avformat_find_stream_info(pFormatContext, null) < 0)

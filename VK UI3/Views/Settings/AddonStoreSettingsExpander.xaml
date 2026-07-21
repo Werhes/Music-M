@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Expander
+    x:Class="VK_UI3.Views.Settings.AddonStoreSettingsExpander"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="using:VK_UI3.Views.Settings"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    HorizontalContentAlignment="Stretch"
+    AutomationProperties.Name="Магазин дополнений"
+    AutomationProperties.HelpText="Управление установленными дополнениями и темами">
+
+    <Expander.Header>
+        <StackPanel Orientation="Horizontal" Spacing="8">
+            <FontIcon
+                VerticalAlignment="Center"
+                FontSize="16"
+                Glyph="&#xE943;" />
+            <TextBlock
+                VerticalAlignment="Center"
+                FontWeight="SemiBold"
+                Text="Магазин дополнений" />
+        </StackPanel>
+    </Expander.Header>
+
+    <Expander.Content>
+        <StackPanel
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Stretch"
+            Spacing="8">
+
+            <!-- Кнопка открытия магазина -->
+            <Border>
+                <Button
+                    x:Name="OpenStoreButton"
+                    HorizontalAlignment="Stretch"
+                    HorizontalContentAlignment="Left"
+                    Click="OnOpenStoreClick"
+                    AutomationProperties.Name="Открыть магазин дополнений"
+                    AutomationProperties.HelpText="Открывает страницу магазина дополнений">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <FontIcon Glyph="&#xE943;" />
+                        <TextBlock VerticalAlignment="Center" Text="Открыть магазин дополнений" />
+                    </StackPanel>
+                </Button>
+            </Border>
+
+            <!-- Установленные аддоны -->
+            <Border>
+                <StackPanel Spacing="4">
+                    <TextBlock
+                        FontWeight="SemiBold"
+                        Text="Установленные аддоны" />
+                    <ItemsControl x:Name="InstalledAddonsList">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Margin="0,2">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8">
+                                        <TextBlock
+                                            VerticalAlignment="Center"
+                                            FontWeight="SemiBold"
+                                            Text="{Binding Name}" />
+                                        <TextBlock
+                                            VerticalAlignment="Center"
+                                            FontSize="11"
+                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                            Text="{Binding Version}" />
+                                    </StackPanel>
+                                    <Button
+                                        Grid.Column="1"
+                                        Height="24"
+                                        FontSize="11"
+                                        Content="Удалить"
+                                        AutomationProperties.Name="Удалить аддон" />
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <TextBlock
+                        x:Name="NoAddonsMessage"
+                        FontSize="12"
+                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                        Text="Нет установленных аддонов"
+                        Visibility="Visible" />
+                </StackPanel>
+            </Border>
+
+            <!-- Установленные темы -->
+            <Border>
+                <StackPanel Spacing="4">
+                    <TextBlock
+                        FontWeight="SemiBold"
+                        Text="Установленные темы" />
+                    <ItemsControl x:Name="InstalledThemesList">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Margin="0,2">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8">
+                                        <TextBlock
+                                            VerticalAlignment="Center"
+                                            FontWeight="SemiBold"
+                                            Text="{Binding Name}" />
+                                        <TextBlock
+                                            VerticalAlignment="Center"
+                                            FontSize="11"
+                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                            Text="{Binding Version}" />
+                                    </StackPanel>
+                                    <Button
+                                        Grid.Column="1"
+                                        Height="24"
+                                        Margin="4,0"
+                                        FontSize="11"
+                                        Content="Применить"
+                                        AutomationProperties.Name="Применить тему" />
+                                    <Button
+                                        Grid.Column="2"
+                                        Height="24"
+                                        FontSize="11"
+                                        Content="Удалить"
+                                        AutomationProperties.Name="Удалить тему" />
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <TextBlock
+                        x:Name="NoThemesMessage"
+                        FontSize="12"
+                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                        Text="Нет установленных тем"
+                        Visibility="Visible" />
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+    </Expander.Content>
+</Expander>
