@@ -1008,7 +1008,6 @@ namespace VK_UI3.Views
                     case "вложения":
                         OpenMyPage(SectionType.ConversDialogs);
                         break;
-
                     case "запросить повторно":
                         CreateNavigation();
                         return;
@@ -1017,6 +1016,11 @@ namespace VK_UI3.Views
 
                     case "что слушают":
                         frame.Navigate(typeof(WhatListeningPage), _whatListeningData, new DrillInNavigationTransitionInfo());
+                        break;
+
+                    case "магазин дополнений":
+                        mainView.hideSearch();
+                        frame.Navigate(typeof(AddonStorePage), null, new DrillInNavigationTransitionInfo());
                         break;
 
                     default:

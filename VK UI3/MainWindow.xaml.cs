@@ -163,6 +163,7 @@ namespace VK_UI3
 
 
 
+
         private void SetRegionsForCustomTitleBar()
         {
             // Specify the interactive regions of the title bar.
@@ -296,7 +297,7 @@ namespace VK_UI3
 
 
 
-         
+        
             // Если принудительное закрытие (justClose) – завершаем приложение.
             if (justClose)
             {
@@ -449,6 +450,25 @@ namespace VK_UI3
 
             // Проверка версии и запуск приветственного конфетти при обновлении
             CheckVersionAndFireConfetti();
+
+            // Инициализация менеджеров дополнений и тем
+            InitializeAddonSystems();
+        }
+
+        private void InitializeAddonSystems()
+        {
+            try
+            {
+                var addonManager = new AddonManager();
+                var themeManager = new ThemeManager();
+                _ = addonManager.LoadAllAddonsAsync();
+                themeManager.ApplySavedTheme();
+                System.Diagnostics.Debug.WriteLine("[AddonStore] Менеджеры дополнений и тем инициализированы");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[AddonStore] Ошибка инициализации дополнений: {ex.Message}");
+            }
         }
 
         private void CheckVersionAndFireConfetti()

@@ -1,5 +1,6 @@
 using FFmpeg.AutoGen;
 using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
@@ -9,6 +10,11 @@ namespace FFMediaToolkit
     {
         public static unsafe Task DownloadAndConvertWithFFmpegAutogen(string inputUrl, string outputPath)
         {
+            return DownloadAndConvertWithFFmpegAutogenWithOptions(inputUrl, outputPath, null);
+        }
+
+        public static unsafe Task DownloadAndConvertWithFFmpegAutogenWithOptions(string inputUrl, string outputPath, IReadOnlyDictionary<string, string>? options)
+        {
             return Task.Run(() =>
             {
                 // Регистрируем все кодеки и форматы
@@ -16,14 +22,40 @@ namespace FFMediaToolkit
 
                 AVFormatContext* pFormatContext = null;
                 AVFormatContext* pOutputFormatContext = null;
+                AVDictionary* avOptions = null;
+
+                // Применяем переданные опции
+                if (options != null)
+                {
+                    foreach (var kvp in options)
+                    {
+                        if (!string.IsNullOrEmpty(kvp.Key) && !string.IsNullOrEmpty(kvp.Value))
+                        {
+                            ffmpeg.av_dict_set(&avOptions, kvp.Key, kvp.Value, 0);
+                        }
+                    }
+                }
+                else
+                {
+                    // Значения по умолчанию, если опции не переданы
+                    ffmpeg.av_dict_set(&avOptions, "http_persistent", "0", 0);
+                    ffmpeg.av_dict_set(&avOptions, "reconnect_streamed", "1", 0);
+                    ffmpeg.av_dict_set(&avOptions, "reconnect_at_eof", "1", 0);
+                    ffmpeg.av_dict_set(&avOptions, "reconnect_delay_max", "5", 0);
+                    ffmpeg.av_dict_set(&avOptions, "rw_timeout", "20000000", 0);
+                    ffmpeg.av_dict_set(&avOptions, "buffer_size", "16777216", 0);
+                    ffmpeg.av_dict_set(&avOptions, "user_agent", "MusicM Player", 0);
+                }
 
                 try
                 {
                     // Открываем входной поток
-                    if (ffmpeg.avformat_open_input(&pFormatContext, inputUrl, null, null) != 0)
+                    if (ffmpeg.avformat_open_input(&pFormatContext, inputUrl, null, &avOptions) != 0)
                     {
+                        ffmpeg.av_dict_free(&avOptions);
                         throw new Exception("Could not open input file.");
                     }
+                    ffmpeg.av_dict_free(&avOptions);
 
                     // Получаем информацию о потоке
                     if (ffmpeg.avformat_find_stream_info(pFormatContext, null) < 0)
@@ -151,19 +183,49 @@ namespace FFMediaToolkit
 
         public static unsafe Task DownloadAndConvertWithFFmpegAutogen(string inputUrl, string outputPath, IProgress<(long done, long total)> progress)
         {
+            return DownloadAndConvertWithFFmpegAutogen(inputUrl, outputPath, null, progress);
+        }
+
+        public static unsafe Task DownloadAndConvertWithFFmpegAutogen(string inputUrl, string outputPath, IReadOnlyDictionary<string, string>? options, IProgress<(long done, long total)>? progress = null)
+        {
             return Task.Run(() =>
             {
                 ffmpeg.avformat_network_init();
 
                 AVFormatContext* pFormatContext = null;
                 AVFormatContext* pOutputFormatContext = null;
+                AVDictionary* avOptions = null;
+
+                // Применяем переданные опции
+                if (options != null)
+                {
+                    foreach (var kvp in options)
+                    {
+                        if (!string.IsNullOrEmpty(kvp.Key) && !string.IsNullOrEmpty(kvp.Value))
+                        {
+                            ffmpeg.av_dict_set(&avOptions, kvp.Key, kvp.Value, 0);
+                        }
+                    }
+                }
+                else
+                {
+                    ffmpeg.av_dict_set(&avOptions, "http_persistent", "0", 0);
+                    ffmpeg.av_dict_set(&avOptions, "reconnect_streamed", "1", 0);
+                    ffmpeg.av_dict_set(&avOptions, "reconnect_at_eof", "1", 0);
+                    ffmpeg.av_dict_set(&avOptions, "reconnect_delay_max", "5", 0);
+                    ffmpeg.av_dict_set(&avOptions, "rw_timeout", "20000000", 0);
+                    ffmpeg.av_dict_set(&avOptions, "buffer_size", "16777216", 0);
+                    ffmpeg.av_dict_set(&avOptions, "user_agent", "MusicM Player", 0);
+                }
 
                 try
                 {
-                    if (ffmpeg.avformat_open_input(&pFormatContext, inputUrl, null, null) != 0)
+                    if (ffmpeg.avformat_open_input(&pFormatContext, inputUrl, null, &avOptions) != 0)
                     {
+                        ffmpeg.av_dict_free(&avOptions);
                         throw new Exception("Could not open input file.");
                     }
+                    ffmpeg.av_dict_free(&avOptions);
 
                     if (ffmpeg.avformat_find_stream_info(pFormatContext, null) < 0)
                     {
@@ -290,4 +352,4 @@ namespace FFMediaToolkit
             });
         }
     }
-} 
+}

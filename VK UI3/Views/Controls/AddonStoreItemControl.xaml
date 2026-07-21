@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<UserControl
+    x:Class="VK_UI3.Views.Controls.AddonStoreItemControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    AutomationProperties.Name="Элемент магазина дополнений">
+
+    <Border
+        x:Name="CardBorder"
+        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+        CornerRadius="8"
+        Padding="12"
+        MinWidth="260"
+        MinHeight="120">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <!-- Иконка -->
+            <Border
+                Grid.RowSpan="4"
+                Grid.Column="0"
+                Width="64"
+                Height="64"
+                Margin="0,0,12,0"
+                CornerRadius="8"
+                VerticalAlignment="Top"
+                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
+                <Image
+                    x:Name="ItemIcon"
+                    Width="64"
+                    Height="64"
+                    Stretch="UniformToFill"
+                    AutomationProperties.Name="Иконка дополнения" />
+            </Border>
+
+            <!-- Название -->
+            <TextBlock
+                x:Name="ItemName"
+                Grid.Row="0"
+                Grid.Column="1"
+                FontWeight="SemiBold"
+                FontSize="15"
+                TextTrimming="CharacterEllipsis"
+                MaxLines="1"
+                AutomationProperties.Name="Название" />
+
+            <!-- Автор и версия -->
+            <StackPanel
+                Grid.Row="1"
+                Grid.Column="1"
+                Orientation="Horizontal"
+                Spacing="8">
+                <TextBlock
+                    x:Name="ItemAuthor"
+                    FontSize="12"
+                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                    TextTrimming="CharacterEllipsis"
+                    MaxLines="1"
+                    AutomationProperties.Name="Автор" />
+                <TextBlock
+                    x:Name="ItemVersion"
+                    FontSize="12"
+                    Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+                    AutomationProperties.Name="Версия" />
+            </StackPanel>
+
+            <!-- Описание -->
+            <TextBlock
+                x:Name="ItemDescription"
+                Grid.Row="2"
+                Grid.Column="1"
+                FontSize="12"
+                TextTrimming="CharacterEllipsis"
+                MaxLines="2"
+                TextWrapping="Wrap"
+                AutomationProperties.Name="Описание" />
+
+            <!-- Кнопка действия -->
+            <Button
+                x:Name="ActionButton"
+                Grid.Row="3"
+                Grid.Column="1"
+                MinWidth="100"
+                Height="28"
+                Margin="0,6,0,0"
+                HorizontalAlignment="Left"
+                FontSize="12"
+                Click="OnActionButtonClick"
+                AutomationProperties.Name="Кнопка действия" />
+        </Grid>
+    </Border>
+</UserControl>

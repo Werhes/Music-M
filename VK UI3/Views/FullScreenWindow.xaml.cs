@@ -3,6 +3,8 @@ using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
+using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Xaml.Media.Animation;
 using Microsoft.UI.Xaml.Media.Imaging;
 using System;
 using System.Collections.Generic;
@@ -82,12 +84,14 @@ namespace VK_UI3.Views
             // Подписываемся на события
             VK_UI3.Services.MediaPlayerService.AudioPlayedChangeEvent += OnTrackChanged;
             VK_UI3.Services.MediaPlayerService.PositionChanged += OnPositionChanged;
+            VK_UI3.Services.MediaPlayerService.MediaPlayer.CurrentStateChanged += OnPlaybackStateChanged;
 
             // KeyDown для Escape
             this.Content.KeyDown += OnWindowKeyDown;
 
             // Загружаем данные
             SetData();
+            UpdatePlayPauseIcon();
         }
 
         #endregion
@@ -145,9 +149,117 @@ namespace VK_UI3.Views
             MediaPlayer.PlaybackSession.Position = TimeSpan.FromSeconds(e.NewValue);
         }
 
+        private void PrevButton_Click(object sender, RoutedEventArgs e)
+        {
+            VK_UI3.Services.MediaPlayerService.HandlePreviousTrack();
+        }
+
+        private void PlayPauseButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (MediaPlayer == null) return;
+
+            switch (MediaPlayer.CurrentState)
+            {
+                case MediaPlayerState.Playing:
+                    MediaPlayer.Pause();
+                    break;
+                case MediaPlayerState.Paused:
+                    MediaPlayer.Play();
+                    break;
+            }
+        }
+
+        private void NextButton_Click(object sender, RoutedEventArgs e)
+        {
+            VK_UI3.Services.MediaPlayerService.PlayNextTrack();
+        }
+
+        private void OnPlaybackStateChanged(Windows.Media.Playback.MediaPlayer sender, object args)
+        {
+            this.DispatcherQueue.TryEnqueue(() => UpdatePlayPauseIcon());
+        }
+
+        private void UpdatePlayPauseIcon()
+        {
+            if (MediaPlayer == null) return;
+
+            if (MediaPlayer.CurrentState == MediaPlayerState.Playing)
+            {
+                PlayPauseIcon.Glyph = "\uE769"; // Pause icon
+            }
+            else
+            {
+                PlayPauseIcon.Glyph = "\uE768"; // Play icon
+            }
+        }
+
         #endregion
 
         #region Data Methods
+
+        /// <summary>
+        /// Плавно меняет обложку с fade-анимацией: сначала fade-out (250ms),
+        /// затем меняет источник изображения, затем fade-in (500ms).
+        /// </summary>
+        private void AnimateCoverImage(string imageUrl)
+        {
+            // Если обложки нет — показываем иконку ноты
+            if (string.IsNullOrEmpty(imageUrl))
+            {
+                CoverImage.Source = null;
+                CoverNote.Visibility = Visibility.Visible;
+                return;
+            }
+
+            var storyboard = new Storyboard();
+
+            // Fade-out: 0.25 сек
+            var fadeOut = new DoubleAnimation
+            {
+                From = 1.0,
+                To = 0.0,
+                Duration = TimeSpan.FromMilliseconds(250),
+                EnableDependentAnimation = true
+            };
+            Storyboard.SetTarget(fadeOut, CoverImage);
+            Storyboard.SetTargetProperty(fadeOut, "Opacity");
+
+            // По окончании fade-out меняем изображение и делаем fade-in
+            EventHandler<object> onFadeOutCompleted = null;
+            onFadeOutCompleted = (s, e) =>
+            {
+                storyboard.Completed -= onFadeOutCompleted;
+                storyboard.Children.Clear();
+
+                try
+                {
+                    CoverImage.Source = new BitmapImage(new Uri(imageUrl));
+                    CoverNote.Visibility = Visibility.Collapsed;
+                }
+                catch
+                {
+                    CoverImage.Source = null;
+                    CoverNote.Visibility = Visibility.Visible;
+                }
+
+                // Fade-in: 0.5 сек
+                var fadeIn = new DoubleAnimation
+                {
+                    From = 0.0,
+                    To = 1.0,
+                    Duration = TimeSpan.FromMilliseconds(500),
+                    EnableDependentAnimation = true
+                };
+                Storyboard.SetTarget(fadeIn, CoverImage);
+                Storyboard.SetTargetProperty(fadeIn, "Opacity");
+                storyboard.Children.Add(fadeIn);
+                storyboard.Begin();
+            };
+
+            storyboard.Completed += onFadeOutCompleted;
+            storyboard.Children.Add(fadeOut);
+            storyboard.Begin();
+        }
 
         private void SetData()
         {
@@ -162,18 +274,9 @@ namespace VK_UI3.Views
 
                 PositionSlider.Maximum = track.audio.Duration;
 
+                // Плавная смена обложки
                 var thumb = Thumbnail;
-                if (thumb != null)
-                {
-                    var bitmapImage = new BitmapImage(new Uri(thumb));
-                    CoverImage.Source = bitmapImage;
-                    CoverNote.Visibility = Visibility.Collapsed;
-                }
-                else
-                {
-                    CoverImage.Source = null;
-                    CoverNote.Visibility = Visibility.Visible;
-                }
+                AnimateCoverImage(thumb);
 
                 // Next track info
                 SetNextTrackData();
@@ -346,6 +449,7 @@ namespace VK_UI3.Views
             // Отписываемся от событий
             VK_UI3.Services.MediaPlayerService.AudioPlayedChangeEvent -= OnTrackChanged;
             VK_UI3.Services.MediaPlayerService.PositionChanged -= OnPositionChanged;
+            VK_UI3.Services.MediaPlayerService.MediaPlayer.CurrentStateChanged -= OnPlaybackStateChanged;
 
             if (_timer != null)
             {

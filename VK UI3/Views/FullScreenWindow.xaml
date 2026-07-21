@@ -58,89 +58,142 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
 
-            <!-- Обложка -->
-            <Grid>
-                <Border
-                    Width="500"
-                    Height="500"
-                    Background="#B3000000"
-                    CornerRadius="10"
-                    AutomationProperties.Name="Тень обложки">
-                    <Border.RenderTransform>
-                        <TranslateTransform />
-                    </Border.RenderTransform>
-                </Border>
-                <Border
-                    Width="500"
-                    Height="500"
-                    CornerRadius="10"
-                    AutomationProperties.Name="Обложка альбома">
-                    <Image
-                        x:Name="CoverImage"
-                        Stretch="UniformToFill"
-                        AutomationProperties.Name="Обложка" />
-                </Border>
-                <FontIcon
-                    x:Name="CoverNote"
-                    FontSize="460"
-                    Glyph="&#xEC4F;"
-                    Visibility="Collapsed"
-                    AutomationProperties.Name="Иконка ноты" />
-            </Grid>
+            <!-- Левая колонка: обложка + название/исполнитель под ней -->
+            <StackPanel VerticalAlignment="Center" Spacing="16">
+                <!-- Обложка -->
+                <Grid>
+                    <Border
+                        Width="500"
+                        Height="500"
+                        Background="#B3000000"
+                        CornerRadius="10"
+                        AutomationProperties.Name="Тень обложки">
+                        <Border.RenderTransform>
+                            <TranslateTransform />
+                        </Border.RenderTransform>
+                    </Border>
+                    <Border
+                        Width="500"
+                        Height="500"
+                        CornerRadius="10"
+                        AutomationProperties.Name="Обложка альбома">
+                        <Image
+                            x:Name="CoverImage"
+                            Opacity="0.0"
+                            Stretch="UniformToFill"
+                            AutomationProperties.Name="Обложка" />
+                    </Border>
+                    <FontIcon
+                        x:Name="CoverNote"
+                        FontSize="460"
+                        Glyph="&#xEC4F;"
+                        Visibility="Collapsed"
+                        AutomationProperties.Name="Иконка ноты" />
+                </Grid>
 
-            <!-- Информация о треке и прогресс -->
-            <StackPanel Grid.Column="1" Margin="30,0,0,0" VerticalAlignment="Center">
-                <!-- Название трека -->
+                <!-- Название трека под обложкой -->
                 <ScrollViewer
-                    HorizontalAlignment="Left"
+                    HorizontalAlignment="Center"
                     HorizontalScrollBarVisibility="Hidden"
                     VerticalScrollBarVisibility="Hidden"
-                    MaxWidth="1000"
+                    MaxWidth="500"
                     AutomationProperties.Name="Название трека">
                     <TextBlock
                         x:Name="TrackName"
-                        FontSize="60"
+                        FontSize="36"
                         FontWeight="SemiBold"
                         Text="Название трека"
+                        TextAlignment="Center"
                         TextTrimming="None"
                         TextWrapping="NoWrap"
                         AutomationProperties.Name="Название трека" />
                 </ScrollViewer>
 
-                <!-- Исполнитель -->
+                <!-- Исполнитель под названием -->
                 <ScrollViewer
-                    HorizontalAlignment="Left"
+                    HorizontalAlignment="Center"
                     HorizontalScrollBarVisibility="Hidden"
                     VerticalScrollBarVisibility="Hidden"
-                    MaxWidth="1000"
+                    MaxWidth="500"
                     AutomationProperties.Name="Исполнитель">
                     <TextBlock
                         x:Name="ArtistName"
-                        FontSize="40"
+                        FontSize="28"
                         Opacity="0.6"
                         Text="Имя исполнителя"
+                        TextAlignment="Center"
                         TextTrimming="None"
                         TextWrapping="NoWrap"
                         AutomationProperties.Name="Исполнитель" />
                 </ScrollViewer>
 
-                <!-- Прогресс-бар -->
+                <!-- Слайдер прогресса -->
                 <Slider
                     x:Name="PositionSlider"
-                    Width="400"
-                    Margin="0,20,0,0"
-                    HorizontalAlignment="Left"
+                    Margin="0,0,0,0"
+                    HorizontalAlignment="Stretch"
                     Minimum="0"
                     StepFrequency="0.1"
                     ValueChanged="PositionSlider_ValueChanged"
                     AutomationProperties.Name="Прогресс воспроизведения" />
+
+                <!-- Кнопки управления воспроизведением -->
+                <StackPanel
+                    HorizontalAlignment="Center"
+                    Orientation="Horizontal"
+                    Spacing="12">
+                    <!-- Предыдущий трек -->
+                    <Button
+                        x:Name="PrevButton"
+                        Width="50"
+                        Height="50"
+                        Padding="0"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        Click="PrevButton_Click"
+                        AutomationProperties.Name="Предыдущий трек">
+                        <FontIcon
+                            FontSize="24"
+                            Glyph="&#xE892;" />
+                    </Button>
+
+                    <!-- Play/Pause -->
+                    <Button
+                        x:Name="PlayPauseButton"
+                        Width="60"
+                        Height="60"
+                        Padding="0"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        Click="PlayPauseButton_Click"
+                        AutomationProperties.Name="Воспроизвести / Пауза">
+                        <FontIcon
+                            x:Name="PlayPauseIcon"
+                            FontSize="32"
+                            Glyph="&#xE768;" />
+                    </Button>
+
+                    <!-- Следующий трек -->
+                    <Button
+                        x:Name="NextButton"
+                        Width="50"
+                        Height="50"
+                        Padding="0"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        Click="NextButton_Click"
+                        AutomationProperties.Name="Следующий трек">
+                        <FontIcon
+                            FontSize="24"
+                            Glyph="&#xE893;" />
+                    </Button>
+                </StackPanel>
             </StackPanel>
 
-            <!-- Тексты песен (справа) -->
-            <Grid Grid.Column="2" Margin="30,0" x:Name="LyricsControlView">
+            <!-- Правая колонка: текст песни -->
+            <Grid Grid.Column="1" Margin="40,0,40,0" x:Name="LyricsControlView">
                 <!-- Заглушка "нет текста" -->
                 <StackPanel
                     x:Name="LyricsPlaceholder"
@@ -172,8 +225,8 @@
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <TextBlock
-                                    Margin="0,4"
-                                    FontSize="18"
+                                    Margin="0,6"
+                                    FontSize="28"
                                     Text="{Binding}"
                                     TextWrapping="Wrap"
                                     AutomationProperties.Name="Строка текста" />
@@ -186,82 +239,101 @@
 
         <!-- Блок "Далее" -->
         <StackPanel
-            Margin="0,0,10,100"
+            Margin="0,0,20,100"
             HorizontalAlignment="Right"
             VerticalAlignment="Bottom"
+            Spacing="10"
             AutomationProperties.Name="Следующий трек">
-            <TextBlock
-                Width="300"
-                Margin="0,0,0,10"
-                HorizontalAlignment="Right"
-                FontSize="18"
-                Opacity="0.6"
-                Text="Далее"
-                AutomationProperties.Name="Далее" />
+            
+            <!-- Заголовок "Далее" с иконкой -->
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="6">
+                <FontIcon
+                    FontSize="16"
+                    Glyph="&#xE840;"
+                    Opacity="0.5"
+                    VerticalAlignment="Center" />
+                <TextBlock
+                    FontSize="16"
+                    FontWeight="SemiBold"
+                    Opacity="0.5"
+                    Text="Далее"
+                    AutomationProperties.Name="Далее" />
+            </StackPanel>
 
-            <Grid
+            <!-- Карточка следующего трека -->
+            <Border
                 x:Name="NextTrackCard"
-                Width="300"
-                Height="80"
-                Padding="10"
-                CornerRadius="8"
+                Padding="14"
+                CornerRadius="12"
+                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                BorderThickness="1"
                 Tapped="NextTrackCard_Tapped"
                 AutomationProperties.Name="Карточка следующего трека">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="*" />
-                </Grid.ColumnDefinitions>
-
-                <!-- Обложка следующего трека -->
+                <Border.Shadow>
+                    <ThemeShadow />
+                </Border.Shadow>
                 <Grid>
-                    <Border
-                        Width="50"
-                        Height="50"
-                        Background="#B3000000"
-                        CornerRadius="5"
-                        AutomationProperties.Name="Тень обложки" />
-                    <Image
-                        x:Name="NextTrackCover"
-                        Width="50"
-                        Height="50"
-                        Stretch="UniformToFill"
-                        AutomationProperties.Name="Обложка следующего трека" />
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Обложка следующего трека -->
+                    <Grid>
+                        <Border
+                            Width="64"
+                            Height="64"
+                            Background="#33000000"
+                            CornerRadius="8"
+                            AutomationProperties.Name="Тень обложки" />
+                        <Border
+                            Width="64"
+                            Height="64"
+                            CornerRadius="8"
+                            AutomationProperties.Name="Обложка следующего трека">
+                            <Image
+                                x:Name="NextTrackCover"
+                                Stretch="UniformToFill"
+                                AutomationProperties.Name="Обложка следующего трека" />
+                        </Border>
+                        <FontIcon
+                            x:Name="NextTrackNote"
+                            FontSize="56"
+                            Glyph="&#xEC4F;"
+                            Visibility="Collapsed"
+                            AutomationProperties.Name="Иконка ноты" />
+                    </Grid>
+
+                    <!-- Информация о следующем треке -->
+                    <StackPanel Grid.Column="1" Margin="12,0,8,0" VerticalAlignment="Center">
+                        <TextBlock
+                            x:Name="NextTrackName"
+                            FontSize="16"
+                            FontWeight="SemiBold"
+                            Text="Имя трека"
+                            TextTrimming="CharacterEllipsis"
+                            AutomationProperties.Name="Название следующего трека" />
+                        <TextBlock
+                            x:Name="NextTrackArtist"
+                            FontSize="14"
+                            Opacity="0.6"
+                            Text="Артист"
+                            TextTrimming="CharacterEllipsis"
+                            AutomationProperties.Name="Исполнитель следующего трека" />
+                    </StackPanel>
+
+                    <!-- Иконка "далее" -->
                     <FontIcon
-                        x:Name="NextTrackNote"
-                        FontSize="46"
-                        Glyph="&#xEC4F;"
-                        Visibility="Collapsed"
-                        AutomationProperties.Name="Иконка ноты" />
+                        Grid.Column="2"
+                        VerticalAlignment="Center"
+                        FontSize="20"
+                        Opacity="0.4"
+                        Glyph="&#xE76C;"
+                        AutomationProperties.Name="Далее" />
                 </Grid>
-
-                <!-- Информация о следующем треке -->
-                <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center">
-                    <TextBlock
-                        x:Name="NextTrackName"
-                        Width="185"
-                        FontSize="18"
-                        Text="Имя трека"
-                        TextTrimming="CharacterEllipsis"
-                        AutomationProperties.Name="Название следующего трека" />
-                    <TextBlock
-                        x:Name="NextTrackArtist"
-                        Width="185"
-                        FontSize="18"
-                        Opacity="0.6"
-                        Text="Артист"
-                        TextTrimming="CharacterEllipsis"
-                        AutomationProperties.Name="Исполнитель следующего трека" />
-                </StackPanel>
-
-                <!-- Иконка "далее" -->
-                <FontIcon
-                    Grid.Column="1"
-                    HorizontalAlignment="Right"
-                    VerticalAlignment="Center"
-                    FontSize="25"
-                    Glyph="&#xE840;"
-                    AutomationProperties.Name="Далее" />
-            </Grid>
+            </Border>
         </StackPanel>
     </Grid>
 </Window>

@@ -135,12 +135,13 @@ public abstract class MediaSourceBase : ITrackMediaSource
             {
                 FlagDiscardCorrupt = false,
                 FlagEnableFastSeek = true,
+                FlagNoBuffer = true,
                 SeekToAny = true,
                 PrivateOptions = new System.Collections.Generic.Dictionary<string, string>()
             }
         };
 
-        // Применяем настройки из базы данных
+        // Применяем настройки из базы данных (только приватные опции демуксера)
         foreach (var setting in settings)
         {
             mediaOptions.DemuxerOptions.PrivateOptions[setting.Key] = setting.Value;
@@ -164,40 +165,6 @@ public abstract class MediaSourceBase : ITrackMediaSource
             }
         }
     }
-
-    [Obsolete("Используйте GetMediaOptions() для получения настроек с учетом пользовательских конфигураций")]
-    protected static readonly MediaOptions MediaOptions = new()
-    {
-        StreamsToLoad = MediaMode.Audio,
-        AudioSampleFormat = SampleFormat.SignedWord,
-        DemuxerOptions =
-        {
-            FlagDiscardCorrupt = false,
-            FlagEnableFastSeek = true,
-            SeekToAny = true,
-            PrivateOptions =
-            {
-                ["http_persistent"] = "false",
-                ["reconnect"] = "1",
-                ["reconnect_streamed"] = "1",
-                ["reconnect_on_network_error"] = "1",
-                ["reconnect_delay_max"] = "5",
-                ["reconnect_on_http_error"] = "4xx,5xx",
-                ["stimeout"] = "10000000",
-                ["timeout"] = "10000000",
-                ["rw_timeout"] = "10000000",
-                ["avioflags"] = "direct",
-                ["multiple_requests"] = "1",
-                ["buffer_size"] = "1024000",
-                ["max_delay"] = "500000",
-                ["fflags"] = "+nobuffer+fastseek",
-                ["http_proxy"] = "",
-                ["user_agent"] = "MusicM Player"
-            }
-
-
-        }
-    };
 
     public abstract Task<bool> OpenWithMediaPlayerAsync(MediaPlayer player, Audio track, CancellationToken cancellationToken = default, AudioEqualizer equalizer = null);
 

@@ -146,7 +146,11 @@ namespace VK_UI3.Models
                 "max_buffer_size" => "Максимальный размер буфера в байтах",
                 "probesize" => "Размер данных для анализа формата в байтах",
                 "analyzeduration" => "Длительность анализа в микросекундах",
-                "fflags" => "Флаги демуксера (например: 'nobuffer+fastseek+flush_packets')",
+                "stimeout" => "Таймаут сокета в микросекундах",
+                "timeout" => "Таймаут операций ввода-вывода в микросекундах",
+                "rw_timeout" => "Таймаут чтения/записи в микросекундах",
+                "max_delay" => "Максимальная задержка между пакетами в микросекундах",
+                "multiple_requests" => "Использовать несколько HTTP запросов (1 - включено, 0 - выключено)",
                 "user_agent" => "User-Agent для HTTP запросов",
                 _ => "Пользовательская настройка FFMPEG"
             };
@@ -154,14 +158,14 @@ namespace VK_UI3.Models
 
         public static string GetDefaultCategory(string key)
         {
-            if (key.StartsWith("reconnect") || key == "http_persistent" || key == "tcp_nodelay" || key == "user_agent")
+            if (key.StartsWith("reconnect") || key == "http_persistent" || key == "tcp_nodelay" || key == "user_agent" || key == "multiple_requests")
                 return "Сеть";
             
-            if (key.Contains("buffer") || key.Contains("size") || key == "probesize" || key == "analyzeduration")
+            if (key.Contains("buffer") || key.Contains("size") || key == "probesize" || key == "analyzeduration" || key == "max_delay")
                 return "Буфер";
             
-            if (key == "fflags")
-                return "Дополнительно";
+            if (key == "stimeout" || key == "timeout" || key == "rw_timeout")
+                return "Таймауты";
             
             return "Общие";
         }
@@ -170,20 +174,24 @@ namespace VK_UI3.Models
         {
             return key switch
             {
-                "http_persistent" => "1",
+                "http_persistent" => "false",
                 "reconnect" => "1",
                 "reconnect_at_eof" => "1",
                 "reconnect_streamed" => "1",
-                "reconnect_delay_max" => "10",
+                "reconnect_delay_max" => "5",
                 "reconnect_on_network_error" => "1",
                 "reconnect_on_http_error" => "4xx,5xx",
                 "tcp_nodelay" => "1",
-                "buffer_size" => "1048576",
+                "buffer_size" => "1024000",
                 "max_buffer_size" => "4194304",
                 "probesize" => "524288",
                 "analyzeduration" => "500000",
-                "fflags" => "nobuffer+fastseek+flush_packets",
-                "user_agent" => "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+                "stimeout" => "10000000",
+                "timeout" => "10000000",
+                "rw_timeout" => "10000000",
+                "max_delay" => "500000",
+                "multiple_requests" => "1",
+                "user_agent" => "MusicM Player",
                 _ => ""
             };
         }
