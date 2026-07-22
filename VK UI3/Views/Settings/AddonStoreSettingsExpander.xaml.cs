@@ -20,8 +20,8 @@ namespace VK_UI3.Views.Settings
         public AddonStoreSettingsExpander()
         {
             this.InitializeComponent();
-            _addonManager = new AddonManager();
-            _themeManager = new ThemeManager();
+            _addonManager = AddonManager.Instance;
+            _themeManager = ThemeManager.Instance;
 
             InstalledAddonsList.ItemsSource = _installedAddons;
             InstalledThemesList.ItemsSource = _installedThemes;
@@ -41,6 +41,8 @@ namespace VK_UI3.Views.Settings
         {
             // Обновляем аддоны
             _installedAddons.Clear();
+
+            // Сначала успешно загруженные IAddon
             foreach (var loaded in _addonManager.LoadedAddons)
             {
                 _installedAddons.Add(new AddonItemViewModel
@@ -51,6 +53,22 @@ namespace VK_UI3.Views.Settings
                     FolderName = System.IO.Path.GetFileName(loaded.FolderPath)
                 });
             }
+
+            // Затем установленные, но не загруженные (есть папка, но нет IAddon)
+            _addonManager.ScanInstalledAddons();
+            foreach (var folder in _addonManager.InstalledAddonFolders)
+            {
+                if (folder.IsLoaded) continue; // уже добавлен выше
+
+                _installedAddons.Add(new AddonItemViewModel
+                {
+                    Name = folder.FolderName,
+                    Version = "",
+                    Id = folder.FolderName,
+                    FolderName = folder.FolderName
+                });
+            }
+
             NoAddonsMessage.Visibility = _installedAddons.Count == 0
                 ? Visibility.Visible
                 : Visibility.Collapsed;

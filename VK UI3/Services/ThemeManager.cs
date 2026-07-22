@@ -19,6 +19,11 @@ namespace VK_UI3.Services
         private readonly List<InstalledTheme> _installedThemes = new();
         private InstalledTheme _currentTheme;
 
+        /// <summary>
+        /// Статический синглтон для использования во всём приложении
+        /// </summary>
+        public static ThemeManager Instance { get; } = new ThemeManager();
+
         public IReadOnlyList<InstalledTheme> InstalledThemes => _installedThemes.AsReadOnly();
         public InstalledTheme CurrentTheme => _currentTheme;
 
