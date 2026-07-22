@@ -105,15 +105,17 @@ namespace VK_UI3.Views
     /// </summary>
     public class InstalledAddonViewModel : INotifyPropertyChanged
     {
-        private readonly LoadedAddon _loadedAddon;
         private readonly AddonManager _addonManager;
+        private readonly string _folderPath;
+        private readonly string _folderName;
+        private readonly bool _isLoaded;
         private BitmapImage _icon;
 
-        public string Name => _loadedAddon.Addon.Name ?? Path.GetFileName(_loadedAddon.FolderPath);
-        public string Author => !string.IsNullOrEmpty(_loadedAddon.Addon.Author) ? $"by {_loadedAddon.Addon.Author}" : "";
-        public string Version => !string.IsNullOrEmpty(_loadedAddon.Addon.Version) ? $"v{_loadedAddon.Addon.Version}" : "";
-        public string Description => _loadedAddon.Addon.Description ?? "Описание отсутствует";
-        public string FolderName => Path.GetFileName(_loadedAddon.FolderPath);
+        public string Name { get; }
+        public string Author { get; }
+        public string Version { get; }
+        public string Description { get; }
+        public string FolderName => _folderName;
 
         public BitmapImage Icon
         {
@@ -125,17 +127,41 @@ namespace VK_UI3.Views
 
         public event PropertyChangedEventHandler PropertyChanged;
 
+        /// <summary>
+        /// Создаёт ViewModel на основе LoadedAddon (успешно загруженный IAddon)
+        /// </summary>
         public InstalledAddonViewModel(LoadedAddon loadedAddon, AddonManager addonManager)
         {
-            _loadedAddon = loadedAddon;
             _addonManager = addonManager;
+            _folderPath = loadedAddon.FolderPath;
+            _folderName = Path.GetFileName(loadedAddon.FolderPath);
+            _isLoaded = true;
+            Name = loadedAddon.Addon.Name ?? _folderName;
+            Author = !string.IsNullOrEmpty(loadedAddon.Addon.Author) ? $"by {loadedAddon.Addon.Author}" : "";
+            Version = !string.IsNullOrEmpty(loadedAddon.Addon.Version) ? $"v{loadedAddon.Addon.Version}" : "";
+            Description = loadedAddon.Addon.Description ?? "Описание отсутствует";
+        }
+
+        /// <summary>
+        /// Создаёт ViewModel на основе InstalledAddonFolder (аддон установлен, но не загружен как IAddon)
+        /// </summary>
+        public InstalledAddonViewModel(InstalledAddonFolder folder, AddonManager addonManager)
+        {
+            _addonManager = addonManager;
+            _folderPath = folder.FolderPath;
+            _folderName = folder.FolderName;
+            _isLoaded = folder.IsLoaded;
+            Name = _folderName;
+            Author = "";
+            Version = "";
+            Description = "Аддон установлен, но не содержит совместимого расширения.";
         }
 
         public async Task LoadIconAsync()
         {
             try
             {
-                var iconPath = Path.Combine(_loadedAddon.FolderPath, "icon.png");
+                var iconPath = Path.Combine(_folderPath, "icon.png");
                 if (File.Exists(iconPath))
                 {
                     using var stream = File.OpenRead(iconPath);
@@ -254,8 +280,8 @@ namespace VK_UI3.Views
         {
             this.InitializeComponent();
             _storeService = new AddonStoreService();
-            _addonManager = new AddonManager();
-            _themeManager = new ThemeManager();
+            _addonManager = AddonManager.Instance;
+            _themeManager = ThemeManager.Instance;
 
             this.Loaded += OnPageLoaded;
         }
@@ -276,8 +302,12 @@ namespace VK_UI3.Views
         {
             try
             {
+                System.Diagnostics.Debug.WriteLine($"[AddonStore] LoadInstalledItems: LoadedAddons={_addonManager.LoadedAddons.Count}");
+
                 // Загружаем установленные аддоны
                 _installedAddons.Clear();
+
+                // Сначала добавляем успешно загруженные IAddon
                 foreach (var loaded in _addonManager.LoadedAddons)
                 {
                     var vm = new InstalledAddonViewModel(loaded, _addonManager);
@@ -285,9 +315,28 @@ namespace VK_UI3.Views
                     _ = vm.LoadIconAsync();
                 }
 
+                // Затем добавляем аддоны, которые установлены (есть папка), но не загружены как IAddon
+                _addonManager.ScanInstalledAddons();
+                System.Diagnostics.Debug.WriteLine($"[AddonStore] После ScanInstalledAddons: InstalledAddonFolders={_addonManager.InstalledAddonFolders.Count}");
+
+                foreach (var folder in _addonManager.InstalledAddonFolders)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[AddonStore] Папка: {folder.FolderName}, IsLoaded={folder.IsLoaded}, HasDll={folder.HasDll}");
+                    // Пропускаем те, что уже загружены (уже добавлены выше)
+                    if (folder.IsLoaded) continue;
+
+                    var vm = new InstalledAddonViewModel(folder, _addonManager);
+                    _installedAddons.Add(vm);
+                    _ = vm.LoadIconAsync();
+                }
+
+                System.Diagnostics.Debug.WriteLine($"[AddonStore] Итого установленных аддонов: {_installedAddons.Count}");
+
                 // Загружаем установленные темы
                 _installedThemes.Clear();
                 _themeManager.ScanInstalledThemes();
+                System.Diagnostics.Debug.WriteLine($"[AddonStore] Установленных тем: {_themeManager.InstalledThemes.Count}");
+
                 foreach (var theme in _themeManager.InstalledThemes)
                 {
                     var vm = new InstalledThemeViewModel(theme, _themeManager);
