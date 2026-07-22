@@ -49,13 +49,23 @@ namespace VK_UI3.Views
             }
         }
 
-        public ExtendedAudio TrackDataThis => _TrackDataThisGet().Result;
-
-        public string Thumbnail
+        public async Task<ExtendedAudio> GetTrackDataAsync()
         {
-            get
+            try
             {
-                var trackData = TrackDataThis;
+                return await _TrackDataThisGet();
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        public async Task<string> GetThumbnailAsync()
+        {
+            try
+            {
+                var trackData = await GetTrackDataAsync();
                 if (trackData?.audio?.Album?.Thumb == null) return null;
 
                 return trackData.audio.Album.Thumb.Photo600
@@ -64,6 +74,10 @@ namespace VK_UI3.Views
                      ?? trackData.audio.Album.Thumb.Photo68
                      ?? trackData.audio.Album.Thumb.Photo34
                      ?? null;
+            }
+            catch
+            {
+                return null;
             }
         }
 
@@ -89,8 +103,8 @@ namespace VK_UI3.Views
             // KeyDown для Escape
             this.Content.KeyDown += OnWindowKeyDown;
 
-            // Загружаем данные
-            SetData();
+            // Загружаем данные асинхронно
+            _ = SetDataAsync();
             UpdatePlayPauseIcon();
         }
 
@@ -100,9 +114,9 @@ namespace VK_UI3.Views
 
         private void OnTrackChanged(object sender, EventArgs e)
         {
-            this.DispatcherQueue.TryEnqueue(() =>
+            this.DispatcherQueue.TryEnqueue(async () =>
             {
-                SetData();
+                await SetDataAsync();
             });
         }
 
@@ -203,69 +217,81 @@ namespace VK_UI3.Views
         /// </summary>
         private void AnimateCoverImage(string imageUrl)
         {
-            // Если обложки нет — показываем иконку ноты
-            if (string.IsNullOrEmpty(imageUrl))
+            try
             {
-                CoverImage.Source = null;
-                CoverNote.Visibility = Visibility.Visible;
-                return;
-            }
-
-            var storyboard = new Storyboard();
-
-            // Fade-out: 0.25 сек
-            var fadeOut = new DoubleAnimation
-            {
-                From = 1.0,
-                To = 0.0,
-                Duration = TimeSpan.FromMilliseconds(250),
-                EnableDependentAnimation = true
-            };
-            Storyboard.SetTarget(fadeOut, CoverImage);
-            Storyboard.SetTargetProperty(fadeOut, "Opacity");
-
-            // По окончании fade-out меняем изображение и делаем fade-in
-            EventHandler<object> onFadeOutCompleted = null;
-            onFadeOutCompleted = (s, e) =>
-            {
-                storyboard.Completed -= onFadeOutCompleted;
-                storyboard.Children.Clear();
-
-                try
-                {
-                    CoverImage.Source = new BitmapImage(new Uri(imageUrl));
-                    CoverNote.Visibility = Visibility.Collapsed;
-                }
-                catch
+                // Если обложки нет — показываем иконку ноты
+                if (string.IsNullOrEmpty(imageUrl))
                 {
                     CoverImage.Source = null;
                     CoverNote.Visibility = Visibility.Visible;
+                    return;
                 }
 
-                // Fade-in: 0.5 сек
-                var fadeIn = new DoubleAnimation
+                var storyboard = new Storyboard();
+
+                // Fade-out: 0.25 сек
+                var fadeOut = new DoubleAnimation
                 {
-                    From = 0.0,
-                    To = 1.0,
-                    Duration = TimeSpan.FromMilliseconds(500),
+                    From = 1.0,
+                    To = 0.0,
+                    Duration = TimeSpan.FromMilliseconds(250),
                     EnableDependentAnimation = true
                 };
-                Storyboard.SetTarget(fadeIn, CoverImage);
-                Storyboard.SetTargetProperty(fadeIn, "Opacity");
-                storyboard.Children.Add(fadeIn);
-                storyboard.Begin();
-            };
+                Storyboard.SetTarget(fadeOut, CoverImage);
+                Storyboard.SetTargetProperty(fadeOut, "Opacity");
 
-            storyboard.Completed += onFadeOutCompleted;
-            storyboard.Children.Add(fadeOut);
-            storyboard.Begin();
+                // По окончании fade-out меняем изображение и делаем fade-in
+                EventHandler<object> onFadeOutCompleted = null;
+                onFadeOutCompleted = (s, e) =>
+                {
+                    try
+                    {
+                        storyboard.Completed -= onFadeOutCompleted;
+                        storyboard.Children.Clear();
+
+                        // Создаём BitmapImage с защитой от некорректного URI
+                        var uri = new Uri(imageUrl, UriKind.Absolute);
+                        var bitmap = new BitmapImage(uri);
+                        CoverImage.Source = bitmap;
+                        CoverNote.Visibility = Visibility.Collapsed;
+
+                        // Fade-in: 0.5 сек
+                        var fadeIn = new DoubleAnimation
+                        {
+                            From = 0.0,
+                            To = 1.0,
+                            Duration = TimeSpan.FromMilliseconds(500),
+                            EnableDependentAnimation = true
+                        };
+                        Storyboard.SetTarget(fadeIn, CoverImage);
+                        Storyboard.SetTargetProperty(fadeIn, "Opacity");
+                        storyboard.Children.Add(fadeIn);
+                        storyboard.Begin();
+                    }
+                    catch
+                    {
+                        CoverImage.Source = null;
+                        CoverNote.Visibility = Visibility.Visible;
+                    }
+                };
+
+                storyboard.Completed += onFadeOutCompleted;
+                storyboard.Children.Add(fadeOut);
+                storyboard.Begin();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[FullScreenWindow] Error in AnimateCoverImage: {ex.Message}");
+                CoverImage.Source = null;
+                CoverNote.Visibility = Visibility.Visible;
+            }
         }
 
-        private void SetData()
+        private async Task SetDataAsync()
         {
             try
             {
-                var track = TrackDataThis;
+                var track = await GetTrackDataAsync();
                 if (track?.audio == null)
                 {
                     System.Diagnostics.Debug.WriteLine("[FullScreenWindow] CurrentTrack is null");
@@ -274,8 +300,8 @@ namespace VK_UI3.Views
 
                 PositionSlider.Maximum = track.audio.Duration;
 
-                // Плавная смена обложки
-                var thumb = Thumbnail;
+                // Плавная смена обложки (асинхронно получаем URL)
+                var thumb = await GetThumbnailAsync();
                 AnimateCoverImage(thumb);
 
                 // Next track info
@@ -289,7 +315,7 @@ namespace VK_UI3.Views
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"[FullScreenWindow] Error in SetData: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"[FullScreenWindow] Error in SetDataAsync: {ex.Message}");
             }
         }
 
@@ -365,7 +391,7 @@ namespace VK_UI3.Views
                 LyricsPlaceholder.Visibility = Visibility.Visible;
                 LyricsScrollViewer.Visibility = Visibility.Collapsed;
 
-                var track = TrackDataThis;
+                var track = await GetTrackDataAsync();
                 if (track?.audio == null) return;
 
                 // Пытаемся получить тексты через VK API
