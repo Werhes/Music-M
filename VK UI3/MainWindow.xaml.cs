@@ -459,10 +459,8 @@ namespace VK_UI3
         {
             try
             {
-                var addonManager = new AddonManager();
-                var themeManager = new ThemeManager();
-                _ = addonManager.LoadAllAddonsAsync();
-                themeManager.ApplySavedTheme();
+                _ = AddonManager.Instance.LoadAllAddonsAsync();
+                ThemeManager.Instance.ApplySavedTheme();
                 System.Diagnostics.Debug.WriteLine("[AddonStore] Менеджеры дополнений и тем инициализированы");
             }
             catch (Exception ex)

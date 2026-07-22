@@ -18,9 +18,24 @@ namespace VK_UI3.Services
     public class AddonManager
     {
         private readonly List<LoadedAddon> _loadedAddons = new();
+        private readonly List<InstalledAddonFolder> _installedAddonFolders = new();
         private readonly string _addonsDirectory;
 
+        /// <summary>
+        /// Статический синглтон для использования во всём приложении
+        /// </summary>
+        public static AddonManager Instance { get; } = new AddonManager();
+
+        /// <summary>
+        /// Аддоны, успешно загруженные как IAddon
+        /// </summary>
         public IReadOnlyList<LoadedAddon> LoadedAddons => _loadedAddons.AsReadOnly();
+
+        /// <summary>
+        /// Все установленные аддоны (включая те, что не удалось загрузить как IAddon).
+        /// Обновляется через ScanInstalledAddons().
+        /// </summary>
+        public IReadOnlyList<InstalledAddonFolder> InstalledAddonFolders => _installedAddonFolders.AsReadOnly();
 
         public event EventHandler<AddonEventArgs> AddonLoaded;
         public event EventHandler<AddonEventArgs> AddonUnloaded;
@@ -30,6 +45,46 @@ namespace VK_UI3.Services
         {
             _addonsDirectory = Path.Combine(StaticService.UserDataFolder.FullName, "Addons");
             Directory.CreateDirectory(_addonsDirectory);
+        }
+
+        /// <summary>
+        /// Сканировать папку Addons и собрать список всех установленных аддонов (по папкам).
+        /// Вызывается после установки/удаления аддона для обновления списка.
+        /// </summary>
+        public void ScanInstalledAddons()
+        {
+            _installedAddonFolders.Clear();
+
+            System.Diagnostics.Debug.WriteLine($"[AddonManager] ScanInstalledAddons: _addonsDirectory={_addonsDirectory}");
+
+            if (!Directory.Exists(_addonsDirectory))
+            {
+                System.Diagnostics.Debug.WriteLine($"[AddonManager] Директория не существует: {_addonsDirectory}");
+                return;
+            }
+
+            var addonFolders = Directory.GetDirectories(_addonsDirectory);
+            System.Diagnostics.Debug.WriteLine($"[AddonManager] Найдено папок: {addonFolders.Length}");
+
+            foreach (var folderPath in addonFolders)
+            {
+                var folderName = Path.GetFileName(folderPath);
+                var dllFiles = Directory.GetFiles(folderPath, "*.dll");
+
+                // Проверяем, загружен ли этот аддон как IAddon
+                var isLoaded = _loadedAddons.Any(a =>
+                    Path.GetFileName(a.FolderPath).Equals(folderName, StringComparison.OrdinalIgnoreCase));
+
+                System.Diagnostics.Debug.WriteLine($"[AddonManager] Папка: {folderName}, DLL: {dllFiles.Length}, IsLoaded: {isLoaded}");
+
+                _installedAddonFolders.Add(new InstalledAddonFolder
+                {
+                    FolderName = folderName,
+                    FolderPath = folderPath,
+                    HasDll = dllFiles.Length > 0,
+                    IsLoaded = isLoaded
+                });
+            }
         }
 
         /// <summary>
@@ -46,6 +101,9 @@ namespace VK_UI3.Services
             {
                 await LoadAddonFromFolderAsync(folder);
             }
+
+            // После загрузки всех — сканируем установленные
+            ScanInstalledAddons();
         }
 
         /// <summary>
@@ -179,8 +237,11 @@ namespace VK_UI3.Services
                 }
                 catch { /* README опционален */ }
 
-                // Загружаем установленный аддон
+                // Загружаем установленный аддон (если реализует IAddon)
                 await LoadAddonFromFolderAsync(targetFolder);
+
+                // Сканируем установленные аддоны для обновления списка InstalledAddonFolders
+                ScanInstalledAddons();
 
                 return true;
             }
@@ -211,6 +272,9 @@ namespace VK_UI3.Services
                 {
                     Directory.Delete(folderPath, true);
                 }
+
+                // Обновляем список установленных
+                ScanInstalledAddons();
 
                 return true;
             }
@@ -245,6 +309,17 @@ namespace VK_UI3.Services
         public IAddon Addon { get; set; }
         public Assembly Assembly { get; set; }
         public string FolderPath { get; set; }
+        public bool IsLoaded { get; set; }
+    }
+
+    /// <summary>
+    /// Информация об установленной папке аддона (даже если не удалось загрузить IAddon)
+    /// </summary>
+    public class InstalledAddonFolder
+    {
+        public string FolderName { get; set; }
+        public string FolderPath { get; set; }
+        public bool HasDll { get; set; }
         public bool IsLoaded { get; set; }
     }
 
