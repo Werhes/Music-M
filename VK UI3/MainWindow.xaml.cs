@@ -450,23 +450,6 @@ namespace VK_UI3
 
             // Проверка версии и запуск приветственного конфетти при обновлении
             CheckVersionAndFireConfetti();
-
-            // Инициализация менеджеров дополнений и тем
-            InitializeAddonSystems();
-        }
-
-        private void InitializeAddonSystems()
-        {
-            try
-            {
-                _ = AddonManager.Instance.LoadAllAddonsAsync();
-                ThemeManager.Instance.ApplySavedTheme();
-                System.Diagnostics.Debug.WriteLine("[AddonStore] Менеджеры дополнений и тем инициализированы");
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"[AddonStore] Ошибка инициализации дополнений: {ex.Message}");
-            }
         }
 
         private void CheckVersionAndFireConfetti()

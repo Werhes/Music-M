@@ -1018,11 +1018,6 @@ namespace VK_UI3.Views
                         frame.Navigate(typeof(WhatListeningPage), _whatListeningData, new DrillInNavigationTransitionInfo());
                         break;
 
-                    case "магазин дополнений":
-                        mainView.hideSearch();
-                        frame.Navigate(typeof(AddonStorePage), null, new DrillInNavigationTransitionInfo());
-                        break;
-
                     default:
                         var Item = NavWiv.SelectedItem as NavMenuController;
                         if (Item == null)
