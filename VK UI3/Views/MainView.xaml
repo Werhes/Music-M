@@ -125,12 +125,6 @@
                         </NavigationViewItem.Icon>
                     </NavigationViewItem>
 
-                    <NavigationViewItem Content="Магазин дополнений" AutomationProperties.Name="Магазин дополнений" AutomationProperties.HelpText="Перейти в магазин дополнений и тем">
-                        <NavigationViewItem.Icon>
-                            <FontIcon Glyph="&#xE943;" AutomationProperties.Name="Иконка магазина" AutomationProperties.HelpText="Иконка раздела магазина дополнений" />
-                        </NavigationViewItem.Icon>
-                    </NavigationViewItem>
-
                     <NavigationViewItemSeparator />
                     <NavigationViewItemHeader />
 
