@@ -14,6 +14,7 @@
 	IsEnabled="True"
 	PointerEntered="Page_PointerEntered"
 	PointerExited="Page_PointerExited"
+	Visibility="Collapsed"
 	mc:Ignorable="d">
 
 	<Page.Resources>
@@ -46,6 +47,16 @@
 				To="0"
 				Duration="0:0:0.1" />
 		</Storyboard>
+
+		<Style x:Key="ListenTogetherFlyoutStyle" TargetType="FlyoutPresenter">
+			<Setter Property="MinWidth" Value="260" />
+			<Setter Property="MaxWidth" Value="300" />
+			<Setter Property="MinHeight" Value="100" />
+			<Setter Property="MaxHeight" Value="400" />
+			<Setter Property="Padding" Value="12" />
+			<Setter Property="CornerRadius" Value="8" />
+			<Setter Property="FontFamily" Value="{StaticResource VKSansDemiBold}" />
+		</Style>
 	</Page.Resources>
 
 	<Grid
@@ -126,7 +137,7 @@
 			Background="Transparent" />
 		<Rectangle
 			x:Name="RedRectangle"
-			Width="100"
+			Width="0"
 			Height="Auto"
 			HorizontalAlignment="Left"
 			Fill="{ThemeResource AccentAAFillColorDisabledBrush}" />
@@ -136,7 +147,7 @@
 				<ColumnDefinition Width="75" />
 				<ColumnDefinition Width="150" />
 				<ColumnDefinition Width="*" />
-				<ColumnDefinition Width="225" />
+				<ColumnDefinition Width="Auto" />
 			</Grid.ColumnDefinitions>
 
 
@@ -168,7 +179,7 @@
 						<FontIcon
 							x:Name="repeatBTNIcon"
 							FontSize="14"
-							Glyph="" />
+							Glyph="&#xE8B1;" />
 					</Button>
 
 
@@ -184,10 +195,11 @@
 						FocusVisualSecondaryThickness="0"
 						Tapped="PreviousBTN_Tapped"
 						AutomationProperties.Name="Предыдущий трек">
-						<FontIcon FontSize="12" Glyph="" />
+						<FontIcon FontSize="12" Glyph="&#xE100;" />
 					</Button>
 
 					<Button
+						x:Name="PlayPauseBTN"
 						Width="40"
 						Height="40"
 						Margin="8,0,8,0"
@@ -198,7 +210,7 @@
 						<FontIcon
 							x:Name="PlayBTN"
 							FontSize="14"
-							Glyph="" />
+							Glyph="&#xE102;" />
 					</Button>
 
 					<Button
@@ -210,7 +222,7 @@
 						Background="Transparent"
 						Tapped="NextBTN_Tapped"
 						AutomationProperties.Name="Следующий трек">
-						<FontIcon FontSize="12" Glyph="" />
+						<FontIcon FontSize="12" Glyph="&#xE101;" />
 					</Button>
 
 
@@ -218,12 +230,12 @@
 
 					<Button
 						Grid.Column="4"
-						Width="35"
-						Height="35"
+						Width="36"
+						Height="36"
 						Padding="0"
 						Background="Transparent"
 						AutomationProperties.Name="Громкость">
-						<FontIcon FontSize="14" Glyph="&#xE995;" />
+						<SymbolIcon Symbol="Volume" />
 						<Button.Flyout>
 							<Flyout>
 								<Grid Height="27" Margin="-15">
@@ -326,8 +338,8 @@
 				<Button
 					x:Name="openLirycBTN"
 					Grid.Column="0"
-					Width="30"
-					Height="30"
+					Width="32"
+					Height="32"
 					Margin="8,0,0,0"
 					Padding="0"
 					Background="Transparent"
@@ -343,8 +355,8 @@
 				<Button
 					x:Name="OpenEqalizer"
 					Grid.Column="0"
-					Width="30"
-					Height="30"
+					Width="32"
+					Height="32"
 					Margin="8,0,0,0"
 					Padding="0"
 					Background="Transparent"
@@ -374,8 +386,8 @@
 
 				<Button
 					Grid.Column="0"
-					Width="30"
-					Height="30"
+					Width="32"
+					Height="32"
 					Margin="8,0,8,0"
 					Padding="0"
 					Background="Transparent"
@@ -389,17 +401,17 @@
 
 				<Button
 					x:Name="TranslatetoStatus"
-					Width="30"
-					Height="30"
+					Width="32"
+					Height="32"
 					Margin="0,0,8,0"
-					Padding="-2,-2,0,0"
+					Padding="0"
 					Background="Transparent"
 					Tapped="TranslatetoStatus_Tapped"
 					AutomationProperties.Name="Транслировать в статус ВК">
 					<FontIcon
 						x:Name="StatusBTNIcon"
 						FontSize="12"
-						Glyph="" />
+						Glyph="&#xE77D;" />
 					<ToolTipService.ToolTip>
 						<ToolTip Content="Транслировать в статус ВК" />
 					</ToolTipService.ToolTip>
@@ -407,8 +419,8 @@
 				<Button
 					x:Name="trackDoingBTN"
 					Grid.Column="4"
-					Width="30"
-					Height="30"
+					Width="32"
+					Height="32"
 					Margin="0,0,0,0"
 					Padding="0"
 					Background="Transparent"
@@ -418,10 +430,34 @@
 				</Button>
 
 				<Button
+					x:Name="listenTogetherBTN"
+					Width="32"
+					Height="32"
+					Margin="0,0,8,0"
+					Padding="0"
+					Background="Transparent"
+					AutomationProperties.Name="Совместное прослушивание">
+					<Image
+						Width="20"
+						Height="20"
+						Source="ms-appx:///Assets/UIs/ic_fluent_people_24_regular.png"
+						Stretch="Uniform" />
+					<ToolTipService.ToolTip>
+						<ToolTip Content="Совместное прослушивание" />
+					</ToolTipService.ToolTip>
+					<Button.Flyout>
+						<Flyout
+							Placement="Top"
+							FlyoutPresenterStyle="{StaticResource ListenTogetherFlyoutStyle}">
+							<constrols:ListenTogetherControl />
+						</Flyout>
+					</Button.Flyout>
+				</Button>
+				<Button
 					x:Name="openFullScreenBTN"
-					Width="30"
-					Height="30"
-					Margin="8,0,8,0"
+					Width="32"
+					Height="32"
+					Margin="0,0,8,0"
 					Padding="0"
 					Background="Transparent"
 					Tapped="OpenFullScreen_Tapped"

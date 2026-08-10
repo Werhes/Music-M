@@ -120,6 +120,13 @@ ipch/
 # Visual Studio Trace Files
 *.e2e
 
+# MusicX.Server publish output
+MusicX.Server/publish/
+MusicX.Server/bin/
+MusicX.Server/obj/
+MusicX.Server/SignalR.Protobuf.Server/obj/
+
+
 # TFS 2012 Local Workspace
 $tf/
 

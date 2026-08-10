@@ -6,6 +6,7 @@ using MusicX.Core.Services;
 using MusicX.Services;
 using MusicX.Services.Player;
 using MusicX.Services.Player.Sources;
+using VK_UI3.Services.Player;
 using NLog;
 using StatSlyLib.Models;
 using System;
@@ -21,6 +22,7 @@ using VK_UI3.DB;
 using VK_UI3.DownloadTrack;
 using VK_UI3.Helpers;
 using VK_UI3.Services;
+using VK_UI3.ViewModels.Controls;
 using VK_UI3.VKs.Ext;
 using VkNet.Abstractions;
 using VkNet.AudioBypassService.Abstractions;
@@ -67,8 +69,11 @@ namespace VK_UI3
             services.AddSingleton<TokenChecker>();
 
             services.AddSingleton<VkService>();
+            services.AddSingleton(s => new BackendConnectionService(s.GetRequiredService<Logger>(), StaticService.Version));
             services.AddSingleton<ListenTogetherService>();
             services.AddSingleton<UserRadioService>();
+            services.AddSingleton<ListenTogetherControlViewModel>();
+            services.AddSingleton<ListenTogetherStats>();
             services.AddSingleton<BoomService>();
             services.AddSingleton<ITrackMediaSource, VkMediaSource>();
 
@@ -127,7 +132,7 @@ namespace VK_UI3
         {
             statSlyRun();
 
-            const string mutexName = "VKMMaKrotosApps";
+            const string mutexName = "VKMWerhesApps";
             bool createdNew;
 
          
@@ -247,10 +252,17 @@ namespace VK_UI3
                 TrackCacheManager.EnforceCacheSizeLimit(maxSizeMb);
             }
 
+            // Показываем splash screen перед основным окном
+            var splashWindow = new Views.SplashWindow();
+            await splashWindow.ShowAndWaitAsync(3000);
+
             m_window = new MainWindow();
             m_window.Closed += M_window_Closed;
 
             m_window.Activate();
+
+            // Закрываем splash после активации основного окна
+            splashWindow.Close();
 
             //   await (appUpdater.CheckForUpdaterBool)
         }

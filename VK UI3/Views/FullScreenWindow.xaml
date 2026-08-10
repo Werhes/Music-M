@@ -19,7 +19,7 @@
         </Grid.Resources>
 
         <!-- Жёлтый размытый фон -->
-        <Rectangle Fill="#FFD700" Opacity="0.3" />
+        <Rectangle Fill="#FFD700" Opacity="0.5" />
 
         <!-- Заголовок "Сейчас играет" -->
         <TextBlock
@@ -54,14 +54,22 @@
         <!-- Основной контент -->
         <Grid
             Margin="40,0,0,0"
-            VerticalAlignment="Center">
+            VerticalAlignment="Stretch">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
             <!-- Левая колонка: обложка + название/исполнитель под ней -->
-            <StackPanel VerticalAlignment="Center" Spacing="16">
+            <StackPanel
+                Grid.Row="1"
+                VerticalAlignment="Center"
+                Spacing="16">
                 <!-- Обложка -->
                 <Grid>
                     <Border
@@ -102,7 +110,7 @@
                     AutomationProperties.Name="Название трека">
                     <TextBlock
                         x:Name="TrackName"
-                        FontSize="36"
+                        FontSize="32"
                         FontWeight="SemiBold"
                         Text="Название трека"
                         TextAlignment="Center"
@@ -120,7 +128,7 @@
                     AutomationProperties.Name="Исполнитель">
                     <TextBlock
                         x:Name="ArtistName"
-                        FontSize="28"
+                        FontSize="22"
                         Opacity="0.6"
                         Text="Имя исполнителя"
                         TextAlignment="Center"
@@ -193,9 +201,44 @@
             </StackPanel>
 
             <!-- Правая колонка: текст песни -->
-            <Grid Grid.Column="1" Margin="40,0,40,0" x:Name="LyricsControlView">
+            <Grid
+                Grid.Row="1"
+                Grid.Column="1"
+                Margin="40,0,40,0"
+                x:Name="LyricsControlView">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <!-- Панель выбора источника текста -->
+                <StackPanel
+                    Grid.Row="0"
+                    HorizontalAlignment="Right"
+                    Orientation="Horizontal"
+                    Spacing="8"
+                    Margin="0,0,0,8">
+                    <TextBlock
+                        VerticalAlignment="Center"
+                        FontSize="14"
+                        Opacity="0.6"
+                        Text="Источник:"
+                        AutomationProperties.Name="Источник текста" />
+                    <ComboBox
+                        x:Name="LyricsSourceCombo"
+                        SelectedIndex="0"
+                        SelectionChanged="LyricsSourceCombo_SelectionChanged"
+                        AutomationProperties.Name="Выбор источника текста">
+                        <x:String>Auto</x:String>
+                        <x:String>VK</x:String>
+                        <x:String>Genius</x:String>
+                        <x:String>LRCLib</x:String>
+                    </ComboBox>
+                </StackPanel>
+
                 <!-- Заглушка "нет текста" -->
                 <StackPanel
+                    Grid.Row="1"
                     x:Name="LyricsPlaceholder"
                     VerticalAlignment="Center"
                     HorizontalAlignment="Center"
@@ -217,22 +260,37 @@
 
                 <!-- Текст песни -->
                 <ScrollViewer
+                    Grid.Row="1"
                     x:Name="LyricsScrollViewer"
                     VerticalScrollBarVisibility="Auto"
                     Visibility="Collapsed"
                     AutomationProperties.Name="Текст песни">
-                    <ItemsControl x:Name="LyricsItemsControl">
-                        <ItemsControl.ItemTemplate>
+                    <ListView
+                        x:Name="LyricsListView"
+                        SelectionMode="Single"
+                        IsItemClickEnabled="False"
+                        ScrollViewer.HorizontalScrollMode="Disabled"
+                        AutomationProperties.Name="Список строк текста">
+                        <ListView.ItemTemplate>
                             <DataTemplate>
                                 <TextBlock
-                                    Margin="0,6"
-                                    FontSize="28"
+                                    Margin="0,2"
+                                    FontSize="18"
                                     Text="{Binding}"
                                     TextWrapping="Wrap"
                                     AutomationProperties.Name="Строка текста" />
                             </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
+                        </ListView.ItemTemplate>
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="ListViewItem">
+                                <Setter Property="Background" Value="Transparent" />
+                                <Setter Property="BorderThickness" Value="0" />
+                                <Setter Property="Padding" Value="0" />
+                                <Setter Property="Margin" Value="0" />
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                            </Style>
+                        </ListView.ItemContainerStyle>
+                    </ListView>
                 </ScrollViewer>
             </Grid>
         </Grid>

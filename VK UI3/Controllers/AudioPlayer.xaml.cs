@@ -1,4 +1,5 @@
-﻿using Microsoft.UI.Xaml;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Input;
@@ -18,6 +19,8 @@ using Windows.Storage.Streams;
 using VK_UI3.Views.ModalsPages;
 using Windows.Foundation;
 using VK_UI3.Services;
+using VK_UI3.Services.Player;
+using MusicX.Services;
 using MusicX.Services.Player.Sources;
 using VK_UI3.Helpers;
 
@@ -32,6 +35,8 @@ namespace VK_UI3.Controllers
 
         private DiscordRichPresenceManager discordRichPresenceManager = new DiscordRichPresenceManager();
         private static WeakEventManager TrackDataThisChanged = new WeakEventManager();
+        private ListenTogetherStats _listenTogetherStats;
+        private bool _isPlayerVisible = false;
 
         // Animation fields
         private AnimationsChangeFontIcon changeIconPlayBTN = null;
@@ -45,7 +50,6 @@ namespace VK_UI3.Controllers
         private long _trackPositionMs;
         private long _trackDurationMs;
         private long _sliderPositionMs;
-        private double _redFillPercent = 0;
         private bool isManualChange = false;
         private double actualHeight = 0;
         private bool enablinUI = false;
@@ -114,7 +118,6 @@ namespace VK_UI3.Controllers
                 {
                     _trackPositionMs = value;
                     OnPropertyChanged(nameof(TrackPositionMs));
-                    UpdateRedFillPercent();
                 }
             }
         }
@@ -128,7 +131,6 @@ namespace VK_UI3.Controllers
                 {
                     _trackDurationMs = value;
                     OnPropertyChanged(nameof(TrackDurationMs));
-                    UpdateRedFillPercent();
                 }
             }
         }
@@ -148,20 +150,6 @@ namespace VK_UI3.Controllers
                 {
                     _sliderPositionMs = value;
                     OnPropertyChanged(nameof(SliderPositionMs));
-                }
-            }
-        }
-
-        public double RedFillPercent
-        {
-            get => _redFillPercent;
-            set
-            {
-                if (_redFillPercent != value)
-                {
-                    _redFillPercent = value;
-                    AnimateRedRectangle();
-                    OnPropertyChanged(nameof(RedFillPercent));
                 }
             }
         }
@@ -189,6 +177,44 @@ namespace VK_UI3.Controllers
             InitializeEvents();
             InitializeAnimations();
             InitializeSettings();
+            InitializeListenTogether();
+        }
+
+        private void InitializeListenTogether()
+        {
+            try
+            {
+                _listenTogetherStats = StaticService.Container.GetRequiredService<ListenTogetherStats>();
+                _listenTogetherStats.Subscribe();
+            }
+            catch
+            {
+                // ListenTogetherService может быть недоступен
+            }
+        }
+
+        /// <summary>
+        /// Обновляет видимость плеера в зависимости от наличия трека
+        /// </summary>
+        private void UpdatePlayerVisibility()
+        {
+            var hasTrack = VK_UI3.Services.MediaPlayerService.PlayingTrack?.audio != null;
+            if (hasTrack)
+            {
+                if (!_isPlayerVisible)
+                {
+                    _isPlayerVisible = true;
+                    this.Visibility = Visibility.Visible;
+                }
+            }
+            else
+            {
+                if (_isPlayerVisible)
+                {
+                    _isPlayerVisible = false;
+                    this.Visibility = Visibility.Collapsed;
+                }
+            }
         }
 
         private void InitializeEvents()
@@ -208,7 +234,6 @@ namespace VK_UI3.Controllers
 
         private void InitializeAnimations()
         {
-            changeIconPlayBTN = new AnimationsChangeFontIcon(this.PlayBTN, this.DispatcherQueue);
             animateFontIcon = new AnimationsChangeFontIcon(this.repeatBTNIcon, this.DispatcherQueue);
             changeImage = new AnimationsChangeImage(this.ImageThumb, DispatcherQueue);
             changeText = new AnimationsChangeText(ArtistTextBlock, this.DispatcherQueue);
@@ -256,6 +281,11 @@ namespace VK_UI3.Controllers
             VK_UI3.Services.MediaPlayerService.VolumeChanged -= MediaPlayerService_VolumeChanged;
             VK_UI3.Services.MediaPlayerService.PositionChanged -= MediaPlayerService_PositionChanged;
             VK_UI3.Services.MediaPlayerService.MediaPlayer.CurrentStateChanged -= MediaPlayer_CurrentStateChanged;
+
+            if (_listenTogetherStats != null)
+            {
+                _listenTogetherStats.Unsubscribe();
+            }
         }
 
         private void AudioPlayer_oniVKUpdate(object sender, EventArgs e)
@@ -268,6 +298,10 @@ namespace VK_UI3.Controllers
         {
             UpdateTrackInfoDisplay();
             UpdateDiscordState();
+            this.DispatcherQueue.TryEnqueue(() =>
+            {
+                UpdatePlayerVisibility();
+            });
         }
 
         private void MediaPlayerService_VolumeChanged(object sender, VK_UI3.Services.Player.VolumeChangedEventArgs e)
@@ -279,6 +313,22 @@ namespace VK_UI3.Controllers
         {
             TrackPositionMs = (long)e.TotalMilliseconds;
             SliderPositionMs = TrackPositionMs;
+
+            // Обновляем RedRectangle — эффект заполнения плеера (через диспетчер UI)
+            this.DispatcherQueue.TryEnqueue(() =>
+            {
+                UpdateProgressFill();
+            });
+        }
+
+        private void UpdateProgressFill()
+        {
+            if (TrackDurationMs > 0 && RootGrid != null)
+            {
+                var progress = (double)TrackPositionMs / TrackDurationMs;
+                var width = RootGrid.ActualWidth * progress;
+                RedRectangle.Width = width;
+            }
         }
 
         private void AudioPlayer_PropertyChanged(object sender, EventArgs e)
@@ -288,7 +338,6 @@ namespace VK_UI3.Controllers
 
         private void RootGrid_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            AnimateRedRectangle();
             this.DispatcherQueue.TryEnqueue(() =>
             {
                 sliderTrackGridUP.Width = RootGrid.ActualWidth;
@@ -339,6 +388,11 @@ namespace VK_UI3.Controllers
         {
             var fullScreenWindow = new Views.FullScreenWindow();
             fullScreenWindow.Activate();
+        }
+
+        private void ListenTogether_Tapped(object sender, TappedRoutedEventArgs e)
+        {
+        	// Обработчик больше не используется — открытие через Flyout в XAML
         }
 
         private void Grid_Tapped(object sender, TappedRoutedEventArgs e)
@@ -505,6 +559,12 @@ namespace VK_UI3.Controllers
             changeText2.ChangeTextWithAnimation(TrackDataThis?.audio?.Title ?? string.Empty);
 
             FlyOutControl.dataTrack = TrackDataThis;
+
+            // Сбрасываем прогресс заполнения при смене трека (через диспетчер UI)
+            this.DispatcherQueue.TryEnqueue(() =>
+            {
+                RedRectangle.Width = 0;
+            });
         }
 
         private void HandleTrackPlayedHighlighting()
@@ -634,43 +694,6 @@ namespace VK_UI3.Controllers
 
         #region Animation Methods
 
-        private void AnimateRedRectangle()
-        {
-            if (RootGrid == null || RedRectangle == null) return;
-
-            this.DispatcherQueue.TryEnqueue(() =>
-            {
-                double toWidth = RootGrid.ActualWidth * RedFillPercent;
-                var animation = new DoubleAnimation
-                {
-                    To = toWidth,
-                    Duration = new Duration(TimeSpan.FromMilliseconds(40)),
-                    EnableDependentAnimation = true,
-                };
-
-                Storyboard.SetTarget(animation, RedRectangle);
-                Storyboard.SetTargetProperty(animation, "Width");
-                var sb = new Storyboard();
-                sb.Children.Add(animation);
-                sb.Begin();
-                RedRectangle.Width = toWidth;
-            });
-        }
-
-        private void UpdateRedFillPercent()
-        {
-            if (TrackDurationMs > 0)
-                SetRedFillPercent((double)TrackPositionMs / TrackDurationMs);
-            else
-                SetRedFillPercent(0);
-        }
-
-        private void SetRedFillPercent(double percent)
-        {
-            percent = Math.Clamp(percent, 0, 1);
-            RedFillPercent = percent;
-        }
-
         private async Task AnimateTranslate(TranslateTransform transform, double to, double durationSeconds)
         {
             var storyboard = new Storyboard();
@@ -784,6 +807,8 @@ namespace VK_UI3.Controllers
         {
             this.DispatcherQueue.TryEnqueue(() =>
             {
+                if (changeIconPlayBTN == null) return;
+
                 switch (sender.CurrentState)
                 {
                     case MediaPlayerState.Playing:
