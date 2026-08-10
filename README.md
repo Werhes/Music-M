@@ -1,6 +1,6 @@
-[![TotalDownloads](https://img.shields.io/github/downloads/MaKrotos/Music-M/total?label=Загрузок)](https://github.com/MaKrotos/Music-M/releases "Download")
-[![OS - Windows](https://img.shields.io/badge/OS-Windows-blue?logo=windows&logoColor=white)](https://github.com/MaKrotos/Music-M/releases "Download")
-[![GitHub Release](https://img.shields.io/github/v/release/MaKrotos/Music-M?include_prereleases&label=Latest%20Release)](https://github.com/MaKrotos/Music-M/releases)
+[![TotalDownloads](https://img.shields.io/github/downloads/Werhes/Music-M/total?label=Загрузок)](https://github.com/Werhes/Music-M/releases "Download")
+[![OS - Windows](https://img.shields.io/badge/OS-Windows-blue?logo=windows&logoColor=white)](https://github.com/Werhes/Music-M/releases "Download")
+[![GitHub Release](https://img.shields.io/github/v/release/Werhes/Music-M?include_prereleases&label=Latest%20Release)](https://github.com/Werhes/Music-M/releases)
 
 ## Описание
 Music M — это абсолютно бесплатное приложение для прослушивания музыки в социальной сети VK.
@@ -30,14 +30,14 @@ Music M - По сути своей адаптация VK X и Music X, пере�
 
 ## Установщики
 
-[X64 - полная версия установщика](https://github.com/MaKrotos/Music-M/releases/download/0.3.4.6/Setup-FULL.X86.exe) - подойдёт большинству, автоматическая установка библиотек. Просто качайте это, если не знаете что качать.
+[X64 - полная версия установщика](https://github.com/Werhes/Music-M/releases/download/0.3.4.6/Setup-FULL.X86.exe) - подойдёт большинству, автоматическая установка библиотек. Просто качайте это, если не знаете что качать.
 
-[X64 - урезанная версия установщика ](https://github.com/MaKrotos/Music-M/releases/download/0.3.4.6/Setup-SLIM.X86.exe) - подойдёт большинству, придётся ручками ставить библиотеку .NET
+[X64 - урезанная версия установщика ](https://github.com/Werhes/Music-M/releases/download/0.3.4.6/Setup-SLIM.X86.exe) - подойдёт большинству, придётся ручками ставить библиотеку .NET
 
 
-[ARM64 - полная версия установщика](https://github.com/MaKrotos/Music-M/releases/download/0.3.4.6/Setup-FULL.ARM64.exe) - подойдёт владельцам процессора ARM64, автоматическая установка библиотек
+[ARM64 - полная версия установщика](https://github.com/Werhes/Music-M/releases/download/0.3.4.6/Setup-FULL.ARM64.exe) - подойдёт владельцам процессора ARM64, автоматическая установка библиотек
 
-[ARM64 - урезанная версия установщика](https://github.com/MaKrotos/Music-M/releases/download/0.3.4.6/Setup-SLIM.ARM64.exe) - подойдёт владельцам процессора ARM64, придётся ручками ставить библиотеку .NET
+[ARM64 - урезанная версия установщика](https://github.com/Werhes/Music-M/releases/download/0.3.4.6/Setup-SLIM.ARM64.exe) - подойдёт владельцам процессора ARM64, придётся ручками ставить библиотеку .NET
 
 ## Скриншоты
 ![image](https://github.com/user-attachments/assets/6525ad2f-18c8-48c4-8605-ad68c118702a)
@@ -56,11 +56,11 @@ Music M - По сути своей адаптация VK X и Music X, пере�
 
 ## Star History
 
-<a href="https://www.star-history.com/#MaKrotos/Music-M&Date">
+<a href="https://www.star-history.com/#Werhes/Music-M&Date">
  <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=MaKrotos/Music-M&type=Date&theme=dark" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=MaKrotos/Music-M&type=Date" />
-   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=MaKrotos/Music-M&type=Date" />
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=Werhes/Music-M&type=Date&theme=dark" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=Werhes/Music-M&type=Date" />
+   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=Werhes/Music-M&type=Date" />
  </picture>
 </a>
 

@@ -1,6 +1,8 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
+using System;
+using VK_UI3.Views;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -73,6 +75,13 @@ namespace VK_UI3.Views.Settings
         {
             int sizeMb = (int)trackCacheMaxSize.Value;
             trackCacheMaxSizeValue.Text = $"{sizeMb / 1000.0:F1} ГБ";
+        }
+
+        private async void ViewLogsButton_Click(object sender, RoutedEventArgs e)
+        {
+            var logViewer = new LogViewerWindow();
+            logViewer.XamlRoot = this.XamlRoot;
+            await logViewer.ShowAsync();
         }
     }
 }

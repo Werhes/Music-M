@@ -130,7 +130,7 @@ namespace VK_UI3.DiscordRPC
                             new Button()
                             {
                                 Label = "Слушать в VK M",
-                                Url = "https://github.com/MaKrotos/Music-M"
+                                Url = "https://github.com/Werhes/Music-M"
                             },
                             new Button()
                             {

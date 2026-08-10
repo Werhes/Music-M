@@ -28,9 +28,9 @@ namespace SetupLib.Services
         {
             return RuntimeInformation.OSArchitecture switch
             {
-                Architecture.Arm64 => new Uri("https://github.com/MaKrotos/Music-M/releases/download/0.1.0.0/WindowsAppRuntimeInstall.1.6.3-arm64.exe"),
-                Architecture.X64 => new Uri("https://github.com/MaKrotos/Music-M/releases/download/0.1.0.0/WindowsAppRuntimeInstall.1.6.3-x64.exe"),
-                Architecture.X86 => new Uri("https://github.com/MaKrotos/Music-M/releases/download/0.1.0.0/WindowsAppRuntimeInstall.1.6.3-x86.exe"),
+                Architecture.Arm64 => new Uri("https://github.com/Werhes/Music-M/releases/download/0.1.0.0/WindowsAppRuntimeInstall.1.6.3-arm64.exe"),
+                Architecture.X64 => new Uri("https://github.com/Werhes/Music-M/releases/download/0.1.0.0/WindowsAppRuntimeInstall.1.6.3-x64.exe"),
+                Architecture.X86 => new Uri("https://github.com/Werhes/Music-M/releases/download/0.1.0.0/WindowsAppRuntimeInstall.1.6.3-x86.exe"),
                 _ => throw new Exception("Неизвестная архитектура")
             };
         }

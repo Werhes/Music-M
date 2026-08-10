@@ -251,7 +251,8 @@
                     <StackPanel
                         Grid.Column="5"
                         HorizontalAlignment="Right"
-                        Orientation="Horizontal">
+                        Orientation="Horizontal"
+                        Spacing="4">
                         <customBTN:AnimatedButton
                             x:Name="UploadBTN"
                             Grid.Column="4"

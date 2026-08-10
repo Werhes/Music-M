@@ -61,7 +61,7 @@ namespace SetupLib
         {
             InstallStatusChanged?.Invoke(this, new InstallStatusChangedEventArgs { Status = "Проверка наличия обновлений..." });
 
-            _currentReleaseInfo = await _gitHubClientService.GetLatestReleaseInfo("MaKrotos", "Music-M", currentVersion);
+            _currentReleaseInfo = await _gitHubClientService.GetLatestReleaseInfo("Werhes", "Music-M", currentVersion);
 
             if (_currentReleaseInfo == null)
             {

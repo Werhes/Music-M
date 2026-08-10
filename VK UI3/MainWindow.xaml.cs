@@ -966,6 +966,7 @@ namespace VK_UI3
             if (VK_UI3.Views.Notification.Notification.Notifications.Count > 0)
                 NotifList.ShowAt(TitIcon);
         }
+
         #endregion
 
         #region Updates and Downloads

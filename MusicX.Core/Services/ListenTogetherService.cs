@@ -68,7 +68,7 @@ namespace MusicX.Core.Services
 
         public string ConnectUrl => $"{Host}/connect?id={SessionId}";
 
-        public string Host { get; private set; } = "https://musicx.zznty.ru:8443";
+        public string Host { get; private set; } = "http://31.76.43.138:5000";
         public string? Token { get; set; }
 
         public ListenTogetherService(Logger logger)
@@ -307,19 +307,25 @@ namespace MusicX.Core.Services
 
                     var servers = JsonConvert.DeserializeObject<ListenTogetherServersModel>(contents);
 
-                    return Host =
+                    var host =
 #if DEBUG
-                    servers.Test;
+                    servers?.Test;
 #else
-                    servers.Production;
+                    servers?.Production;
 #endif
+
+                    if (!string.IsNullOrEmpty(host))
+                    {
+                        return Host = host;
+                    }
                 }
             }
             catch(Exception)
             {
-                return "http://212.192.40.71:5000";
+                // ignore
             }
             
+            return Host = "http://212.192.40.71:5000";
         }
 
         private async Task SessionUserStoped()
