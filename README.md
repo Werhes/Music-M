@@ -27,40 +27,13 @@ Music M - По сути своей адаптация VK X и Music X, пере�
 - Передача личных данных третьим лицам не производится (весь код открытый для проверки).
 - Создания аккаунта вк без номера телефона.
 
-
-## Установщики
-
-[X64 - полная версия установщика](https://github.com/Werhes/Music-M/releases/download/0.3.4.6/Setup-FULL.X86.exe) - подойдёт большинству, автоматическая установка библиотек. Просто качайте это, если не знаете что качать.
-
-[X64 - урезанная версия установщика ](https://github.com/Werhes/Music-M/releases/download/0.3.4.6/Setup-SLIM.X86.exe) - подойдёт большинству, придётся ручками ставить библиотеку .NET
-
-
-[ARM64 - полная версия установщика](https://github.com/Werhes/Music-M/releases/download/0.3.4.6/Setup-FULL.ARM64.exe) - подойдёт владельцам процессора ARM64, автоматическая установка библиотек
-
-[ARM64 - урезанная версия установщика](https://github.com/Werhes/Music-M/releases/download/0.3.4.6/Setup-SLIM.ARM64.exe) - подойдёт владельцам процессора ARM64, придётся ручками ставить библиотеку .NET
-
-## Скриншоты
-![image](https://github.com/user-attachments/assets/6525ad2f-18c8-48c4-8605-ad68c118702a)
-![image](https://github.com/user-attachments/assets/89689566-7940-4dae-861f-4eae2fb8afd5)
-<img  alt="image" src="https://github.com/user-attachments/assets/01517d19-ac6f-4add-a939-867486a76d50" />
-![image](https://github.com/user-attachments/assets/ca2eae3c-443e-464d-a04e-eace7d4cba2b)
-![image](https://github.com/user-attachments/assets/db59c45b-9101-44aa-bfac-df29ec0d88f4)
-![image](https://github.com/user-attachments/assets/3a230857-c03a-4c80-828c-9710b6bde6ae)
-
-![image](https://github.com/user-attachments/assets/af681632-263c-438d-a138-e91975220fd3)
-![image](https://github.com/user-attachments/assets/3766499d-052d-435c-a673-808e8bfbc315)
-![image](https://github.com/user-attachments/assets/228499f9-a7d7-492a-ace6-5329b02e1bdb)
-![image](https://github.com/user-attachments/assets/7fb9122a-88ed-4042-96ae-288949a884b0)
-![image](https://github.com/user-attachments/assets/e98cbf79-a4a6-434c-b382-089c9abe7ffd)
-![image](https://github.com/user-attachments/assets/b859710a-fc2c-4ac0-865f-90d2cbe36816)
-
 ## Star History
 
-<a href="https://www.star-history.com/#Werhes/Music-M&Date">
+<a href="https://www.star-history.com/?repos=werhes%2FMusic-M&type=date&legend=top-left">
  <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=Werhes/Music-M&type=Date&theme=dark" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=Werhes/Music-M&type=Date" />
-   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=Werhes/Music-M&type=Date" />
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=werhes/Music-M&type=date&theme=dark&legend=top-left&sealed_token=zadibJMp2brhuL9GwwTGXg6iLq9y5wJ11XhCdPhaeB8v9DB18QuRAvLSAMJRof5HtWrGugCwXhg7axPsqn6l6r89ZHB1vqGtVbGKkmxpLDWVscLoUk4Flw" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=werhes/Music-M&type=date&legend=top-left&sealed_token=zadibJMp2brhuL9GwwTGXg6iLq9y5wJ11XhCdPhaeB8v9DB18QuRAvLSAMJRof5HtWrGugCwXhg7axPsqn6l6r89ZHB1vqGtVbGKkmxpLDWVscLoUk4Flw" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=werhes/Music-M&type=date&legend=top-left&sealed_token=zadibJMp2brhuL9GwwTGXg6iLq9y5wJ11XhCdPhaeB8v9DB18QuRAvLSAMJRof5HtWrGugCwXhg7axPsqn6l6r89ZHB1vqGtVbGKkmxpLDWVscLoUk4Flw" />
  </picture>
 </a>
 
