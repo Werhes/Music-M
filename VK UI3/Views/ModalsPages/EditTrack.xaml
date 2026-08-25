@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<UserControl
+    x:Class="VK_UI3.Views.ModalsPages.EditTrack"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="using:VK_UI3.Views.ModalsPages"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    Margin="0"
+    Padding="0"
+    mc:Ignorable="d"
+    AutomationProperties.Name="Редактор трека"
+    AutomationProperties.HelpText="Страница для редактирования информации о треке">
+
+    <ScrollView>
+        <StackPanel
+            Margin="0"
+            Padding="0"
+            Background="{ThemeResource AcrylicBackgroundFillColorDefaultBrush}">
+            <TextBlock
+                Margin="10,10,10,10"
+                FontSize="20"
+                Text="Редактирование трека"
+                AutomationProperties.Name="Заголовок редактирования трека"
+                AutomationProperties.HelpText="Страница для редактирования информации о треке" />
+            <TextBlock Margin="10,10,10,0" Text="Название"
+                AutomationProperties.Name="Текст названия трека"
+                AutomationProperties.HelpText="Название трека" />
+            <TextBox
+                x:Name="name"
+                Margin="10,0,10,10"
+                PlaceholderText=""
+                AutomationProperties.Name="Поле ввода названия трека"
+                AutomationProperties.HelpText="Введите название трека" />
+            <TextBlock Margin="10,10,10,0" Text="Исполнитель"
+                AutomationProperties.Name="Текст исполнителя трека"
+                AutomationProperties.HelpText="Исполнитель трека" />
+            <TextBox
+                x:Name="artist"
+                Margin="10,10,10,10"
+                PlaceholderText=""
+                AutomationProperties.Name="Поле ввода исполнителя трека"
+                AutomationProperties.HelpText="Введите исполнителя трека" />
+            <TextBlock Margin="10,10,10,0" Text="Жанр"
+                AutomationProperties.Name="Текст жанра трека"
+                AutomationProperties.HelpText="Жанр трека" />
+            <ComboBox
+                x:Name="Genres"
+                Margin="10,0,10,10"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Stretch"
+                PlaceholderText="Выберите жанр"
+                AutomationProperties.Name="Выпадающий список жанров"
+                AutomationProperties.HelpText="Выберите жанр трека">
+                <ComboBoxItem Content="Рок" Tag="1" />
+                <ComboBoxItem Content="Поп" Tag="2" />
+                <ComboBoxItem Content="Рэп и Хип-хоп" Tag="3" />
+                <ComboBoxItem Content="Легкая музыка" Tag="4" />
+                <ComboBoxItem Content="Хаус и Танцевальная" Tag="5" />
+                <ComboBoxItem Content="Инструментальная" Tag="6" />
+                <ComboBoxItem Content="Метал" Tag="7" />
+                <ComboBoxItem Content="Альтернатива" Tag="21" />
+                <ComboBoxItem Content="Дабстеп" Tag="8" />
+                <ComboBoxItem Content="Джаз и Блюз" Tag="1001" />
+                <ComboBoxItem Content="Драм-н-бэйс" Tag="10" />
+                <ComboBoxItem Content="Транс" Tag="11" />
+                <ComboBoxItem Content="Шансон" Tag="12" />
+                <ComboBoxItem Content="Этническая" Tag="13" />
+                <ComboBoxItem Content="Акустическая и Вокальная" Tag="14" />
+                <ComboBoxItem Content="Регги" Tag="15" />
+                <ComboBoxItem Content="Классическая" Tag="16" />
+                <ComboBoxItem Content="Инди-поп" Tag="17" />
+                <ComboBoxItem Content="Речь" Tag="19" />
+                <ComboBoxItem Content="Электропоп и Диско" Tag="22" />
+                <ComboBoxItem
+                    x:Name="ancyItem"
+                    Content="Другое"
+                    IsSelected="True"
+                    Tag="18" />
+            </ComboBox>
+            <CheckBox
+                x:Name="Vivod"
+                Margin="10,0,10,10"
+                Content="Не выводить при поиске"
+                AutomationProperties.Name="Флажок скрытия из поиска"
+                AutomationProperties.HelpText="Включите, чтобы скрыть трек из поиска" />
+            <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
+                <Button
+                    x:Name="Cancel"
+                    Grid.Row="0"
+                    Grid.Column="0"
+                    Margin="0,0,5,10"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Bottom"
+                    Click="Cancel_Click"
+                    AutomationProperties.Name="Кнопка отмены"
+                    AutomationProperties.HelpText="Нажмите для отмены редактирования трека">
+                    Отмена
+                </Button>
+                <Button
+                    x:Name="Save"
+                    Grid.Row="1"
+                    Grid.Column="1"
+                    Margin="0,0,10,10"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Bottom"
+                    Click="Save_Click"
+                    AutomationProperties.Name="Кнопка сохранения"
+                    AutomationProperties.HelpText="Нажмите для сохранения изменений трека">
+                    Сохранить
+                </Button>
+            </StackPanel>
+        </StackPanel>
+    </ScrollView>
+</UserControl>

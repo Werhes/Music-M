@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Page
+    x:Class="VK_UI3.Views.UserPlayList"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:custom="using:VK_UI3.Controls"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="using:VK_UI3.Views"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    x:Name="ThisPage"
+    Margin="0"
+    mc:Ignorable="d"
+    AutomationProperties.Name="Страница пользовательских плейлистов"
+    AutomationProperties.HelpText="Отображает список пользовательских плейлистов">
+
+    <Grid x:Name="MainGrid" CornerRadius="8" AutomationProperties.Name="Основная сетка" AutomationProperties.HelpText="Основная область компоновки страницы плейлистов">
+        <GridView
+            x:Name="gridV"
+            Grid.Row="0"
+            Grid.Column="2"
+            Padding="10"
+            ContainerContentChanging="gridV_ContainerContentChanging"
+            ItemsSource="{x:Bind audioPlaylists, Mode=OneWay}"
+            ScrollViewer.HorizontalScrollMode="Disabled"
+            ScrollViewer.VerticalScrollMode="Enabled"
+            SelectionChanged="gridV_SelectionChanged"
+            SelectionMode="None"
+            AutomationProperties.Name="Сетка плейлистов"
+            AutomationProperties.HelpText="Сетка с пользовательскими плейлистами">
+            <GridView.ItemTemplate>
+                <DataTemplate>
+                    <custom:PlaylistControl x:Name="trControl" _PlaylistItems="{Binding audioPlaylists, ElementName=ThisPage}" AutomationProperties.Name="Элемент плейлиста" AutomationProperties.HelpText="Отдельный плейлист в списке" />
+                </DataTemplate>
+            </GridView.ItemTemplate>
+            <GridView.Footer>
+                <ProgressRing x:Name="LoadingIndicator" IsActive="False" AutomationProperties.Name="Индикатор загрузки" AutomationProperties.HelpText="Показывает процесс загрузки плейлистов" />
+            </GridView.Footer>
+        </GridView>
+        <StackPanel
+            Grid.Row="0"
+            Grid.Column="0"
+            HorizontalAlignment="Right"
+            VerticalAlignment="Bottom"
+            Orientation="Horizontal"
+            AutomationProperties.Name="Панель управления"
+            AutomationProperties.HelpText="Панель с кнопками управления плейлистами">
+            <Button
+                Background="{ThemeResource AcrylicBackgroundFillColorBaseBrush}"
+                x:Name="CreateButton"
+                Margin="10"
+                Click="CreateButton_Click"
+                AutomationProperties.Name="Создать плейлист"
+                AutomationProperties.HelpText="Создать новый плейлист">
+                <StackPanel Orientation="Horizontal">
+                    <FontIcon Glyph="" AutomationProperties.Name="Иконка создания" AutomationProperties.HelpText="Иконка создания нового плейлиста" />
+                    <TextBlock Margin="5,0,0,0" Text="Создать плейлист" AutomationProperties.Name="Текст создания" AutomationProperties.HelpText="Текст кнопки создания плейлиста" />
+                </StackPanel>
+            </Button>
+            <Button
+                Background="{ThemeResource AcrylicBackgroundFillColorBaseBrush}"
+                x:Name="Cancel"
+                Margin="10,0,10,10"
+                Click="Cancel_Click"
+                Visibility="Collapsed"
+                AutomationProperties.Name="Отмена"
+                AutomationProperties.HelpText="Отменить выбор плейлиста">
+                <StackPanel Orientation="Horizontal">
+                    <FontIcon Glyph="" AutomationProperties.Name="Иконка отмены" AutomationProperties.HelpText="Иконка отмены выбора" />
+                    <TextBlock Margin="5,0,0,0" Text="Отмена" AutomationProperties.Name="Текст отмены" AutomationProperties.HelpText="Текст кнопки отмены" />
+                </StackPanel>
+            </Button>
+        </StackPanel>
+    </Grid>
+</Page>

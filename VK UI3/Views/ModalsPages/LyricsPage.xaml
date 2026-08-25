@@ -1,0 +1,135 @@
+﻿<Page
+	x:Class="VK_UI3.Views.ModalsPages.LyricsPage"
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:cntrollers="using:VK_UI3.Controls"
+	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	xmlns:local="using:VK_UI3.Views.ModalsPages"
+	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	xmlns:winui="using:WinUICommunity"
+	HorizontalAlignment="Stretch"
+	Background="{ThemeResource AcrylicInAppFillColorBaseBrush}"
+	mc:Ignorable="d"
+    AutomationProperties.Name="Страница текста песни"
+    AutomationProperties.HelpText="Отображает текст песни с синхронизацией по времени">
+
+	<Page.Resources>
+		<ThemeShadow x:Name="SharedShadow" />
+	</Page.Resources>
+
+	<Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="*" />
+		</Grid.RowDefinitions>
+
+
+
+		<StackPanel
+			Grid.Row="0"
+			Margin="10,10,10,0"
+			Padding="10,10,10,10"
+			HorizontalAlignment="Stretch"
+			VerticalAlignment="Top"
+			Background="{ThemeResource AcrylicInAppFillColorDefaultBrush}"
+			CornerRadius="4"
+			Orientation="Horizontal">
+			<Button Margin="0,0,5,0" Click="Button_Click" AutomationProperties.Name="Закрыть страницу текста песни" AutomationProperties.HelpText="Закрывает окно с текстом песни">X</Button>
+			<Button
+				x:Name="CopyClipboard"
+				Margin="0,0,5,0"
+				Click="CopyClipboard_Click"
+                AutomationProperties.Name="Скопировать текст песни"
+                AutomationProperties.HelpText="Копирует текст песни в буфер обмена">
+				<StackPanel Orientation="Horizontal">
+					<FontIcon Margin="0,0,5,0" Glyph="&#xE8C8;" />
+					<TextBlock>Скопировать текст</TextBlock>
+				</StackPanel>
+			</Button>
+
+			<ComboBox x:Name="GeniusToggle" SelectionChanged="GeniusToggle_SelectionChanged" AutomationProperties.Name="Выбор источника текста песни" AutomationProperties.HelpText="Позволяет выбрать источник для получения текста песни" />
+		</StackPanel>
+
+
+		<winui:OpacityMaskView
+			Grid.Row="1"
+			Grid.Column="0"
+			HorizontalAlignment="Stretch"
+			VerticalAlignment="Stretch">
+			<winui:OpacityMaskView.OpacityMask>
+				<LinearGradientBrush MappingMode="RelativeToBoundingBox" StartPoint="1,0" EndPoint="1,1">
+					<GradientStop Offset="0" Color="#00FFFFFF" />
+					<GradientStop Offset="0.1" Color="#FFFFFFFF" />
+					<GradientStop Offset="0.5" Color="#FFFFFFFF" />
+					<GradientStop Offset="0.99" Color="#FFFFFFFF" />
+					<GradientStop Offset="1" Color="#00FFFFFF" />
+				</LinearGradientBrush>
+			</winui:OpacityMaskView.OpacityMask>
+
+			<winui:OpacityMaskView HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+
+
+				<ListView
+					x:Name="ListLyrics"
+					Grid.Row="1"
+					Margin="0"
+					Padding="10"
+					HorizontalAlignment="Stretch"
+					VerticalAlignment="Stretch"
+					HorizontalContentAlignment="Stretch"
+					ItemsSource="{x:Bind Texts, Mode=OneWay}"
+					SelectionMode="None"
+                    AutomationProperties.Name="Список строк текста песни"
+                    AutomationProperties.HelpText="Отображает строки текста песни с синхронизацией по времени">
+
+					<ListView.ItemContainerStyle>
+						<Style TargetType="ListViewItem">
+							<Setter Property="HorizontalContentAlignment" Value="Stretch" />
+						</Style>
+					</ListView.ItemContainerStyle>
+
+					<ListView.ItemTemplate>
+						<DataTemplate>
+							<cntrollers:LyricController HorizontalAlignment="Stretch" />
+						</DataTemplate>
+					</ListView.ItemTemplate>
+
+				</ListView>
+			</winui:OpacityMaskView>
+
+		</winui:OpacityMaskView>
+		<Grid
+			x:Name="GridBRing"
+			Grid.Row="3"
+			Padding="10"
+			HorizontalAlignment="Center"
+			VerticalAlignment="Center"
+			Background="{ThemeResource AcrylicBackgroundFillColorBaseBrush}"
+			CornerRadius="8"
+            AutomationProperties.Name="Индикатор загрузки текста песни"
+            AutomationProperties.HelpText="Отображается во время загрузки текста песни">
+			<ProgressRing
+				Grid.Row="3"
+				Width="100"
+				Height="100"
+				IsActive="True" />
+		</Grid>
+
+		<Grid.Resources>
+			<Storyboard x:Name="MoveBackUpStoryboard">
+				<DoubleAnimation
+					Storyboard.TargetName="GridBRing"
+					Storyboard.TargetProperty="Opacity"
+					To="1"
+					Duration="0:0:0.3" />
+			</Storyboard>
+			<Storyboard x:Name="MoveBackDownStoryboard">
+				<DoubleAnimation
+					Storyboard.TargetName="GridBRing"
+					Storyboard.TargetProperty="Opacity"
+					To="0"
+					Duration="0:0:0.3" />
+			</Storyboard>
+		</Grid.Resources>
+	</Grid>
+</Page>

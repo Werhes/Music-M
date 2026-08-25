@@ -1,0 +1,389 @@
+﻿using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Input;
+using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Xaml.Shapes;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Windows.UI;
+
+
+namespace VK_UI3.SnowFlake
+{
+    [TemplatePart(Name = nameof(PART_Canvas), Type = typeof(Canvas))]
+    public partial class SnowFlakeEffect : Control
+    {
+        private const string PART_Canvas = "PART_Canvas";
+        private Canvas _canvas;
+
+        private readonly Random _random = new();
+        private readonly List<SnowFlake> _snowFlakes = [];
+        private double mX = -100;
+        private double mY = -100;
+        private bool _isRunning = false;
+
+        public bool AutoStart
+        {
+            get { return (bool)GetValue(AutoStartProperty); }
+            set { SetValue(AutoStartProperty, value); }
+        }
+
+        public static readonly DependencyProperty AutoStartProperty =
+            DependencyProperty.Register(nameof(AutoStart), typeof(bool), typeof(SnowFlakeEffect), new PropertyMetadata(true));
+
+        public int FlakeCount
+        {
+            get { return (int)GetValue(FlakeCountProperty); }
+            set { SetValue(FlakeCountProperty, value); }
+        }
+
+        public static readonly DependencyProperty FlakeCountProperty =
+            DependencyProperty.Register(nameof(FlakeCount), typeof(int), typeof(SnowFlakeEffect), new PropertyMetadata(188, OnFlakeCountChanged));
+
+        private static void OnFlakeCountChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var ctl = (SnowFlakeEffect)d;
+            if (ctl != null && ctl._isRunning)
+            {
+                ctl.UpdateFlakeCount((int)e.NewValue);
+            }
+        }
+
+        public bool UseRainbowColors
+        {
+            get { return (bool)GetValue(UseRainbowColorsProperty); }
+            set { SetValue(UseRainbowColorsProperty, value); }
+        }
+
+        public static readonly DependencyProperty UseRainbowColorsProperty =
+            DependencyProperty.Register(nameof(UseRainbowColors), typeof(bool), typeof(SnowFlakeEffect),
+                new PropertyMetadata(false, OnColorPropertyChanged));
+
+        public Color FlakeColor
+        {
+            get { return (Color)GetValue(FlakeColorProperty); }
+            set { SetValue(FlakeColorProperty, value); }
+        }
+
+        public static readonly DependencyProperty FlakeColorProperty =
+            DependencyProperty.Register(nameof(FlakeColor), typeof(Color), typeof(SnowFlakeEffect),
+                new PropertyMetadata(Color.FromArgb(255, 255, 255, 255), OnColorPropertyChanged));
+
+        private static void OnColorPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var ctl = (SnowFlakeEffect)d;
+            if (ctl != null && ctl._isRunning)
+            {
+                ctl.UpdateFlakeColors();
+            }
+        }
+
+        // Массив предопределенных цветов для радужных снежинок
+        private static readonly Color[] RainbowColors = new Color[]
+        {
+            Color.FromArgb(255, 255, 0, 0),      // Красный
+            Color.FromArgb(255, 255, 165, 0),    // Оранжевый
+            Color.FromArgb(255, 255, 255, 0),    // Желтый
+            Color.FromArgb(255, 0, 128, 0),      // Зеленый
+            Color.FromArgb(255, 0, 191, 255),    // Голубой
+            Color.FromArgb(255, 0, 0, 255),      // Синий
+            Color.FromArgb(255, 128, 0, 128),    // Фиолетовый
+            Color.FromArgb(255, 255, 192, 203),  // Розовый
+            Color.FromArgb(255, 0, 255, 255),    // Бирюзовый
+            Color.FromArgb(255, 255, 215, 0),    // Золотой
+            Color.FromArgb(255, 138, 43, 226),   // Сине-фиолетовый
+            Color.FromArgb(255, 50, 205, 50),    // Лаймовый
+        };
+
+        public SnowFlakeEffect()
+        {
+            DefaultStyleKey = typeof(SnowFlakeEffect);
+        }
+
+        protected override void OnApplyTemplate()
+        {
+            base.OnApplyTemplate();
+            _canvas = GetTemplateChild(PART_Canvas) as Canvas;
+
+            SizeChanged -= OnSizeChanged;
+            SizeChanged += OnSizeChanged;
+
+            Unloaded -= OnUnLoaded;
+            Unloaded += OnUnLoaded;
+
+            if (AutoStart)
+            {
+                LayoutUpdated += SnowFlakeEffect_LayoutUpdated;
+            }
+        }
+
+        private void SnowFlakeEffect_LayoutUpdated(object sender, object e)
+        {
+            LayoutUpdated -= SnowFlakeEffect_LayoutUpdated;
+
+            Start();
+        }
+
+        private void OnUnLoaded(object sender, RoutedEventArgs e)
+        {
+            Stop();
+            SizeChanged -= OnSizeChanged;
+            Unloaded -= OnUnLoaded;
+        }
+
+        public void Start()
+        {
+            if (_isRunning) return;
+
+            InitSnowFlakes();
+            _isRunning = true;
+        }
+
+        public void Stop()
+        {
+            if (_canvas == null)
+                return;
+
+            ClearSnowFlakes();
+            _canvas.Children.Clear();
+            _isRunning = false;
+        }
+
+        private void UpdateFlakeCount(int newCount)
+        {
+            if (_canvas == null) return;
+
+            int currentCount = _snowFlakes.Count;
+
+            if (newCount > currentCount)
+            {
+                // Добавляем недостающие снежинки
+                for (int i = currentCount; i < newCount; i++)
+                {
+                    CreateSnowFlake();
+                }
+            }
+            else if (newCount < currentCount)
+            {
+                // Удаляем лишние снежинки
+                for (int i = currentCount - 1; i >= newCount; i--)
+                {
+                    var flake = _snowFlakes[i];
+                    _canvas.Children.Remove(flake.Shape);
+                    _snowFlakes.RemoveAt(i);
+                }
+            }
+        }
+
+        private void UpdateFlakeColors()
+        {
+            foreach (var flake in _snowFlakes)
+            {
+                flake.Color = GetFlakeColor();
+                if (flake.Shape != null)
+                {
+                    flake.Shape.SetValue(
+                        Shape.FillProperty,
+                        new SolidColorBrush(Color.FromArgb(
+                            (byte)(flake.Opacity * 255),
+                            flake.Color.R,
+                            flake.Color.G,
+                            flake.Color.B))
+                    );
+                }
+            }
+        }
+
+        private void InitSnowFlakes()
+        {
+            if (_canvas == null)
+                return;
+
+            for (int i = 0; i < FlakeCount; i++)
+            {
+                CreateSnowFlake();
+            }
+
+            CompositionTarget.Rendering -= UpdateSnowFlakes;
+            CompositionTarget.Rendering += UpdateSnowFlakes;
+        }
+
+        private Color GetFlakeColor()
+        {
+            // Случайная прозрачность от 0.5 до 1.0
+            double alphaVariation = _random.NextDouble() * 0.5 + 0.5;
+
+            if (UseRainbowColors)
+            {
+                // Случайный выбор цвета из радужного массива
+                Color rainbowColor = RainbowColors[_random.Next(RainbowColors.Length)];
+                return Color.FromArgb(
+                    (byte)(alphaVariation * 255),
+                    rainbowColor.R,
+                    rainbowColor.G,
+                    rainbowColor.B
+                );
+            }
+            else
+            {
+                // Используем выбранный пользователем цвет, но с случайной вариацией яркости
+                double brightnessVariation = _random.NextDouble() * 0.3 + 0.7; // 70-100% яркости
+                return Color.FromArgb(
+                    (byte)(alphaVariation * 255),
+                    (byte)(FlakeColor.R * brightnessVariation),
+                    (byte)(FlakeColor.G * brightnessVariation),
+                    (byte)(FlakeColor.B * brightnessVariation)
+                );
+            }
+        }
+
+        private void CreateSnowFlake()
+        {
+            double size = (_random.NextDouble() * 3) + 2; // Snowflake size
+            double speed = (_random.NextDouble() * 1) + 0.5; // Falling speed
+            double opacity = (_random.NextDouble() * 0.5) + 0.3; // Opacity
+            double x = _random.NextDouble() * _canvas.ActualWidth; // Initial X position
+            double y = _random.NextDouble() * _canvas.ActualHeight; // Initial Y position
+
+            Color flakeColor = GetFlakeColor();
+
+            Ellipse flakeShape = new()
+            {
+                Width = size,
+                Height = size,
+                Fill = new SolidColorBrush(Color.FromArgb(
+                    (byte)(opacity * 255),
+                    flakeColor.R,
+                    flakeColor.G,
+                    flakeColor.B)),
+            };
+
+            var transform = new TranslateTransform();
+            transform.X = x;
+            transform.Y = y;
+            flakeShape.RenderTransform = transform;
+
+            _canvas.Children.Add(flakeShape);
+
+            SnowFlake flake = new()
+            {
+                Shape = flakeShape,
+                X = x,
+                Y = y,
+                Size = size,
+                Speed = speed,
+                Opacity = opacity,
+                VelX = 0,
+                VelY = speed,
+                StepSize = _random.NextDouble() / 30 * 1,
+                Step = 0,
+                Angle = 180,
+                Transform = transform,
+                Color = flakeColor,
+            };
+
+            _snowFlakes.Add(flake);
+        }
+
+        private void UpdateSnowFlakes(object sender, object e)
+        {
+            if (_canvas.ActualWidth == 0 || _canvas.ActualHeight == 0)
+            {
+                return;
+            }
+
+            foreach (SnowFlake flake in _snowFlakes)
+            {
+                double x = mX;
+                double y = mY;
+                double minDist = 150;
+                double x2 = flake.X;
+                double y2 = flake.Y;
+
+                double dist = Math.Sqrt(((x2 - x) * (x2 - x)) + ((y2 - y) * (y2 - y)));
+
+                if (dist < minDist)
+                {
+                    double force = minDist / (dist * dist);
+                    double xcomp = (x - x2) / dist;
+                    double ycomp = (y - y2) / dist;
+                    double deltaV = force / 2;
+
+                    flake.VelX -= deltaV * xcomp;
+                    flake.VelY -= deltaV * ycomp;
+                }
+                else
+                {
+                    flake.VelX *= 0.98;
+                    if (flake.VelY <= flake.Speed)
+                    {
+                        flake.VelY = flake.Speed;
+                    }
+
+                    flake.VelX += Math.Cos(flake.Step += 0.05) * flake.StepSize;
+                }
+
+                flake.Y += flake.VelY;
+                flake.X += flake.VelX;
+
+                if (flake.Y >= _canvas.ActualHeight || flake.Y <= 0)
+                {
+                    ResetFlake(flake);
+                }
+
+                if (flake.X >= _canvas.ActualWidth || flake.X <= 0)
+                {
+                    ResetFlake(flake);
+                }
+
+                flake.Transform!.SetValue(TranslateTransform.XProperty, flake.X);
+                flake.Transform!.SetValue(TranslateTransform.YProperty, flake.Y);
+            }
+        }
+
+        private void ResetFlake(SnowFlake flake)
+        {
+            flake.X = _random.NextDouble() * _canvas.ActualWidth;
+            flake.Y = 0;
+            flake.Size = (_random.NextDouble() * 3) + 2;
+            flake.Speed = (_random.NextDouble() * 1) + 0.5;
+            flake.VelY = flake.Speed;
+            flake.VelX = 0;
+            flake.Opacity = (_random.NextDouble() * 0.5) + 0.3;
+            flake.Color = GetFlakeColor();
+
+            if (flake.Shape == null)
+            {
+                return;
+            }
+
+            flake.Shape.SetValue(FrameworkElement.WidthProperty, flake.Size);
+            flake.Shape.SetValue(FrameworkElement.HeightProperty, flake.Size);
+            flake.Shape.SetValue(
+                Shape.FillProperty,
+                new SolidColorBrush(Color.FromArgb(
+                    (byte)(flake.Opacity * 255),
+                    flake.Color.R,
+                    flake.Color.G,
+                    flake.Color.B))
+            );
+        }
+
+        private void ClearSnowFlakes()
+        {
+            foreach (SnowFlake flake in _snowFlakes)
+            {
+                _canvas.Children.Remove(flake.Shape);
+            }
+
+            _snowFlakes.Clear();
+        }
+
+        private void OnSizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            _canvas.SetValue(FrameworkElement.WidthProperty, e.NewSize.Width);
+            _canvas.SetValue(FrameworkElement.HeightProperty, e.NewSize.Height);
+        }
+    }
+}

@@ -1,0 +1,76 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Page
+	x:Class="VK_UI3.Views.ModalsPages.CaptchaEnter"
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	xmlns:local="using:VK_UI3.Views.ModalsPages"
+	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	Background="{ThemeResource AcrylicInAppFillColorBaseBrush}"
+	Loaded="Page_Loaded"
+	mc:Ignorable="d"
+	AutomationProperties.Name="Страница ввода капчи"
+    AutomationProperties.HelpText="Введите код с изображения капчи или пройдите веб-капчу">
+
+	<Page.Resources>
+		<ThemeShadow x:Name="SharedShadow" />
+	</Page.Resources>
+
+	<Grid
+		Margin="0"
+		HorizontalAlignment="Center"
+		VerticalAlignment="Center"
+		CornerRadius="8"
+		Translation="0,0,100">
+
+
+
+
+		<StackPanel
+			Margin="50"
+			HorizontalAlignment="Center"
+			VerticalAlignment="Center"
+			Translation="0,0,0">
+
+			<Image
+				x:Name="CaptchaImage"
+				Width="220"
+				Height="150"
+				Visibility="Collapsed"
+				AutomationProperties.Name="Изображение капчи"
+			             AutomationProperties.HelpText="Капча для подтверждения действий" />
+			<TextBox
+				Name="CodeBox"
+				TextAlignment="Center"
+				Visibility="Collapsed"
+				AutomationProperties.Name="Поле ввода кода капчи"
+			             AutomationProperties.HelpText="Введите код с изображения капчи" />
+			<Button
+				x:Name="ConfirmButton"
+				Margin="0,20,0,0"
+				HorizontalAlignment="Stretch"
+				Click="Button_Click"
+				Content="Подтвердить"
+				Visibility="Collapsed"
+				AutomationProperties.Name="Кнопка подтверждения капчи"
+			             AutomationProperties.HelpText="Нажмите для подтверждения введенного кода капчи" />
+
+			<WebView2
+				x:Name="CaptchaWebView"
+				Width="400"
+				Height="600"
+				Visibility="Collapsed"
+				AutomationProperties.Name="Веб-капча"
+			             AutomationProperties.HelpText="Веб-интерфейс для прохождения капчи" />
+
+			<Button
+				x:Name="CancelButton"
+				Margin="0,10,0,0"
+				HorizontalAlignment="Stretch"
+				Click="CancelButton_Click"
+				Content="Закрыть"
+				AutomationProperties.Name="Кнопка закрытия"
+			             AutomationProperties.HelpText="Нажмите для закрытия окна капчи" />
+		</StackPanel>
+	</Grid>
+</Page>

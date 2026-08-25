@@ -1,0 +1,490 @@
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.UI.Xaml;
+using MusicX.Core.Services;
+using MusicX.Services;
+using MusicX.Services.Player;
+using MusicX.Services.Player.Sources;
+using VK_UI3.Services.Player;
+using NLog;
+using StatSlyLib.Models;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Reflection;
+using System.Runtime.InteropServices;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using VK_UI3.DB;
+using VK_UI3.DownloadTrack;
+using VK_UI3.Helpers;
+using VK_UI3.Services;
+using VK_UI3.ViewModels.Controls;
+using VK_UI3.VKs.Ext;
+using VkNet.Abstractions;
+using VkNet.AudioBypassService.Abstractions;
+using VkNet.AudioBypassService.Extensions;
+using VkNet.AudioBypassService.Models.Auth;
+using VkNet.Extensions.DependencyInjection;
+using Windows.ApplicationModel;
+using Windows.Win32;
+
+// To learn more about WinUI, the WinUI project structure,
+// and more about our project templates, see: http://aka.ms/winui-project-info.
+
+namespace VK_UI3
+{
+    /// <summary>
+    /// Provides application-specific behavior to supplement the default Application class.
+    /// </summary>
+    public partial class App : Application
+    {
+
+
+        public static readonly IHost _host = Host.CreateDefaultBuilder()
+        .ConfigureAppConfiguration(c =>
+        {
+            c.SetBasePath(AppContext.BaseDirectory);
+        })
+        .ConfigureServices(services =>
+        {
+            // Vk Net services
+            // services.AddVkNet();
+
+
+
+            // services.AddVkNetWithAuth();
+            services.AddAudioBypass();
+            services.AddVkNet();
+            // services.AddSingleton<IAsyncCaptchaSolver, CaptchaSolverService>();
+            // Vk Net implementations
+            services.AddSingleton<IVkTokenStore, RegistryTokenStore>();
+            services.AddSingleton<IDeviceIdStore, RegistryTokenStore>();
+            services.AddSingleton<IExchangeTokenStore, RegistryTokenStore>();
+            services.AddSingleton(LogManager.Setup().GetLogger("Common"));
+            services.AddSingleton<IAsyncCaptchaSolver, CaptchaSolverService>();
+            services.AddSingleton<TokenChecker>();
+
+            services.AddSingleton<VkService>();
+            services.AddSingleton(s => new BackendConnectionService(s.GetRequiredService<Logger>(), StaticService.Version));
+            services.AddSingleton<ListenTogetherService>();
+            services.AddSingleton<UserRadioService>();
+            services.AddSingleton<ListenTogetherControlViewModel>();
+            services.AddSingleton<ListenTogetherStats>();
+            services.AddSingleton<BoomService>();
+            services.AddSingleton<ITrackMediaSource, VkMediaSource>();
+
+            services.AddSingleton<GeniusService>();
+
+            services.AddTransient<VkBridgeService>();
+
+            FFMediaToolkit.FFmpegLoader.FFmpegPath = new CheckFFmpeg().GetFFmpegDirectory() + "\\";
+
+            services.AddSingleton<ICustomSectionsService, CustomSectionsService>();
+            services.AddSingleton<IWhatListeningService, WhatListeningService>();
+
+            var container = StaticService.Container = services.BuildServiceProvider();
+
+
+            // var container  = services.BuildServiceProvider();
+            if (AccountsDB.activeAccount.Token == null)
+            {
+                Task.Run(
+                    async () =>
+                    {
+                        await container.GetRequiredService<IVkApiAuthAsync>()
+                                          .AuthorizeAsync(new AndroidApiAuthParams());
+                    }
+             );
+            }
+
+            //services.AddHostedService<ApplicationHostService>();
+        })
+        .Build();
+
+        /// <summary>
+        /// Initializes the singleton application object.  This is the first line of authored code
+        /// executed, and as such is the logical equivalent of main() or WinMain().
+        /// </summary>
+        public App()
+        {
+            this.InitializeComponent();
+            thisApp = this;
+            Application.Current.RequestedTheme = ApplicationTheme.Dark;
+        }
+
+
+        private Mutex _mutex = null;
+        private const int SW_RESTORE = 9;
+
+        [DllImport("user32.dll")]
+        private static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
+
+
+        /// <summary>
+        /// Invoked when the application is launched.
+        /// </summary>
+        /// <param name="args">Details about the launch request and process.</param>
+        protected override async void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
+        {
+            statSlyRun();
+
+            const string mutexName = "VKMWerhesApps";
+            bool createdNew;
+
+         
+            setThemeApp();
+            
+                _mutex = null;
+                Process current = Process.GetCurrentProcess();
+            bool close = false;
+
+            foreach (Process process in Process.GetProcessesByName(current.ProcessName))
+            {
+                Windows.Win32.Foundation.BOOL EnumWindowCallback(Windows.Win32.Foundation.HWND hwnd, Windows.Win32.Foundation.LPARAM lParam)
+                {
+                    uint processId;
+                    GetWindowThreadProcessId(hwnd, out processId);
+
+                    if (processId == process.Id)
+                    {
+                        // Получаем заголовок окна
+                        int length = PInvoke.GetWindowTextLength(hwnd);
+                        if (length > 0)
+                        {
+                            // Создаем буфер достаточного размера (+1 для нуль-терминатора)
+                            char[] buffer = new char[length + 1];
+                            unsafe
+                            {
+                                fixed (char* pBuffer = buffer)
+                                {
+                                    // Получаем текст окна
+                                    int copiedChars = PInvoke.GetWindowText(hwnd, (Windows.Win32.Foundation.PWSTR)pBuffer, buffer.Length);
+                                    if (copiedChars > 0)
+                                    {
+                                        string windowTitle = new string(buffer, 0, copiedChars);
+
+                                        // Проверяем, содержит ли заголовок "VK M" (или точное совпадение)
+                                        if (windowTitle.Contains("VK M")) // или windowTitle == "VK M"
+                                        {
+                                            if (PInvoke.IsWindowVisible(hwnd))
+                                            {
+                                                if (PInvoke.IsIconic(hwnd))
+                                                {
+                                                    PInvoke.ShowWindow(hwnd, Windows.Win32.UI.WindowsAndMessaging.SHOW_WINDOW_CMD.SW_RESTORE);
+                                                }
+                                                PInvoke.SetForegroundWindow(hwnd);
+                                            }
+                                            else
+                                            {
+                                                PInvoke.ShowWindow(hwnd, Windows.Win32.UI.WindowsAndMessaging.SHOW_WINDOW_CMD.SW_SHOWDEFAULT);
+                                                PInvoke.SetForegroundWindow(hwnd);
+                                            }
+                                            close = true;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    return true;
+                }
+
+                // Перебираем все окна
+                PInvoke.EnumWindows(EnumWindowCallback, (Windows.Win32.Foundation.LPARAM)0);
+            }
+            if (close)
+            {
+                Application.Current.Exit();
+                return;
+            }
+
+            _host.Start();
+
+            // Глобальные обработчики необработанных исключений
+            this.UnhandledException += App_UnhandledException;
+
+            AppDomain.CurrentDomain.UnhandledException += (sender, args) =>
+            {
+                try
+                {
+                    var exception = args.ExceptionObject as Exception;
+                    var report = ErrorReportHelper.BuildFullReport(exception, "AppDomain.UnhandledException");
+
+                    // Используем синхронный показ диалога
+                    ErrorReportHelper.ShowErrorDialogAndWait(report);
+                }
+                catch
+                {
+                }
+                finally
+                {
+                    Environment.Exit(1);
+                }
+            };
+
+            /*
+            TaskScheduler.UnobservedTaskException += (sender, args) =>
+            {
+                var report = ErrorReportHelper.BuildFullReport(args.Exception, "TaskScheduler.UnobservedTaskException");
+                ErrorReportHelper.ShowErrorDialog(report);
+                args.SetObserved();
+                Environment.Exit(1);
+            };
+            */
+
+            // Применяем настройки кеширования
+            CacheSettingsManager.ApplyAllCacheSettings();
+
+            // Автоочистка кеша изображений при запуске (если включено)
+            if (CacheSettingsManager.IsAutoClearImageCacheOnStart())
+            {
+                CacheSettingsManager.ClearImageCache();
+            }
+
+            // Применяем лимит кеша треков при запуске
+            if (CacheSettingsManager.IsTrackCacheEnabled())
+            {
+                int maxSizeMb = CacheSettingsManager.GetTrackCacheMaxSizeMb();
+                TrackCacheManager.EnforceCacheSizeLimit(maxSizeMb);
+            }
+
+            // Показываем splash screen перед основным окном
+            var splashWindow = new Views.SplashWindow();
+            await splashWindow.ShowAndWaitAsync(3000);
+
+            m_window = new MainWindow();
+            m_window.Closed += M_window_Closed;
+
+            m_window.Activate();
+
+            // Закрываем splash после активации основного окна
+            splashWindow.Close();
+
+            //   await (appUpdater.CheckForUpdaterBool)
+        }
+
+        private async Task statSlyRun()
+        {
+            try
+            {
+             
+
+                var setting = DB.SettingsTable.GetSetting("UserUniqID");
+                string UserUniqID;
+                var assemblyVersion = Assembly.GetExecutingAssembly().GetName().Version;
+                var version = $"{assemblyVersion.Major}.{assemblyVersion.Minor}.{assemblyVersion.Build}.{assemblyVersion.Revision}";
+                if (setting == null)
+                {
+                    UserUniqID = Helpers.SmallHelpers.GenerateRandomString(100);
+                    DB.SettingsTable.SetSetting("UserUniqID", UserUniqID);
+
+                    EventParams eventParams = new EventParams("userID", UserUniqID);
+
+                    Event @event = new Event("First Run", DateTime.Now, eventParams: new List<EventParams>() {
+                        new EventParams("userID", UserUniqID),
+                        new EventParams("versionAPP", version),
+
+                        new EventParams("OSArchitecture", RuntimeInformation.OSArchitecture.ToString()),
+                        new EventParams("AppArchitecture", RuntimeInformation.ProcessArchitecture.ToString())
+                    });
+
+                    _ = new VKMStatSly().SendEvent(@event);
+                }
+                else
+                {
+                    UserUniqID = setting.settingValue;
+                }
+
+                {
+                 
+               
+
+                    var listParams = new List<EventParams>
+                    {
+                        new EventParams("userID", UserUniqID),
+                        new EventParams("Accounts Count", AccountsDB.GetAllAccounts().Count),
+                        new EventParams("versionAPP", version),
+                        new EventParams("OSArchitecture", RuntimeInformation.OSArchitecture.ToString()),
+                        new EventParams("AppArchitecture", RuntimeInformation.ProcessArchitecture.ToString())
+                    };
+
+                    if (AccountsDB.GetAllAccounts().Count > 0)
+                    {
+                        var account = AccountsDB.GetActiveAccount();
+                        listParams.Add(new EventParams("ActiveAccount", account.GetHash()));
+                    }
+
+                    Event @event = new Event("Run App", DateTime.Now, eventParams: listParams);
+                    _ = new VKMStatSly().SendEvent(@event);
+
+
+                    setting = DB.SettingsTable.GetSetting("FirstRunDate");
+                 
+
+                    DateOnly nowDate = DateOnly.FromDateTime(DateTime.Now);
+
+                    if (setting != null &&
+                        DateOnly.Parse(setting.settingValue) == nowDate)
+                    {
+                        return;
+                    }
+
+                    @event = new Event("FirstRunDay", DateTime.Now, eventParams: listParams);
+
+                    try
+                    {
+                        await (new VKMStatSly().SendEvent(@event));
+                        DB.SettingsTable.SetSetting("FirstRunDate", nowDate.ToString());
+                    }
+                    catch 
+                    {
+
+                    }
+
+                }
+            }
+            catch (Exception e)
+            { 
+            }
+        }
+
+        private static App thisApp;
+
+        public static void setThemeApp() 
+        {
+            //thisApp.RequestedTheme = ApplicationTheme.Light;
+
+            //thisApp.RequestedTheme = (DB.SettingsTable.GetSetting("SetLightColor") == null) ? ApplicationTheme.Light : ApplicationTheme.Dark;
+        }
+
+        private void M_window_Closed(object sender, WindowEventArgs args)
+        {
+            if (_mutex != null)
+            {
+                _mutex.ReleaseMutex();
+                _mutex = null;
+            }
+        }
+
+        private void App_UnhandledException(object sender, Microsoft.UI.Xaml.UnhandledExceptionEventArgs e)
+        {
+            // Предотвращаем стандартное закрытие приложения, чтобы показать отчёт
+            e.Handled = true;
+
+            try
+            {
+                // Собираем полный отчёт об ошибке
+                var report = ErrorReportHelper.BuildFullReport(e.Exception, "App.UnhandledException");
+
+                // Отправляем статистику (в фоне, не блокируя показ отчёта)
+                SendExceptionStat(e.Exception, sender, report);
+
+                // Показываем диалог и ждём его закрытия
+                ErrorReportHelper.ShowErrorDialogAndWait(report);
+            }
+            catch (Exception ex)
+            {
+                // Если даже диалог ошибки не работает, показываем MessageBox
+                try
+                {
+                    Windows.UI.Popups.MessageDialog dialog = new Windows.UI.Popups.MessageDialog(
+                        $"Критическая ошибка:\n{ex.Message}\n\n{e.Exception?.Message}",
+                        "VK M - Критическая ошибка");
+                    dialog.ShowAsync();
+                }
+                catch { }
+            }
+            finally
+            {
+                // Завершаем приложение только после закрытия диалога
+                Environment.Exit(1);
+            }
+        }
+
+        /// <summary>
+        /// Отправляет статистику об исключении в StatSly с полной информацией.
+        /// </summary>
+        private static void SendExceptionStat(Exception exception, object sender, string report)
+        {
+            try
+            {
+                var setting = DB.SettingsTable.GetSetting("UserUniqID");
+                string UserUniqID;
+                if (setting == null)
+                {
+                    UserUniqID = Helpers.SmallHelpers.GenerateRandomString(100);
+                    DB.SettingsTable.SetSetting("UserUniqID", UserUniqID);
+                }
+                else
+                {
+                    UserUniqID = setting.settingValue;
+                }
+
+                var assemblyVersion = Assembly.GetExecutingAssembly().GetName().Version;
+                var version = $"{assemblyVersion.Major}.{assemblyVersion.Minor}.{assemblyVersion.Build}.{assemblyVersion.Revision}";
+
+                // Получаем детальную информацию о месте ошибки
+                var stackTrace = new StackTrace(exception, true);
+                var frames = stackTrace.GetFrames();
+         
+                int lineNumber = 0;
+                int columnNumber = 0;
+
+                if (frames != null && frames.Length > 0)
+                {
+                    var firstFrame = frames[0];
+                    var method = firstFrame.GetMethod();
+                    
+                    lineNumber = firstFrame.GetFileLineNumber();
+                    columnNumber = firstFrame.GetFileColumnNumber();
+                }
+
+                var listParams = new List<EventParams>
+                {
+                    // Основная информация
+                    new EventParams("userID", UserUniqID),
+                    new EventParams("versionAPP", version),
+                    new EventParams("sender", sender?.GetType().FullName ?? "null"),
+            
+                    // Информация об исключении
+                    new EventParams("exception_type", exception.GetType().FullName),
+                    new EventParams("exception_message", exception.Message ?? "null"),
+                    new EventParams("exception_source", exception.Source ?? "null"),
+                    new EventParams("exception_hresult", $"0x{exception.HResult:X8}"),
+                    new EventParams("exception_targetsite", exception.TargetSite?.ToString() ?? "null"),
+            
+                    new EventParams("report", report),
+                    new EventParams("error_line", lineNumber.ToString()),
+                    new EventParams("error_column", columnNumber.ToString()),
+            
+                    // Полный стек
+                    new EventParams("stack_trace", exception.StackTrace ?? "null"),
+            
+                    // Вложенное исключение (если есть)
+                    new EventParams("has_inner_exception", (exception.InnerException != null).ToString()),
+                };
+
+      
+
+                
+
+                Event @event = new Event("Exception", DateTime.Now, eventParams: listParams);
+
+                // Синхронное ожидание завершения отправки с таймаутом
+                var task = new VKMStatSly().SendEvent(@event);
+                task.Wait(TimeSpan.FromSeconds(5));
+            }
+            catch (Exception ex)
+            {
+                // Игнорируем ошибки отправки статистики, но логируем в Debug
+                System.Diagnostics.Debug.WriteLine($"SendExceptionStat error: {ex.Message}");
+            }
+        }
+
+        public static Microsoft.UI.Xaml.Window m_window;
+    }
+}

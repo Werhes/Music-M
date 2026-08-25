@@ -1,0 +1,106 @@
+<Page
+    x:Class="VK_UI3.Views.ModalsPages.CreatePost"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="using:VK_UI3.Views.ModalsPages"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    Margin="-25"
+    CornerRadius="10"
+    mc:Ignorable="d"
+    AutomationProperties.Name="Страница создания поста"
+    AutomationProperties.HelpText="Страница для создания нового поста">
+    <Page.Shadow>
+        <ThemeShadow />
+    </Page.Shadow>
+
+    <Grid Background="{ThemeResource AcrylicBackgroundFillColorDefaultBrush}">
+        <ScrollView
+            x:Name="MainGrid"
+            Padding="10,35,10,30"
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Stretch"
+            CornerRadius="8">
+
+
+            <StackPanel
+                HorizontalAlignment="Center"
+                Orientation="Vertical"
+                ScrollViewer.VerticalScrollMode="Enabled">
+                <Grid
+                    Width="300"
+                    Height="300"
+                    AllowDrop="True"
+                    Background="{ThemeResource LayerOnAccentAcrylicFillColorDefaultBrush}"
+                    CornerRadius="10"
+                    DragOver="Grid_DragOver"
+                    Drop="PlaylistImage_Drop"
+                    PointerPressed="PlaylistImage_PointerPressed"
+                    
+                    Translation="0,0,8"
+                    AutomationProperties.Name="Изображение поста"
+                    AutomationProperties.HelpText="Изображение для поста. Нажмите для выбора изображения или перетащите сюда файл">
+                    <Image
+                        x:Name="PlaylistImage"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        Stretch="UniformToFill"
+                        AutomationProperties.Name="Изображение поста"
+                        AutomationProperties.HelpText="Выбранное изображение для поста" />
+                    <SymbolIcon Symbol="Edit" />
+
+                    <TeachingTip x:Name="ToggleThemeTeachingTip1"
+                        Target="{x:Bind PlaylistImage}"
+                        Title="Внимание!"
+                        Subtitle="Необходимо выбрать картинку к посту! Вк требует. Иначе никак. Я проверял.">
+                        <TeachingTip.IconSource>
+                            <SymbolIconSource Symbol="Refresh" />
+                        </TeachingTip.IconSource>
+                    </TeachingTip>
+                </Grid>
+          
+                <TextBox
+                    Width="300"
+                    x:Name="textPost"
+                    Margin="0,10,0,0"
+                    AcceptsReturn="True"
+                    Header="Текст поста"
+                    MaxLength="1024"
+                    TextWrapping="Wrap"
+                    AutomationProperties.Name="Поле ввода текста поста"
+                    AutomationProperties.HelpText="Введите текст для поста" />
+
+
+                
+
+                
+                <ToggleSwitch
+                    Toggled="DateTRimeEnable_Toggled"
+                    x:Name="DateTRimeEnable"
+                    Margin="0,10,0,0"
+                    Header="По времени" />
+<StackPanel>
+    <CalendarDatePicker  IsEnabled="False" x:Name="PickDate" PlaceholderText="Pick a date" Header="Calendar"  HorizontalAlignment="Stretch"
+        AutomationProperties.Name="Выбор даты публикации"
+        AutomationProperties.HelpText="Выберите дату для публикации поста" />
+    <TimePicker TimeChanged="PickTime_TimeChanged" x:Name="PickTime" IsEnabled="False" Margin="0,10,0,10" HorizontalAlignment="Stretch"
+        AutomationProperties.Name="Выбор времени публикации"
+        AutomationProperties.HelpText="Выберите время для публикации поста"></TimePicker>
+</StackPanel>
+
+                
+                <StackPanel
+                    Margin="0,0,0,0"
+                    HorizontalAlignment="Right"
+                    Orientation="Horizontal">
+                    <Button Margin="5" Click="Button_Click"
+                        AutomationProperties.Name="Кнопка отмены"
+                        AutomationProperties.HelpText="Нажмите для отмены создания поста">Отмена</Button>
+                    <Button x:Name="SaveBTN" Click="SaveBTN_Click"
+                        AutomationProperties.Name="Кнопка создания поста"
+                        AutomationProperties.HelpText="Нажмите для создания поста">Создать</Button>
+                </StackPanel>
+            </StackPanel>
+        </ScrollView>
+    </Grid>
+</Page>

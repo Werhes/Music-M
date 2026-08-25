@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<UserControl
+    x:Class="VK_UI3.Controls.Blocks.CuratorBannerBlockControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="using:VK_UI3.Controls.Blocks"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:winui="using:WinUICommunity"
+    mc:Ignorable="d">
+
+    <Grid Margin="10,0,10,0" CornerRadius="4" AutomationProperties.Name="Баннер куратора">
+
+
+        <Grid Height="450" MaxHeight="450">
+            <winui:OpacityMaskView HorizontalAlignment="Stretch">
+                <winui:OpacityMaskView.OpacityMask>
+                    <LinearGradientBrush MappingMode="RelativeToBoundingBox" StartPoint="1,0" EndPoint="1,1">
+                        <GradientStop Offset="0" Color="#FFFFFFFF" />
+                        <GradientStop Offset="0.05" Color="#FFFFFFFF" />
+                        <GradientStop Offset="0.55" Color="#FFFFFFFF" />
+                        <GradientStop Offset="0.95" Color="#00FFFFFF" />
+                        <GradientStop Offset="1" Color="#00FFFFFF" />
+                    </LinearGradientBrush>
+                </winui:OpacityMaskView.OpacityMask>
+
+                <winui:OpacityMaskView HorizontalAlignment="Stretch">
+                    <winui:OpacityMaskView.OpacityMask>
+                        <LinearGradientBrush MappingMode="RelativeToBoundingBox" StartPoint="1,1" EndPoint="0,1">
+                            <GradientStop Offset="0" Color="#FFFFFFFF" />
+                            <GradientStop Offset="0.05" Color="#FFFFFFFF" />
+                            <GradientStop Offset="0.30" Color="#FFFFFFFF" />
+                            <GradientStop Offset="0.95" Color="#00FFFFFF" />
+                            <GradientStop Offset="1" Color="#00FFFFFF" />
+                        </LinearGradientBrush>
+                    </winui:OpacityMaskView.OpacityMask>
+                    <Grid Background="{ThemeResource AcrylicBackgroundFillColorDefaultBrush}">
+                        <Image
+                            x:Name="CuratorBannerImage"
+                            Height="{Binding ElementName=ArtistBannerImage, Path=Width}"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            Stretch="UniformToFill"
+                            AutomationProperties.Name="Изображение куратора" />
+                    </Grid>
+
+                </winui:OpacityMaskView>
+            </winui:OpacityMaskView>
+
+        </Grid>
+
+
+
+        <Grid Margin="20,0,0,0" VerticalAlignment="Bottom">
+
+            <StackPanel Margin="10" HorizontalAlignment="Left">
+                <TextBlock
+                    FontSize="14"
+                    FontWeight="SemiBold"
+                    Opacity="0.7"
+                    Text="Сообщество-куратор"
+                    TextWrapping="Wrap"
+                    AutomationProperties.Name="Тип куратора" />
+
+                <TextBlock
+                    x:Name="CuratorText"
+                    FontFamily="{StaticResource VKSansBold}"
+                    FontSize="40"
+                    FontWeight="Black"
+                    Text="Curator name"
+                    TextWrapping="Wrap"
+                    AutomationProperties.Name="Имя куратора" />
+                <Button
+                    x:Name="ActionCuratorButton"
+                    Width="200"
+                    Margin="0,20,0,0"
+                    HorizontalAlignment="Left"
+                    Background="{StaticResource CustomAcrylicInAppBrush}"
+                    Click="ActionCuratorButton_Click"
+                    AutomationProperties.Name="Кнопка действия с куратором">
+                    <StackPanel Orientation="Horizontal">
+                        <FontIcon x:Name="BTNIcon" />
+                        <TextBlock x:Name="BTNText" Margin="10,0,0,0" />
+                    </StackPanel>
+                </Button>
+
+            </StackPanel>
+        </Grid>
+    </Grid>
+</UserControl>

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Page
+    x:Class="VK_UI3.Views.Share.FriendsList"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:contr="using:VK_UI3.Views.Share.ShareControllers"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="using:VK_UI3.Views.Share"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    Name="RootPage"
+    Loading="Page_Loading"
+    mc:Ignorable="d">
+
+    <Grid x:Name="MainGrid" CornerRadius="8">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <ListView
+            x:Name="scrollView"
+            Grid.Row="0"
+            Padding="0,4,0,4"
+            CornerRadius="8"
+            ItemsSource="{x:Bind friends, Mode=OneWay}"
+            SelectionChanged="scrollView_SelectionChanged"
+            SelectionMode="None"
+            AutomationProperties.Name="Список друзей">
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <contr:UserControllers x:Name="DataController" Margin="-8,4,-8,4" />
+                </DataTemplate>
+            </ListView.ItemTemplate>
+            <ListView.Footer>
+                <ProgressRing x:Name="LoadingIndicator" IsActive="{x:Bind itsAll}" AutomationProperties.Name="Индикатор загрузки" />
+            </ListView.Footer>
+        </ListView>
+        <Rectangle
+            x:Name="Rectr"
+            Visibility="Collapsed"
+            Grid.Row="1"
+            Height="1"
+            Margin="0,5,0,0"
+            HorizontalAlignment="Stretch"
+            Fill="{ThemeResource SystemColorWindowColor}"
+            Opacity="0.1" />
+        <StackPanel
+            Grid.Row="2"
+            HorizontalAlignment="Right"
+            Orientation="Horizontal">
+
+            <Button
+                x:Name="Cancel"
+                Margin="10,10,10,10"
+                Click="Cancel_Click"
+                Visibility="Collapsed"
+                AutomationProperties.Name="Кнопка отмены">
+                <StackPanel Orientation="Horizontal">
+                    <FontIcon Glyph="&#xE711;" AutomationProperties.Name="Иконка отмены" />
+                    <TextBlock Margin="5,0,0,0" AutomationProperties.Name="Текст кнопки отмены">Отмена</TextBlock>
+                </StackPanel>
+            </Button>
+        </StackPanel>
+    </Grid>
+</Page>

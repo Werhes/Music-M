@@ -1,0 +1,234 @@
+﻿using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Media;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Windows;
+
+using System.Text;
+using System.Threading.Tasks;
+using VK_UI3.VKs.IVK;
+using Windows.Foundation;
+
+namespace VK_UI3.Views.Controls
+{
+    internal class CustomGridView : GridView
+    {
+        bool loaded = false;
+        public CustomGridView()
+        {
+            this.Loaded += CustomGridView_Loaded;
+            this.Unloaded += CustomGridView_Unloaded;
+        }
+
+        private void CustomGridView_Unloaded(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (scrollViewer != null)
+                scrollViewer.ViewChanged += ScrollViewer_ViewChanged;
+            }
+            catch { }
+        }
+
+        public EventHandler RightChange;
+        public EventHandler LeftChange;
+        private void CustomGridView_Loaded(object sender, RoutedEventArgs e)
+        {
+            scrollViewer = FindScrollViewer(this);
+            if (scrollViewer != null)
+                scrollViewer.ViewChanged += ScrollViewer_ViewChanged;
+            this.loaded = true;
+        }
+
+
+
+        bool _showLeft = false;
+        bool _showRight = false;
+
+        public bool showLeft
+        {
+            get { return _showLeft; }
+            set
+            {
+                if (_showLeft == value) return;
+                _showLeft = value;
+                if (LeftChange != null)
+                    LeftChange.Invoke(this, EventArgs.Empty);
+            }
+        }
+        public bool showRight
+        {
+            get { return _showRight; }
+            set
+            {
+                if (_showRight == value) return;
+                _showRight = value;
+                if (RightChange != null)
+                    RightChange.Invoke(this, EventArgs.Empty);
+            }
+        }
+
+        public bool ShowRightChecker { get {
+                if (scrollViewer == null) return false;
+                var isAtRight = scrollViewer.HorizontalOffset > scrollViewer.ScrollableWidth - 10;
+                showRight = !isAtRight;
+                return !isAtRight;
+            } }
+
+        public bool ShowLeftChecker
+        {
+            get
+            {
+                if (scrollViewer == null) return false;
+                var isAtLeft = scrollViewer.HorizontalOffset == 0;
+                showLeft = !isAtLeft;
+                return !isAtLeft;
+            }
+        }
+
+
+        // Функция для прокрутки вправо
+        public void ScrollRight()
+        {
+            scrollViewer.ChangeView(scrollViewer.HorizontalOffset + scrollViewer.ActualWidth, null, null);
+        }
+
+        // Функция для прокрутки влево
+        public void ScrollLeft()
+        {
+            scrollViewer.ChangeView(scrollViewer.HorizontalOffset - scrollViewer.ActualWidth, null, null);
+        }
+        private object _lock = new object();
+        private bool lockVertical = false;
+        private bool lockHorizontal = false;
+        private void ScrollViewer_ViewChanged(object sender, ScrollViewerViewChangedEventArgs e)
+        {
+            if (disableLoadMode) return;
+            if (scrollViewer.VerticalScrollMode == ScrollMode.Enabled)
+            {
+                var isAtBottom = scrollViewer.VerticalOffset > scrollViewer.ScrollableHeight - 50;
+                if (isAtBottom)
+                {
+                    lock (_lock)
+                    {
+                        if (loadMore != null)
+                        {
+                            if (!lockVertical)
+                            {
+                                lockVertical = true;
+                                loadMore.Invoke(this, EventArgs.Empty);
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    lockVertical = false;
+                }
+            }
+
+            if (scrollViewer.HorizontalScrollMode == ScrollMode.Enabled)
+            {
+                var isAtRight = scrollViewer.HorizontalOffset > scrollViewer.ScrollableWidth - 50;
+                if (isAtRight)
+                {
+                    lock (_lock)
+                    {
+                        if (loadMore != null)
+                        {
+                            if (!lockHorizontal)
+                            {
+                                lockHorizontal = true;
+                                loadMore.Invoke(this, EventArgs.Empty);
+                            }
+                        }
+                    }
+
+                }
+                else
+                {
+
+
+                }
+
+                var a = ShowLeftChecker;
+                a = ShowRightChecker;
+            }
+
+        }
+
+
+        public bool CheckIfAllContentIsVisible()
+        {
+            if (scrollViewer == null || disableLoadMode)
+                return false;
+
+            bool allContentVisible = false;
+
+            if (scrollViewer.HorizontalScrollMode == ScrollMode.Enabled)
+            {
+                // Контент полностью видим, если ширина viewport'а больше или равна общей ширине контента
+                // Добавляем небольшой запас (2 пикселя) для учета погрешностей округления
+                allContentVisible = scrollViewer.ViewportWidth >= scrollViewer.ExtentWidth - 2;
+            }
+
+            if (scrollViewer.VerticalScrollMode == ScrollMode.Enabled)
+            {
+                // Если проверяем оба направления, контент видим только если оба условия выполняются
+                if (scrollViewer.HorizontalScrollMode == ScrollMode.Enabled)
+                {
+                    allContentVisible = allContentVisible &&
+                        (scrollViewer.ViewportHeight >= scrollViewer.ExtentHeight - 2);
+                }
+                else
+                {
+                    allContentVisible = scrollViewer.ViewportHeight >= scrollViewer.ExtentHeight - 2;
+                }
+            }
+
+            return allContentVisible;
+        }
+
+        public EventHandler loadMore;
+
+        public ScrollViewer _scrollViewer;
+        internal bool disableLoadMode { get; set; } = false;
+
+        public ScrollViewer scrollViewer { 
+            get 
+            { if (_scrollViewer != null)
+                 
+                return _scrollViewer;
+                return null;
+            }
+            set { _scrollViewer = value; }
+        }
+        public static ScrollViewer FindScrollViewer(DependencyObject d)
+        {
+            if (d is ScrollViewer sv)
+                return sv;
+
+            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(d); i++)
+            {
+                var child = VisualTreeHelper.GetChild(d, i);
+                var svChild = child as ScrollViewer;
+                if (svChild != null)
+                    return svChild;
+
+                var svFound = FindScrollViewer(child);
+                if (svFound != null)
+                    return svFound;
+            }
+
+            return null;
+        }
+
+
+     
+ 
+
+    }
+}

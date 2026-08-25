@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<UserControl
+    x:Class="VK_UI3.Controllers.ChooseLoginWayControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="using:VK_UI3.Controllers"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    Background="{ThemeResource SystemControlAltHighAcrylicElementBrush}"
+    CornerRadius="8"
+    mc:Ignorable="d">
+
+
+    <Grid>
+
+
+        <StackPanel Orientation="Horizontal">
+            <FontIcon
+                x:Name="fontIcon"
+                Margin="10"
+                VerticalAlignment="Center" />
+            <StackPanel>
+                <TextBlock
+                    x:Name="MainTxT"
+                    Margin="0"
+                    VerticalAlignment="Center"
+                    FontSize="24"
+                    AutomationProperties.Name="{x:Bind loginWay.Name, Mode=OneWay}" />
+                <TextBlock
+                    x:Name="secondTXT"
+                    Margin="0"
+                    VerticalAlignment="Center"
+                    FontSize="14"
+                    Opacity="0.5"
+                    Text="Текст с пониженной прозрачностью и размером" />
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+</UserControl>

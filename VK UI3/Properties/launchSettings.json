@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "VK UI3": {
+      "commandName": "Project",
+      "remoteDebugEnabled": false
+    },
+    "WSL": {
+      "commandName": "WSL2",
+      "distributionName": ""
+    }
+  }
+}
