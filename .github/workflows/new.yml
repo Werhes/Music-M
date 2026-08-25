@@ -261,7 +261,7 @@ jobs:
         id: create_release
         uses: softprops/action-gh-release@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ needs.prepare.outputs.VERSION }}
           name: ${{ github.event.inputs.namevers }}
@@ -274,7 +274,7 @@ jobs:
       - name: Upload all artifacts to release
         uses: svenstaro/upload-release-action@v2
         with:
-          repo_token: ${{ secrets.TOKEN }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: artifacts/**/*
           tag: ${{ needs.prepare.outputs.VERSION }}
           overwrite: true
