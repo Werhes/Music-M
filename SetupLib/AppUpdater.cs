@@ -25,8 +25,8 @@ namespace SetupLib
         public string Tit { get; private set; }
         public string date { get; private set; }
         public int sizeFile => GetSelectedPackage()?.Size ?? 0;
-        public string UriDownload => GetSelectedPackage()?.Url;
-        public string UriDownloadMSIX => GetSelectedPackage()?.Url;
+        public string UriDownload => GetSelectedPackage()?.Url ?? string.Empty;
+        public string UriDownloadMSIX => GetSelectedPackage()?.Url ?? string.Empty;
 
         private PackageAsset GetSelectedPackage()
         {
@@ -145,6 +145,6 @@ namespace SetupLib
 
     public class InstallStatusChangedEventArgs : EventArgs
     {
-        public string Status { get; set; }
+        public string Status { get; set; } = string.Empty;
     }
 }

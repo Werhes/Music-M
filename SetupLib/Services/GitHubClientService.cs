@@ -135,12 +135,12 @@ namespace SetupLib.Services
 
         public class VersionComparer : IComparer<string>
         {
-            public int Compare(string x, string y)
+            public int Compare(string? x, string? y)
             {
                 return CompareVersions(x, y);
             }
 
-            private int CompareVersions(string version1, string version2)
+            private int CompareVersions(string? version1, string? version2)
             {
                 if (version1 == version2)
                     return 0;

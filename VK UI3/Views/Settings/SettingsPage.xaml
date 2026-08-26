@@ -369,38 +369,6 @@
                             </StackPanel>
                         </Border>
 
-                        <!--  Кеш треков  -->
-                        <Border Padding="12" CornerRadius="4">
-                            <StackPanel Spacing="8">
-                                <TextBlock
-                                    FontWeight="SemiBold"
-                                    Text="Кеш треков" />
-
-                                <local:TrackCacheEnabledSetting />
-
-                                <StackPanel>
-                                    <TextBlock Text="Максимальный размер кеша" />
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*" />
-                                            <ColumnDefinition Width="Auto" />
-                                        </Grid.ColumnDefinitions>
-                                        <local:TrackCacheMaxSizeSetting
-                                            x:Name="trackCacheMaxSize"
-                                            Grid.Column="0" />
-                                        <TextBlock
-                                            x:Name="trackCacheMaxSizeValue"
-                                            Grid.Column="1"
-                                            Margin="10,0,0,0"
-                                            VerticalAlignment="Center" />
-                                    </Grid>
-                                </StackPanel>
-
-                                <local:ClearTrackCacheButton Margin="0,8,0,0" />
-                                <local:ShowCachedTracksButton Margin="0,4,0,0" />
-                            </StackPanel>
-                        </Border>
-
                         <!--  Кеш в памяти  -->
                         <Border Padding="12" CornerRadius="4">
                             <StackPanel Spacing="8">

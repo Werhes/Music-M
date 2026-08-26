@@ -245,13 +245,6 @@ namespace VK_UI3
                 CacheSettingsManager.ClearImageCache();
             }
 
-            // Применяем лимит кеша треков при запуске
-            if (CacheSettingsManager.IsTrackCacheEnabled())
-            {
-                int maxSizeMb = CacheSettingsManager.GetTrackCacheMaxSizeMb();
-                TrackCacheManager.EnforceCacheSizeLimit(maxSizeMb);
-            }
-
             // Показываем splash screen перед основным окном
             var splashWindow = new Views.SplashWindow();
             await splashWindow.ShowAndWaitAsync(3000);

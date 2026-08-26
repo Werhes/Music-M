@@ -40,14 +40,6 @@ namespace VK_UI3.Services
         /// <summary>Максимальное количество файлов в кеше изображений</summary>
         public const string ImageCacheMaxFilesKey = "imageCacheMaxFiles";
 
-        // ===== Ключи настроек кеша треков =====
-
-        /// <summary>Включить кеширование треков</summary>
-        public const string TrackCacheEnabledKey = "trackCacheEnabled";
-
-        /// <summary>Максимальный размер кеша треков в МБ</summary>
-        public const string TrackCacheMaxSizeMbKey = "trackCacheMaxSizeMb";
-
         // ===== Значения по умолчанию =====
 
         public const int DefaultPhotoCacheSizeMb = 100;
@@ -59,11 +51,6 @@ namespace VK_UI3.Services
         public const int DefaultMemoryCacheCheckIntervalMs = 1000;
         public const bool DefaultAutoClearImageCacheOnStart = false;
         public const int DefaultImageCacheMaxFiles = 5000;
-
-        // ===== Значения по умолчанию для кеша треков =====
-
-        public const bool DefaultTrackCacheEnabled = true;
-        public const int DefaultTrackCacheMaxSizeMb = 5000; // 5 ГБ
 
         // ===== Методы для чтения настроек =====
 
@@ -184,58 +171,6 @@ namespace VK_UI3.Services
         public static void SetImageCacheMaxFiles(int maxFiles)
         {
             SettingsTable.SetSetting(ImageCacheMaxFilesKey, Math.Clamp(maxFiles, 100, 50000).ToString());
-        }
-
-        // ===== Методы для кеша треков =====
-
-        public static bool IsTrackCacheEnabled()
-        {
-            var setting = SettingsTable.GetSetting(TrackCacheEnabledKey);
-            if (setting == null)
-                return DefaultTrackCacheEnabled;
-            return setting.settingValue.Equals("1");
-        }
-
-        public static void SetTrackCacheEnabled(bool enabled)
-        {
-            SettingsTable.SetSetting(TrackCacheEnabledKey, enabled ? "1" : "0");
-        }
-
-        public static int GetTrackCacheMaxSizeMb()
-        {
-            var setting = SettingsTable.GetSetting(TrackCacheMaxSizeMbKey);
-            if (setting == null || !int.TryParse(setting.settingValue, out int value))
-                return DefaultTrackCacheMaxSizeMb;
-            return Math.Clamp(value, 100, 50000);
-        }
-
-        public static void SetTrackCacheMaxSizeMb(int sizeMb)
-        {
-            SettingsTable.SetSetting(TrackCacheMaxSizeMbKey, Math.Clamp(sizeMb, 100, 50000).ToString());
-        }
-
-        /// <summary>
-        /// Очищает кеш треков на диске
-        /// </summary>
-        public static void ClearTrackCache()
-        {
-            TrackCacheManager.ClearCache();
-        }
-
-        /// <summary>
-        /// Возвращает текущий размер кеша треков в байтах
-        /// </summary>
-        public static long GetTrackCacheSizeBytes()
-        {
-            return TrackCacheManager.GetCacheSizeBytes();
-        }
-
-        /// <summary>
-        /// Возвращает количество файлов в кеше треков
-        /// </summary>
-        public static int GetTrackCacheFileCount()
-        {
-            return TrackCacheManager.GetCacheFileCount();
         }
 
         /// <summary>

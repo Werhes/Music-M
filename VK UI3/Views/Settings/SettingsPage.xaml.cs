@@ -27,13 +27,11 @@ namespace VK_UI3.Views.Settings
             maxDownloads.ValueChanged += MaxDownloads_ValueChanged;
             maxFiles.ValueChanged += MaxFiles_ValueChanged;
             memoryTimeLive.ValueChanged += MemoryTimeLive_ValueChanged;
-            trackCacheMaxSize.ValueChanged += TrackCacheMaxSize_ValueChanged;
 
             // Устанавливаем начальные значения текста
             UpdateMaxDownloadsText();
             UpdateMaxFilesText();
             UpdateMemoryTimeLiveText();
-            UpdateTrackCacheMaxSizeText();
         }
 
         private void MaxDownloads_ValueChanged(object sender, RangeBaseValueChangedEventArgs e)
@@ -64,17 +62,6 @@ namespace VK_UI3.Views.Settings
         private void UpdateMemoryTimeLiveText()
         {
             memoryTimeLiveValue.Text = ((int)memoryTimeLive.Value).ToString();
-        }
-
-        private void TrackCacheMaxSize_ValueChanged(object sender, RangeBaseValueChangedEventArgs e)
-        {
-            UpdateTrackCacheMaxSizeText();
-        }
-
-        private void UpdateTrackCacheMaxSizeText()
-        {
-            int sizeMb = (int)trackCacheMaxSize.Value;
-            trackCacheMaxSizeValue.Text = $"{sizeMb / 1000.0:F1} ГБ";
         }
 
         private async void ViewLogsButton_Click(object sender, RoutedEventArgs e)

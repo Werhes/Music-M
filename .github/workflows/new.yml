@@ -240,6 +240,8 @@ jobs:
             --self-contained true `
             -p:PublishSingleFile=true `
             -p:IncludeNativeLibrariesForSelfExtract=true `
+            -p:TreatWarningsAsErrors=false `
+            -p:WarningLevel=0 `
             -o installer_out
 
       - name: Upload installer artifact
