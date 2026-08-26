@@ -1016,7 +1016,19 @@ namespace VK_UI3.Services
 
             // Сначала устанавливаем Source, потом Position (иначе PlaybackSession может быть недоступен)
             _mediaPlayer.Source = mediaPlaybackItem;
-            _mediaPlayer.PlaybackSession.Position = TimeSpan.FromMilliseconds(1);
+
+            // ВАЖНО: оборачиваем сброс позиции в try/catch. Сразу после установки Source
+            // PlaybackSession.Position может выбросить E_ILLEGAL_METHOD_CALL до первого открытия
+            // медиа — особенно для локальных (кешированных) файлов. Раньше это исключение
+            // ломало воспроизведение треков из кеша.
+            try
+            {
+                _mediaPlayer.PlaybackSession.Position = TimeSpan.FromMilliseconds(1);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[MemoryLeakDebug] Unable to reset position immediately: {ex.Message}");
+            }
 
             System.Diagnostics.Debug.WriteLine($"[MemoryLeakDebug] LoadBasicMediaItem completed for track: {trackdata.audio.Title}");
         }

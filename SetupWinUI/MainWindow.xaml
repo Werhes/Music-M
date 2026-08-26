@@ -46,7 +46,7 @@
             <!-- Надпись справа от иконки -->
             <TextBlock
         Grid.Column="1"
-        Text="Установщик VK M"
+        Text="Установщик Music M"
         VerticalAlignment="Center"
         Margin="0,0,8,0"/>
 
@@ -56,7 +56,7 @@
 
 
         <StackPanel Grid.Row="1" Margin="24" Spacing="16">
-            <TextBlock x:Name="label1" Text="VK M — музыкальный клиент. Здесь вы можете скачать последнюю версию приложения." TextWrapping="Wrap" FontSize="16"/>
+            <TextBlock x:Name="label1" Text="Music M — музыкальный клиент. Здесь вы можете скачать последнюю версию приложения." TextWrapping="Wrap" FontSize="16"/>
         
                 <TextBlock x:Name="label2" Text="Актуальная версия:" FontWeight="Bold" FontSize="14"/>
                 <TextBlock x:Name="label10" Text="0.0.0.0" FontSize="14"/>

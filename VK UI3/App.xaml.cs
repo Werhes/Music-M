@@ -167,8 +167,8 @@ namespace VK_UI3
                                     {
                                         string windowTitle = new string(buffer, 0, copiedChars);
 
-                                        // Проверяем, содержит ли заголовок "VK M" (или точное совпадение)
-                                        if (windowTitle.Contains("VK M")) // или windowTitle == "VK M"
+                                        // Проверяем, содержит ли заголовок "Music M" (или точное совпадение)
+                                        if (windowTitle.Contains("Music M")) // или windowTitle == "Music M"
                                         {
                                             if (PInvoke.IsWindowVisible(hwnd))
                                             {
@@ -393,7 +393,7 @@ namespace VK_UI3
                 {
                     Windows.UI.Popups.MessageDialog dialog = new Windows.UI.Popups.MessageDialog(
                         $"Критическая ошибка:\n{ex.Message}\n\n{e.Exception?.Message}",
-                        "VK M - Критическая ошибка");
+                        "Music M - Критическая ошибка");
                     dialog.ShowAsync();
                 }
                 catch { }

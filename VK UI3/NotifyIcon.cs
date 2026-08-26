@@ -98,7 +98,7 @@ namespace VK_UI3
                 uID = _iconId,
                 uFlags = NIF_MESSAGE | NIF_ICON | NIF_TIP,
                 uCallbackMessage = WM_TRAYICON,
-                szTip = "VK M"
+                szTip = "Music M"
             };
 
             string iconPath = Path.Combine(AppContext.BaseDirectory, "icon.ico");

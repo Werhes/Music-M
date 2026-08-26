@@ -48,7 +48,6 @@
             label11 = new Label();
             logTextBox = new TextBox();
             button2 = new Button();
-            MSIXRadio = new RadioButton();
             EXERadio = new RadioButton();
             label9 = new Label();
             whatsNews = new TextBox();
@@ -206,29 +205,17 @@
             button2.UseVisualStyleBackColor = true;
             button2.Click += button2_Click;
             // 
-            // MSIXRadio
-            // 
-            MSIXRadio.AutoSize = true;
-            MSIXRadio.Enabled = false;
-            MSIXRadio.Location = new Point(18, 296);
-            MSIXRadio.Name = "MSIXRadio";
-            MSIXRadio.Size = new Size(179, 19);
-            MSIXRadio.TabIndex = 20;
-            MSIXRadio.TabStop = true;
-            MSIXRadio.Text = "MSIX пакет (рекомендуется)";
-            MSIXRadio.UseVisualStyleBackColor = true;
-            MSIXRadio.CheckedChanged += Radio_CheckedChanged;
-            // 
             // EXERadio
-            // 
+            //
             EXERadio.AutoSize = true;
-            EXERadio.Enabled = false;
-            EXERadio.Location = new Point(18, 321);
+            EXERadio.Checked = true;
+            EXERadio.Enabled = true;
+            EXERadio.Location = new Point(18, 296);
             EXERadio.Name = "EXERadio";
             EXERadio.Size = new Size(339, 19);
             EXERadio.TabIndex = 20;
             EXERadio.TabStop = true;
-            EXERadio.Text = "EXE (Если не установлен MS Store или не ставится MSIX)";
+            EXERadio.Text = "EXE (скачать и установить приложение)";
             EXERadio.UseVisualStyleBackColor = true;
             EXERadio.CheckedChanged += Radio_CheckedChanged;
             // 
@@ -258,7 +245,6 @@
             ClientSize = new Size(404, 734);
             Controls.Add(whatsNews);
             Controls.Add(EXERadio);
-            Controls.Add(MSIXRadio);
             Controls.Add(button2);
             Controls.Add(logTextBox);
             Controls.Add(label11);
@@ -277,7 +263,7 @@
             FormBorderStyle = FormBorderStyle.FixedSingle;
             Icon = (Icon)resources.GetObject("$this.Icon");
             Name = "Setup";
-            Text = "Установщик VK M";
+            Text = "Установщик Music M";
             Load += Form1_Load;
             ResumeLayout(false);
             PerformLayout();
@@ -298,7 +284,6 @@
         protected internal Label label11;
         private System.Windows.Forms.TextBox logTextBox;
         private Button button2;
-        private RadioButton MSIXRadio;
         private RadioButton EXERadio;
         protected internal Label label9;
         private TextBox whatsNews;

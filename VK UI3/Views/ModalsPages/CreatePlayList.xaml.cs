@@ -107,12 +107,12 @@ namespace VK_UI3.Views.ModalsPages
                 if (!string.IsNullOrEmpty(genBy))
                 {
                     Title.Text = genBy;
-                    Description.Text = $"Сгенерированный плейлист с помощью VK M Desktop на основе {genBy}";
+                    Description.Text = $"Сгенерированный плейлист с помощью Music M Desktop на основе {genBy}";
                 }
                 else
                 {
                     Title.Text = "Сгенерированный плейлист";
-                    Description.Text = $"Сгенерированный плейлист с помощью VK M Desktop";
+                    Description.Text = $"Сгенерированный плейлист с помощью Music M Desktop";
                 }
             }
             else

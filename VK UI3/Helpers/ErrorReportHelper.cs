@@ -31,7 +31,7 @@ namespace VK_UI3.Helpers
             var version = $"{assemblyVersion.Major}.{assemblyVersion.Minor}.{assemblyVersion.Build}.{assemblyVersion.Revision}";
 
             sb.AppendLine("========================================");
-            sb.AppendLine("  КРИТИЧЕСКАЯ ОШИБКА ПРИЛОЖЕНИЯ VK M");
+            sb.AppendLine("  КРИТИЧЕСКАЯ ОШИБКА ПРИЛОЖЕНИЯ Music M");
             sb.AppendLine("========================================");
             sb.AppendLine();
             sb.AppendLine($"Время:             {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
@@ -227,7 +227,7 @@ namespace VK_UI3.Helpers
                         {
                             MessageBoxW(IntPtr.Zero,
                                 $"Ошибка при показе диалога ошибки:\n{ex.Message}\n\nОригинальный отчет:\n{report}",
-                                "VK M — Критическая ошибка",
+                                "Music M — Критическая ошибка",
                                 0x00000010 | 0x00001000);
                         }
                         catch { }
@@ -248,7 +248,7 @@ namespace VK_UI3.Helpers
             catch
             {
                 // Если не удалось создать поток, показываем MessageBox
-                MessageBoxW(IntPtr.Zero, report, "VK M — Критическая ошибка", 0x00000010 | 0x00001000);
+                MessageBoxW(IntPtr.Zero, report, "Music M — Критическая ошибка", 0x00000010 | 0x00001000);
                 resetEvent.Set();
             }
         }
@@ -288,7 +288,7 @@ namespace VK_UI3.Helpers
                 _windowClassAtom = new IntPtr(RegisterClassExW(ref wc));
                 if (_windowClassAtom == IntPtr.Zero)
                 {
-                    MessageBoxW(IntPtr.Zero, report, "VK M — Критическая ошибка", 0x00000010 | 0x00001000);
+                    MessageBoxW(IntPtr.Zero, report, "Music M — Критическая ошибка", 0x00000010 | 0x00001000);
                     return;
                 }
             }
@@ -297,7 +297,7 @@ namespace VK_UI3.Helpers
             var hwnd = CreateWindowExW(
                 0,
                 (string)null,
-                "VK M — Критическая ошибка",
+                "Music M — Критическая ошибка",
                 (uint)(WindowStyles.WS_OVERLAPPEDWINDOW | WindowStyles.WS_VISIBLE | WindowStyles.WS_THICKFRAME),
                 CW_USEDEFAULT, CW_USEDEFAULT, 1000, 800, // Увеличенный размер
                 IntPtr.Zero,
@@ -311,7 +311,7 @@ namespace VK_UI3.Helpers
                 var error = Marshal.GetLastWin32Error();
                 MessageBoxW(IntPtr.Zero,
                     $"Не удалось создать окно. Ошибка: {error}\n\nОтчёт:\n{report}",
-                    "VK M — Критическая ошибка",
+                    "Music M — Критическая ошибка",
                     0x00000010 | 0x00001000);
                 return;
             }

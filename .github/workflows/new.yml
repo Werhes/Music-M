@@ -218,9 +218,40 @@ jobs:
           path: VK_UI3_ARM64.zip
           retention-days: 30
 
-  # ============ JOB 5: Создание релиза (зависит от всех сборок EXE) ============
+  # ============ JOB 5: Сборка установщика (Setup.exe) ============
+  build_installer:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install .NET Core
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Publish Setup (installer) single-file
+        run: |
+          dotnet publish "Setup\Setup.csproj" `
+            -c Release `
+            -r win-x64 `
+            --self-contained true `
+            -p:PublishSingleFile=true `
+            -p:IncludeNativeLibrariesForSelfExtract=true `
+            -o installer_out
+
+      - name: Upload installer artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Setup_Installer
+          path: installer_out/Setup.exe
+          retention-days: 30
+
+  # ============ JOB 6: Создание релиза (зависит от всех сборок EXE и установщика) ============
   create_release:
-    needs: [prepare, build_exe_x64, build_exe_x86, build_exe_arm64]
+    needs: [prepare, build_exe_x64, build_exe_x86, build_exe_arm64, build_installer]
     runs-on: windows-latest
     if: github.event.inputs.release == 'true'
     steps:

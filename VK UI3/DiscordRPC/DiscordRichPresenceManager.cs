@@ -129,13 +129,13 @@ namespace VK_UI3.DiscordRPC
                         {
                             new Button()
                             {
-                                Label = "Слушать в VK M",
+                                Label = "Github Music M",
                                 Url = "https://github.com/Werhes/Music-M"
                             },
                             new Button()
                             {
                                 Label = "ТГ Канал",
-                                Url = "https://t.me/vkmci"
+                                Url = "https://t.me/music_m_rework"
                             }
                         }
                     };

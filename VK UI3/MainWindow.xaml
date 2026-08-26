@@ -17,7 +17,7 @@
     xmlns:snow="using:VK_UI3.SnowFlake"
     xmlns:upload="using:VK_UI3.Views.Upload"
     x:Name="mainWindoww"
-    Title="VK M"
+    Title="Music M"
     mc:Ignorable="d">
     <Grid>
   
@@ -200,7 +200,7 @@
                         HorizontalAlignment="Left"
                         VerticalAlignment="Center"
                         AutomationProperties.Name="Название приложения"
-                        Text="VK M" />
+                        Text="Music M" />
 
                     <customBTN:AnimatedButton
                         x:Name="DownLoadBTN"

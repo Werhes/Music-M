@@ -94,6 +94,7 @@ namespace VK_UI3.Services
             }
 
             string filePath = GetCachedFilePath(ownerId, audioId);
+            string partPath = filePath + ".part";
 
             // Если уже в кеше — ничего не делаем
             if (File.Exists(filePath))
@@ -113,17 +114,50 @@ namespace VK_UI3.Services
 
                 System.Diagnostics.Debug.WriteLine($"[TrackCache] Downloading track {ownerId}_{audioId} from {trackUrl}");
 
-                using (var cts = new CancellationTokenSource(TimeSpan.FromSeconds(60)))
-                using (var response = await _httpClient.GetAsync(trackUrl, HttpCompletionOption.ResponseHeadersRead, cts.Token))
-                {
-                    response.EnsureSuccessStatusCode();
+                // Скачиваем как VK Music: файл пишется во временный .part и атомарно
+                // переименовывается в окончательный .mp3 только после ПОЛНОЙ загрузки.
+                // Это гарантирует, что частично скачанный файл никогда не будет
+                // распознан как кешированный (иначе проигрыватель пытался бы играть обрезанный mp3).
+                // Плюс добавляем ретраи для устойчивости к временным сбоям сети.
+                const int maxAttempts = 3;
+                bool success = false;
 
-                    using (var stream = await response.Content.ReadAsStreamAsync())
-                    using (var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.None))
+                for (int attempt = 1; attempt <= maxAttempts && !success; attempt++)
+                {
+                    try
                     {
-                        await stream.CopyToAsync(fileStream);
+                        // Больше никакого жёсткого таймаута в 60 секунд — большие файлы
+                        // могут качаться дольше. Используем щадящий таймаут на всю операцию.
+                        using var cts = new CancellationTokenSource(TimeSpan.FromMinutes(10));
+                        using var response = await _httpClient.GetAsync(trackUrl, HttpCompletionOption.ResponseHeadersRead, cts.Token);
+                        response.EnsureSuccessStatusCode();
+
+                        using (var stream = await response.Content.ReadAsStreamAsync())
+                        using (var fileStream = new FileStream(partPath, FileMode.Create, FileAccess.Write, FileShare.None))
+                        {
+                            await stream.CopyToAsync(fileStream);
+                        }
+
+                        success = true;
+                    }
+                    catch (Exception ex) when (attempt < maxAttempts)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"[TrackCache] Attempt {attempt}/{maxAttempts} failed for {ownerId}_{audioId}: {ex.Message}");
+                        // Удаляем частичный файл перед повторной попыткой
+                        try { if (File.Exists(partPath)) File.Delete(partPath); } catch { }
+                        await Task.Delay(500 * attempt);
                     }
                 }
+
+                if (!success)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[TrackCache] All {maxAttempts} attempts failed for track {ownerId}_{audioId}");
+                    return;
+                }
+
+                // Атомарно переименовываем из .part в окончательный файл
+                try { if (File.Exists(filePath)) File.Delete(filePath); } catch { }
+                File.Move(partPath, filePath);
 
                 System.Diagnostics.Debug.WriteLine($"[TrackCache] Successfully cached track {ownerId}_{audioId}");
 
@@ -134,19 +168,14 @@ namespace VK_UI3.Services
             catch (OperationCanceledException)
             {
                 System.Diagnostics.Debug.WriteLine($"[TrackCache] Timeout downloading track {ownerId}_{audioId}");
-                if (File.Exists(filePath))
-                {
-                    try { File.Delete(filePath); } catch { }
-                }
+                // Удаляем частичный файл — он не должен попасть в кеш
+                try { if (File.Exists(partPath)) File.Delete(partPath); } catch { }
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"[TrackCache] Failed to cache track {ownerId}_{audioId}: {ex.Message}");
                 // Если файл был частично записан — удаляем
-                if (File.Exists(filePath))
-                {
-                    try { File.Delete(filePath); } catch { }
-                }
+                try { if (File.Exists(partPath)) File.Delete(partPath); } catch { }
             }
             finally
             {
@@ -226,6 +255,12 @@ namespace VK_UI3.Services
                     try { file.Delete(); } catch { }
                 }
 
+                // Удаляем и незавершённые загрузки (.part), чтобы не оставлять мусор
+                foreach (var file in directoryInfo.GetFiles("*.part"))
+                {
+                    try { file.Delete(); } catch { }
+                }
+
                 System.Diagnostics.Debug.WriteLine($"[TrackCache] Cache cleared");
             }
             catch (Exception ex)
@@ -248,6 +283,18 @@ namespace VK_UI3.Services
                     return;
 
                 var directoryInfo = new DirectoryInfo(cacheDir);
+
+                // Убираем устаревшие незавершённые загрузки (.part) — они не должны влиять на лимит
+                foreach (var part in directoryInfo.GetFiles("*.part"))
+                {
+                    try
+                    {
+                        // Удаляем только "зависшие" части: старше 1 часа
+                        if ((DateTime.Now - part.LastWriteTime) > TimeSpan.FromHours(1))
+                            part.Delete();
+                    }
+                    catch { }
+                }
                 var files = directoryInfo.GetFiles("*.mp3")
                     .OrderBy(f => f.CreationTime)
                     .ToList();

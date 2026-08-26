@@ -15,7 +15,7 @@ namespace SetupLib
         private readonly IFileDownloadService _fileDownloadService;
         private readonly ISystemService _systemService;
         private readonly IInstallationService _installationService;
-        public PackageType SelectedPackageType { get; set; } = PackageType.MSIX;
+        public PackageType SelectedPackageType { get; set; } = PackageType.ZIP;
         public ReleaseInfo _currentReleaseInfo;
 
 

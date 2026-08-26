@@ -33,20 +33,11 @@ namespace Setup
                 label10.Text = appUpdater.version;
                 button1.Enabled = true;
                 progressBar1.Style = ProgressBarStyle.Blocks;
-                if (appUpdater._currentReleaseInfo.Assets.ContainsKey(PackageType.MSIX))
-                {
-                    MSIXRadio.Enabled = true;
-                    MSIXRadio.Checked = true;
-                }
-                if (appUpdater._currentReleaseInfo.Assets.ContainsKey(PackageType.ZIP))
-                {
-                    if (!MSIXRadio.Checked)
-                    {
-                        MSIXRadio.Checked = true;
 
-                    }
-                    EXERadio.Enabled = true;
-                }
+                // Единственный вариант установки — EXE (скачивание и установка приложения с GitHub)
+                appUpdater.SelectedPackageType = PackageType.ZIP;
+                EXERadio.Checked = true;
+                EXERadio.Enabled = true;
             }
             catch (Exception ex)
             {
@@ -83,7 +74,6 @@ namespace Setup
             try
             {
                 button1.Enabled = false;
-                MSIXRadio.Enabled = false;
                 EXERadio.Enabled = false;
 
                 bool a = appUpdater.IsVersionInstalled(RuntimeInformation.FrameworkDescription);
@@ -136,7 +126,7 @@ namespace Setup
         {
             var psi = new System.Diagnostics.ProcessStartInfo
             {
-                FileName = "https://t.me/vkmci",
+                FileName = "https://t.me/music_m_rework",
                 UseShellExecute = true
             };
             System.Diagnostics.Process.Start(psi);
@@ -144,14 +134,13 @@ namespace Setup
 
         private void Radio_CheckedChanged(object sender, EventArgs e)
         {
-            if ((sender as RadioButton).Name == MSIXRadio.Name)
-            {
-                appUpdater.SelectedPackageType = PackageType.MSIX;
-            }
-            else
-            {
-                appUpdater.SelectedPackageType = PackageType.ZIP;
-            }
+            // Срабатывает ещё при инициализации формы (EXERadio.Checked = true),
+            // когда appUpdater ещё не создан — просто пропускаем.
+            if (appUpdater == null)
+                return;
+
+            // В сетапе доступен только вариант EXE — всегда устанавливаем приложение с GitHub
+            appUpdater.SelectedPackageType = PackageType.ZIP;
             label7.Text = Math.Round((float)appUpdater.sizeFile / 1024 / 1024, 2).ToString() + " МБ";
         }
     }

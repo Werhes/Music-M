@@ -36,15 +36,15 @@
 						Height="50"
 						Source="ms-appx:///Assets/StoreLogo.scale-400.png"
 						AutomationProperties.Name="Логотип приложения"
-						AutomationProperties.HelpText="Логотип приложения VK M" />
+						AutomationProperties.HelpText="Логотип приложения Music M" />
 					<TextBlock
 						Margin="10,0,0,0"
 						VerticalAlignment="Center"
 						FontSize="16"
 						FontWeight="Bold"
-						Text="VK M"
+						Text="Music M"
 						AutomationProperties.Name="Название приложения"
-						AutomationProperties.HelpText="Название приложения VK M" />
+						AutomationProperties.HelpText="Название приложения Music M" />
 				</StackPanel>
 				<StackPanel Grid.Row="1" Margin="10" AutomationProperties.Name="Информация об обновлении" AutomationProperties.HelpText="Подробная информация о доступном обновлении">
 					<StackPanel Orientation="Vertical" AutomationProperties.Name="Заголовок обновления" AutomationProperties.HelpText="Заголовок раздела обновления">

@@ -22,7 +22,7 @@
 
         <TextBlock
             Grid.Row="0"
-            Text="Все логи приложения VK M. Используйте для диагностики проблем."
+            Text="Все логи приложения Music M. Используйте для диагностики проблем."
             TextWrapping="WrapWholeWords"
             Margin="0,0,0,8"
             FontSize="13"

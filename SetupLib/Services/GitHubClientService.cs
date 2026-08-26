@@ -87,15 +87,16 @@ namespace SetupLib.Services
                 };
             }
 
-            // Ищем сертификат
+            // Ищем сертификат (нужен только для MSIX — для EXE/ZIP не требуется)
             var cerAsset = FindCertificateAsset(allReleases, release.TagName);
             if (cerAsset != null)
             {
                 releaseInfo.CertificateUrl = cerAsset.BrowserDownloadUrl;
             }
 
-            // Если нашли хотя бы один пакет и сертификат, возвращаем
-            if (releaseInfo.Assets.Count > 0 && !string.IsNullOrEmpty(releaseInfo.CertificateUrl))
+            // Достаточно найти хотя бы один пакет приложения (EXE/ZIP).
+            // Сертификат не обязателен — установка через ZIP не требует подписи MSIX.
+            if (releaseInfo.Assets.Count > 0)
             {
                 return releaseInfo;
             }

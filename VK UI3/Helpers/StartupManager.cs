@@ -8,8 +8,8 @@ using Windows.ApplicationModel;
 namespace VK_UI3.Helpers;
 public class StartupManager
 {
-    private const string AppId = "VK M";
-    private const string AppName = "VK M";
+    private const string AppId = "Music M";
+    private const string AppName = "Music M";
     private static readonly string StartupRegistryPath = @"Software\Microsoft\Windows\CurrentVersion\Run";
 
     public static async Task<bool> IsAppInStartupAsync()

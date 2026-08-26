@@ -235,6 +235,7 @@ namespace VK_UI3.Controllers
         private void InitializeAnimations()
         {
             animateFontIcon = new AnimationsChangeFontIcon(this.repeatBTNIcon, this.DispatcherQueue);
+            changeIconPlayBTN = new AnimationsChangeFontIcon(this.PlayBTN, this.DispatcherQueue);
             changeImage = new AnimationsChangeImage(this.ImageThumb, DispatcherQueue);
             changeText = new AnimationsChangeText(ArtistTextBlock, this.DispatcherQueue);
             changeText2 = new AnimationsChangeText(TitleTextBlock, this.DispatcherQueue);
@@ -815,6 +816,9 @@ namespace VK_UI3.Controllers
                         changeIconPlayBTN.ChangeFontIconWithAnimation("\uE769"); // Pause icon
                         break;
                     case MediaPlayerState.Paused:
+                        changeIconPlayBTN.ChangeFontIconWithAnimation("\uE768"); // Play icon
+                        break;
+                    case MediaPlayerState.Stopped:
                         changeIconPlayBTN.ChangeFontIconWithAnimation("\uE768"); // Play icon
                         break;
                     case MediaPlayerState.Closed:

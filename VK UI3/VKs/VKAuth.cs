@@ -64,7 +64,7 @@ namespace VK_UI3.VKs
         /*
         public async Task<AuthCodeResponse> LoadQrCode(DispatcherQueue dispatcherQueue, bool forceRegenerate = false)
         {
-            var result = await _authCategory.GetAuthCodeAsync("VK M Player", forceRegenerate);
+            var result = await _authCategory.GetAuthCodeAsync("Music M Player", forceRegenerate);
             QRCodeGenerator generator = new QRCodeGenerator();
             QRCodeData qrCodeData = generator.CreateQrCode(new PayloadGenerator.Url(result.AuthUrl), QRCodeGenerator.ECCLevel.Q);
             QRCode qrCode = new QRCode(qrCodeData);
@@ -268,7 +268,7 @@ namespace VK_UI3.VKs
                 hResult = PInvoke.WebAuthNCancelCurrentOperation(cancellationId);
                 if (!hResult.Succeeded)
                 {
-                    _ = login.DialogMessageShow("Не удалось отменить текущий процесс входа, VK M не смог отменить текущий процесс входа! Закройте все диалоги входа с ключем и повторите попытку.");
+                    _ = login.DialogMessageShow("Не удалось отменить текущий процесс входа, Music M не смог отменить текущий процесс входа! Закройте все диалоги входа с ключем и повторите попытку.");
                     //   _snackbarService.Show();
                     return;
                 }

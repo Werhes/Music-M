@@ -213,7 +213,7 @@ namespace SetupWinUI
         {
             var psi = new System.Diagnostics.ProcessStartInfo
             {
-                FileName = "https://t.me/vkmci",
+                FileName = "https://t.me/music_m_rework",
                 UseShellExecute = true
             };
             System.Diagnostics.Process.Start(psi);

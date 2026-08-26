@@ -27,10 +27,17 @@ namespace SetupLib.Services
         {
             if (!skipCertCheck)
             {
-                await HandleCertificateInstallation(appUpdater._currentReleaseInfo.CertificateUrl);
+                // Сертификат нужен только для MSIX. Для EXE/ZIP-установки пропускаем.
+                if (!string.IsNullOrEmpty(appUpdater._currentReleaseInfo?.CertificateUrl))
+                {
+                    await HandleCertificateInstallation(appUpdater._currentReleaseInfo.CertificateUrl);
+                }
 
+                // Зависимости (AppInstaller/WindowsAppRuntime) нужны только для MSIX
                 if (appUpdater.SelectedPackageType != PackageType.ZIP)
-                await HandleDependenciesInstallation(forceInstall);
+                {
+                    await HandleDependenciesInstallation(forceInstall);
+                }
             }
             
             await InstallApplicationAsync(appUpdater.UriDownloadMSIX, appUpdater.SelectedPackageType, forceInstall, PathInstallZIP);
