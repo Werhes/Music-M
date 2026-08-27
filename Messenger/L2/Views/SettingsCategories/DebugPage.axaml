@@ -1,0 +1,99 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:i18n="using:ELOR.Laney.Assets.i18n"
+             xmlns:vkui="using:VKUI.Controls"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="ELOR.Laney.Views.SettingsCategories.DebugPage">
+  <ScrollViewer>
+    <StackPanel>
+      <Border Classes="Group" VerticalAlignment="Top">
+        <StackPanel x:Name="LogsCells">
+          <Grid Classes="GroupHeader">
+            <TextBlock Text="ЛОГИ"/>
+          </Grid>
+          <vkui:Cell Header="Запись логов" Subtitle="Требуется перезапуск">
+            <vkui:Cell.After>
+              <ToggleSwitch x:Name="l01"/>
+            </vkui:Cell.After>
+          </vkui:Cell>
+          <vkui:Cell Header="Запись логов LongPoll" Subtitle="Требуется перезапуск">
+            <vkui:Cell.After>
+              <ToggleSwitch x:Name="l02"/>
+            </vkui:Cell.After>
+          </vkui:Cell>
+          <vkui:Cell Header="Запись логов BitmapManager" Subtitle="Включите, если возникают проблемы с отображением картинок">
+            <vkui:Cell.After>
+              <ToggleSwitch x:Name="l03"/>
+            </vkui:Cell.After>
+          </vkui:Cell>
+          <vkui:Cell x:Name="lc04" Header="Логировать сетевые запросы" Subtitle="Только в beta/dev сборках">
+            <vkui:Cell.After>
+              <ToggleSwitch x:Name="l04"/>
+            </vkui:Cell.After>
+          </vkui:Cell>
+          <vkui:Cell x:Name="lc05" Header="Запись логов рендеринга сообщений" Subtitle="Только в dev сборках (verbose). Требуется перезапуск">
+            <vkui:Cell.After>
+              <ToggleSwitch x:Name="l05"/>
+            </vkui:Cell.After>
+          </vkui:Cell>
+          <Button x:Name="b01" Classes="Tertiary" Click="b01_Click">
+            <vkui:Cell x:Name="lc01" Header="Открыть папку с логами"/>
+          </Button>
+        </StackPanel>
+      </Border>
+
+      <Border Classes="Group" VerticalAlignment="Top">
+        <StackPanel x:Name="NetworkCells">
+          <Grid Classes="GroupHeader">
+            <TextBlock Text="NETWORK"/>
+          </Grid>
+          <vkui:Cell Header="Загружать изображения последовательно" Subtitle="Это может исправить проблемы с загрузкой картинки из-за rate limit">
+            <vkui:Cell.After>
+              <ToggleSwitch x:Name="n01"/>
+            </vkui:Cell.After>
+          </vkui:Cell>
+        </StackPanel>
+      </Border>
+
+      <Border Classes="Group" VerticalAlignment="Top">
+        <StackPanel x:Name="ToolsCells">
+          <Grid Classes="GroupHeader">
+            <TextBlock Text="TOOLS"/>
+          </Grid>
+          <vkui:Cell x:Name="c01" Header="Show Avalonia's FPS counter">
+            <vkui:Cell.After>
+              <ToggleSwitch x:Name="p01"/>
+            </vkui:Cell.After>
+          </vkui:Cell>
+          <vkui:Cell x:Name="c02" Header="Show debug infos in ChatView and composer">
+            <vkui:Cell.After>
+              <ToggleSwitch x:Name="p02"/>
+            </vkui:Cell.After>
+          </vkui:Cell>
+          <vkui:Cell x:Name="c03" Header="Show RAM usage">
+            <vkui:Cell.After>
+              <ToggleSwitch x:Name="p03"/>
+            </vkui:Cell.After>
+          </vkui:Cell>
+          <vkui:Cell x:Name="c04" Header="Show extra items in context menu">
+            <vkui:Cell.After>
+              <ToggleSwitch x:Name="p04"/>
+            </vkui:Cell.After>
+          </vkui:Cell>
+          <vkui:Cell x:Name="c05" Header="Disable marking messages as read">
+            <vkui:Cell.After>
+              <ToggleSwitch x:Name="p05"/>
+            </vkui:Cell.After>
+          </vkui:Cell>
+          <vkui:Cell x:Name="c07" Header="Show debug infos in photo viewer" Subtitle="Size, offset and zoom. Also photo/doc id.">
+            <vkui:Cell.After>
+              <ToggleSwitch x:Name="p07"/>
+            </vkui:Cell.After>
+          </vkui:Cell>
+        </StackPanel>
+      </Border>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

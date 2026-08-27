@@ -1,0 +1,22 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="using:VKUI.Controls">
+  <Design.PreviewWith>
+    <Border Background="White">
+      <controls:VKIcon Id="Icon16Pin"/>
+    </Border>
+  </Design.PreviewWith>
+
+  <ControlTheme x:Key="{x:Type controls:VKIcon}" TargetType="controls:VKIcon">
+    <Setter Property="Foreground" Value="{DynamicResource VKAccentBrush}"/>
+    <Setter Property="HorizontalAlignment" Value="Center"/>
+    <Setter Property="VerticalAlignment" Value="Center"/>
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Viewbox x:Name="viewBox">
+          <Path x:Name="path" Fill="{TemplateBinding Foreground}"/>
+        </Viewbox>
+      </ControlTemplate>
+    </Setter>
+  </ControlTheme>
+</ResourceDictionary>

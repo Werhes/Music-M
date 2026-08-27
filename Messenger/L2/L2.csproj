@@ -1,0 +1,345 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>disable</Nullable>
+    <AssemblyName>laney</AssemblyName>
+    <RootNamespace>ELOR.Laney</RootNamespace>
+    <AssemblyVersion>2.0.675</AssemblyVersion>
+    <FileVersion>2.0.675</FileVersion>
+    <Version Condition="$([MSBuild]::IsOSPlatform('Windows'))">2.0.675-win-anycpu-ZGV2dXNlci5kZXZwYw.4444.4444-251030-1255-RWxvcnVjb3YvTGFuZXktQXZhbG9uaWE.4444</Version>
+    <Version Condition="$([MSBuild]::IsOSPlatform('Linux'))">2.0.675-linux-anycpu-ZGV2dXNlci5kZXZwYw.4444.4444-251030-1255-RWxvcnVjb3YvTGFuZXktQXZhbG9uaWE.4444</Version>
+    <Version Condition="$([MSBuild]::IsOSPlatform('OSX'))">2.0.675-macos-anycpu-ZGV2dXNlci5kZXZwYw.4444.4444-251030-1255-RWxvcnVjb3YvTGFuZXktQXZhbG9uaWE.4444</Version>
+    <DefineConstants Condition="$([MSBuild]::IsOSPlatform('Windows'))">WIN</DefineConstants>
+    <DefineConstants Condition="$([MSBuild]::IsOSPlatform('Linux'))">LINUX</DefineConstants>
+    <DefineConstants Condition="$([MSBuild]::IsOSPlatform('OSX'))">MAC</DefineConstants>
+    <Platforms>AnyCPU</Platforms>
+    <!--Avalonia doesen't support TrimMode=link currently,but we are working on that https://github.com/AvaloniaUI/Avalonia/issues/6892 -->
+    <TrimMode>copyused</TrimMode>
+    <!-- Necessary before Avalonia 12.0, was used for accessiblity APIs -->
+    <BuiltInComInteropSupport>false</BuiltInComInteropSupport>
+    <GarbageCollectionAdaptationMode>1</GarbageCollectionAdaptationMode>
+    <AutoreleasePoolSupport>false</AutoreleasePoolSupport>
+    <EnableUnsafeBinaryFormatterSerialization>false</EnableUnsafeBinaryFormatterSerialization>
+    <EnableUnsafeUTF7Encoding>false</EnableUnsafeUTF7Encoding>
+    <MetadataUpdaterSupport>false</MetadataUpdaterSupport>
+    <InvariantGlobalization>false</InvariantGlobalization>
+    <ApplicationIcon>Assets/Logo/icon.ico</ApplicationIcon>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)'=='Release'">
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+    <DebugSymbols>False</DebugSymbols>
+    <DebugType>None</DebugType>
+  </PropertyGroup>
+  <PropertyGroup>
+    <IlcGenerateMstatFile>true</IlcGenerateMstatFile>
+    <IlcGenerateDgmlFile>true</IlcGenerateDgmlFile>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ChiselPackage Condition="$([MSBuild]::IsOSPlatform('Windows'))">Avalonia.FreeDesktop</ChiselPackage>
+    <ChiselPackage Condition="$([MSBuild]::IsOSPlatform('Windows'))">Avalonia.Remote.Protocol</ChiselPackage>
+    <ChiselPackage Condition="$([MSBuild]::IsOSPlatform('Windows'))">Avalonia.X11</ChiselPackage>
+    <ChiselPackage Condition="$([MSBuild]::IsOSPlatform('Windows'))">Tmds.DBus.Protocol</ChiselPackage>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <NoWarn>8632</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <NoWarn>8632</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Label="Avalonia">
+    <AvaloniaXamlVerboseExceptions>True</AvaloniaXamlVerboseExceptions>
+    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+  </PropertyGroup>
+  <!-- Temporary fix issue https://github.com/dotnet/runtime/issues/98124 -->
+  <ItemGroup Condition="$([MSBuild]::IsOSPlatform('OSX'))">
+    <LinkerArg Include="-mmacosx-version-min=11.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <VlcWindowsX64ExcludeFiles Include="plugins\%2A" />
+    <VlcWindowsX64ExcludeFiles Include="hrtfs\%2A" />
+    <VlcWindowsX64ExcludeFiles Include="lua\%2A" />
+    <VlcWindowsX86ExcludeFiles Include="plugins\%2A" />
+    <VlcWindowsX86ExcludeFiles Include="hrtfs\%2A" />
+    <VlcWindowsX86ExcludeFiles Include="lua\%2A" />
+  </ItemGroup>
+  <ItemGroup>
+    <VlcWindowsX64IncludeFiles Include="libvlc.dll" />
+    <VlcWindowsX64IncludeFiles Include="libvlccore.dll" />
+    <VlcWindowsX64IncludeFiles Include="plugins\access\libaccess_imem_plugin.dll" />
+    <VlcWindowsX64IncludeFiles Include="plugins\access\libimem_plugin.dll" />
+    <VlcWindowsX64IncludeFiles Include="plugins\access\libfilesystem_plugin.dll" />
+    <VlcWindowsX64IncludeFiles Include="plugins\access\libhttp_plugin.dll" />
+    <VlcWindowsX64IncludeFiles Include="plugins\access\libhttps_plugin.dll" />
+    <VlcWindowsX64IncludeFiles Include="plugins\access\libtcp_plugin.dll" />
+    <VlcWindowsX64IncludeFiles Include="plugins\audio_filter\libnormvol_plugin.dll" />
+    <VlcWindowsX64IncludeFiles Include="plugins\audio_filter\libscaletempo_plugin.dll" />
+    <VlcWindowsX64IncludeFiles Include="plugins\audio_filter\libtrivial_channel_mixer_plugin.dll" />
+    <VlcWindowsX64IncludeFiles Include="plugins\audio_filter\libugly_resampler_plugin.dll" />
+    <VlcWindowsX64IncludeFiles Include="plugins\audio_output\libmmdevice_plugin.dll" />
+    <VlcWindowsX64IncludeFiles Include="plugins\audio_output\libwasapi_plugin.dll" />
+    <VlcWindowsX64IncludeFiles Include="plugins\codec\liblpcm_plugin.dll" />
+    <VlcWindowsX64IncludeFiles Include="plugins\codec\libmpg123_plugin.dll" />
+    <VlcWindowsX64IncludeFiles Include="plugins\demux\libau_plugin.dll" />
+    <VlcWindowsX64IncludeFiles Include="plugins\demux\libdemux_cdg_plugin.dll" />
+    <VlcWindowsX64IncludeFiles Include="plugins\demux\libdemux_stl_plugin.dll" />
+    <VlcWindowsX64IncludeFiles Include="plugins\demux\libdiracsys_plugin.dll" />
+    <VlcWindowsX64IncludeFiles Include="plugins\demux\libdirectory_demux_plugin.dll" />
+    <VlcWindowsX64IncludeFiles Include="plugins\demux\libes_plugin.dll" />
+    <VlcWindowsX64IncludeFiles Include="plugins\demux\libmpgv_plugin.dll" />
+    <VlcWindowsX64IncludeFiles Include="plugins\demux\librawaud_plugin.dll" />
+    <VlcWindowsX64IncludeFiles Include="plugins\demux\librawdv_plugin.dll" />
+    <VlcWindowsX64IncludeFiles Include="plugins\demux\libwav_plugin.dll" />
+    <VlcWindowsX64IncludeFiles Include="plugins\misc\libgnutls_plugin.dll" />
+    <VlcWindowsX64IncludeFiles Include="plugins\stream_filter\libprefetch_plugin.dll" />
+    <VlcWindowsX64IncludeFiles Include="plugins\stream_filter\libskiptags_plugin.dll" />
+    <VlcWindowsX64IncludeFiles Include="plugins\packetizer\libpacketizer_mpegaudio_plugin.dll" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AvaloniaXaml Remove="Controls\ChatListView.axaml" />
+    <AvaloniaXaml Remove="Templates\CommonTemplates.axaml" />
+    <AvaloniaXaml Remove="Templates\ItemTemplates.axaml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="Collections\MessagesCollection.cs" />
+    <Compile Remove="Controls\ChatListView.axaml.cs" />
+    <Compile Remove="Helpers\ListBoxCustomVirtualization.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove=".gitignore" />
+    <None Remove="Assets\macos_installer_background.png" />
+    <None Remove="Assets\placeholder.svg" />
+    <None Remove="Controls\Attachments\AttachmentsContainer.xaml" />
+    <None Remove="Controls\Attachments\AudioMessageAttachment.xaml" />
+    <None Remove="Controls\Attachments\BasicAttachment.xaml" />
+    <None Remove="Controls\Attachments\ExtendedAttachment.xaml" />
+    <None Remove="Controls\Attachments\GiftUI.xaml" />
+    <None Remove="Controls\Attachments\StickerPresenter.xaml" />
+    <None Remove="Controls\Attachments\UGCStickerPresenter.xaml" />
+    <None Remove="Controls\BotKeyboardUI.xaml" />
+    <None Remove="Controls\ChatViewItem.xaml" />
+    <None Remove="Controls\CompactMessage.xaml" />
+    <None Remove="Controls\MediaSlider.xaml" />
+    <None Remove="Controls\MessageBubble.xaml" />
+    <None Remove="Styles\ChatViewDefaultResources.xaml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AvaloniaResource Include="Assets/Audio/**" />
+    <AvaloniaResource Include="Assets/Logo/**" />
+    <AvaloniaResource Include="Assets/ExecuteScripts/**" />
+    <AvaloniaResource Remove="DevTools\DataModels\**" />
+    <AvaloniaXaml Remove="DevTools\DataModels\**" />
+    <AvaloniaXaml Remove="Helpers\Hash\**" />
+    <Compile Remove="DevTools\DataModels\**" />
+    <Compile Remove="Helpers\Hash\**" />
+    <EmbeddedResource Remove="DevTools\DataModels\**" />
+    <EmbeddedResource Remove="Helpers\Hash\**" />
+    <None Remove="DevTools\DataModels\**" />
+    <None Remove="Helpers\Hash\**" />
+    <AvaloniaResource Remove="Assets\i18n\Resources.Designer.cs" />
+    <AvaloniaResource Remove="Assets\i18n\Resources.resx" />
+    <AvaloniaResource Remove="Assets\i18n\Resources.ru-RU.resx" />
+    <AvaloniaResource Remove="Assets\i18n\Resources.uk-UA.resx" />
+    <AvaloniaResource Remove="Assets\Logo\icon.icns" />
+    <AvaloniaResource Include="Assets\Logo\icon.ico" />
+    <AvaloniaResource Remove="Assets\macos_installer_background.png" />
+    <AvaloniaResource Include="Controls\Attachments\BasicAttachment.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </AvaloniaResource>
+    <AvaloniaResource Include="Controls\Attachments\ExtendedAttachment.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </AvaloniaResource>
+    <AvaloniaResource Include="Controls\Attachments\GiftUI.xaml" />
+    <AvaloniaResource Include="Controls\Attachments\StickerPresenter.xaml" />
+    <AvaloniaResource Include="Controls\Attachments\UGCStickerPresenter.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </AvaloniaResource>
+    <AvaloniaResource Include="Controls\BotKeyboardUI.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </AvaloniaResource>
+    <AvaloniaResource Include="Controls\ForwardedMessage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </AvaloniaResource>
+    <AvaloniaResource Include="Styles\ChatViewDefaultResources.xaml">
+      <Generator></Generator>
+    </AvaloniaResource>
+    <AvaloniaResource Include="Templates\CommonTemplates.axaml">
+      <SubType>Designer</SubType>
+    </AvaloniaResource>
+    <AvaloniaResource Include="Templates\ItemTemplates.axaml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Update="Assets\i18n\Resources.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Assets\i18n\Resources.ru-RU.resx"></EmbeddedResource>
+    <EmbeddedResource Update="Assets\i18n\Resources.uk-UA.resx"></EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="Assets\i18n\Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Assets\i18n\Resources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="12.1.0" />
+    <PackageReference Include="Avalonia.Controls.ItemsRepeater" Version="12.0.0" />
+    <PackageReference Include="Avalonia.Desktop" Version="12.1.0" />
+
+    <PackageReference Include="Avalonia.Labs.Controls" Version="12.0.2" />
+    <PackageReference Include="Avalonia.Labs.Lottie" Version="12.0.2" />
+    <PackageReference Include="Avalonia.Labs.Notifications" Version="12.0.2" />
+    <PackageReference Include="Avalonia.Labs.Panels" Version="12.0.2" />
+    <PackageReference Include="Avalonia.Labs.Qr" Version="12.0.2" />
+    <PackageReference Include="Avalonia.Themes.Simple" Version="12.1.0" />
+    <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="AvaloniaUI.DiagnosticsSupport" Version="2.2.3" />
+    <PackageReference Condition="'$(Configuration)' == 'Release'" Include="Chisel" Version="1.1.2">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="DeviceId" Version="6.11.0" />
+    <PackageReference Include="DynamicData" Version="9.4.33" />
+    <PackageReference Include="LibVLCSharp" Version="3.10.0" />
+    <PackageReference Include="PanAndZoom" Version="12.0.0.1" />
+    <PackageReference Include="Serilog" Version="4.4.0" />
+    <PackageReference Include="Serilog.Sinks.Debug" Version="3.0.0" />
+    <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
+    <PackageReference Include="Svg.Controls.Skia.Avalonia" Version="12.0.0.13" />
+    <PackageReference Include="Unicode.net" Version="2.0.0" />
+    <PackageReference Condition="$([MSBuild]::IsOSPlatform('OSX'))" Include="VideoLAN.LibVLC.Mac" Version="3.1.3.1" />
+    <PackageReference Condition="$([MSBuild]::IsOSPlatform('Windows'))" Include="VideoLAN.LibVLC.Windows" Version="3.0.23.1" />
+    <PackageReference Include="ZstdSharp.Port" Version="0.8.8" />
+    <!--<PackageReference Include="ProGPU.Avalonia.Rendering" Version="12.0.5-preview.19" />
+    <PackageReference Include="ProGPU.Avalonia.SilkNet" Version="12.0.5-preview.19" />-->
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\.editorconfig" Link=".editorconfig" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ELOR.VKAPILib\ELOR.VKAPILib.csproj" />
+    <ProjectReference Include="..\ToastNotifications.Avalonia\ToastNotifications.Avalonia.csproj" />
+    <ProjectReference Include="..\VKUI\VKUI.csproj" />
+    <ProjectReference Include="..\External\Markdown.Avalonia\ColorTextBlock.Avalonia\ColorTextBlock.Avalonia.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Views\SettingsCategories\Appearance.axaml" />
+  </ItemGroup>
+  <ItemGroup>
+    <!--<Reference Include="DesktopNotifications">
+      <HintPath>..\Libraries\DesktopNotifications.dll</HintPath>
+    </Reference>
+    <Reference Condition="$([MSBuild]::IsOSPlatform('Windows'))" Include="DesktopNotifications.Windows">
+      <HintPath>..\Libraries\DesktopNotifications.Windows.dll</HintPath>
+    </Reference>
+    <Reference Condition="$([MSBuild]::IsOSPlatform('Linux'))" Include="DesktopNotifications.FreeDesktop">
+      <HintPath>..\Libraries\DesktopNotifications.FreeDesktop.dll</HintPath>
+    </Reference>-->
+  </ItemGroup>
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Views\SearchView.axaml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AvaloniaResource Include="Controls\MessageBubble.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </AvaloniaResource>
+  </ItemGroup>
+  <ItemGroup>
+    <AvaloniaResource Include="Controls\PostUI.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </AvaloniaResource>
+  </ItemGroup>
+  <ItemGroup>
+    <AvaloniaResource Include="Controls\ChatViewItem.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </AvaloniaResource>
+  </ItemGroup>
+  <ItemGroup>
+    <AvaloniaResource Include="Controls\CompactMessage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </AvaloniaResource>
+  </ItemGroup>
+  <ItemGroup>
+    <AvaloniaResource Include="Controls\Attachments\AttachmentsContainer.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </AvaloniaResource>
+  </ItemGroup>
+  <ItemGroup>
+    <AvaloniaResource Include="Controls\Attachments\AudioAttachment.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </AvaloniaResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="Controls\Attachments\AttachmentsContainer.xaml.cs">
+      <DependentUpon>AttachmentsContainer.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Controls\Attachments\AudioMessageAttachment.xaml.cs">
+      <DependentUpon>AudioMessageAttachment.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Controls\ChatViewItem.xaml.cs">
+      <DependentUpon>ChatViewItem.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Controls\CompactMessage.xaml.cs">
+      <DependentUpon>CompactMessage.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Controls\MediaSlider.xaml.cs">
+      <DependentUpon>MediaSlider.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Controls\MessageBubble.xaml.cs">
+      <DependentUpon>MessageBubble.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Controls\PostUI - Copy.xaml.cs">
+      <DependentUpon>PostUI.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Controls\PostUI.xaml.cs">
+      <DependentUpon>PostUI.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Views\SignIn\QRAuthPage.axaml.cs">
+      <DependentUpon>QRAuthPage.axaml</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Views\Modals\SearchInChatWindow.axaml" />
+  </ItemGroup>
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Views\Modals\ImportantMessages.axaml" />
+  </ItemGroup>
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Controls\GroupMessageTemplates.axaml" />
+  </ItemGroup>
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Views\Modals\StandaloneMessageViewer.axaml" />
+  </ItemGroup>
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Views\Modals\WhoReadMessage.axaml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AvaloniaResource Include="Controls\MediaSlider.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </AvaloniaResource>
+  </ItemGroup>
+  <ItemGroup>
+    <AvaloniaResource Include="Controls\Attachments\AudioMessageAttachment.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </AvaloniaResource>
+  </ItemGroup>
+  <ItemGroup>
+    <AvaloniaXaml Include="Controls\MessagesListBox.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </AvaloniaXaml>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Helpers\Hash\MurmurHash.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="Assets\i18n\Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+</Project>

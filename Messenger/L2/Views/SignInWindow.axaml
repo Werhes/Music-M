@@ -1,0 +1,17 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:i18n="using:ELOR.Laney.Assets.i18n"
+        xmlns:controls="using:ELOR.Laney.Controls"
+        xmlns:vkui="using:VKUI.Controls"
+        xmlns:mdl="using:ELOR.Laney.DataModels"
+        mc:Ignorable="d" d:DesignWidth="420" d:DesignHeight="540"
+        x:Class="ELOR.Laney.Views.SignInWindow"
+        Width="420" Height="540"
+        CanResize="False"
+        WindowStartupLocation="CenterScreen"
+        Icon="avares://laney/Assets/Logo/icon.ico"
+        Title="Laney">
+  <vkui:NavigationControl x:Name="AuthFlow"/>
+</Window>

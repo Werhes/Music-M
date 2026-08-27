@@ -50,9 +50,46 @@ jobs:
           echo "VERSION=$version" >> $env:GITHUB_OUTPUT
           echo "Версия: $version"
 
+  # ============ JOB 1.5: Сборка мессенджера (Music M messenger-mode) ============
+  build_messenger:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install .NET Core
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Publish Messenger (messenger-mode)
+        run: |
+          dotnet publish "Messenger\L2\L2.csproj" `
+            -c Release `
+            -r win-x64 `
+            --self-contained true `
+            -p:TreatWarningsAsErrors=false `
+            -p:WarningLevel=0 `
+            -o messenger_out
+
+      - name: Rename messenger exe
+        run: |
+          $exePath = Join-Path "messenger_out" "laney.exe"
+          if (-not (Test-Path $exePath)) { throw "Messenger exe not found in publish output!" }
+          Rename-Item -Path $exePath -NewName "MusicMMessenger.exe"
+
+      - name: Upload messenger artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Messenger
+          path: messenger_out
+          retention-days: 30
+
   # ============ JOB 2: Сборка EXE (x64) ============
   build_exe_x64:
-    needs: prepare
+    needs: [prepare, build_messenger]
     runs-on: windows-latest
     env:
       Solution_Name_Unpacked: "VK UI3"
@@ -91,6 +128,19 @@ jobs:
             /p:TreatWarningsAsErrors=false `
             /clp:ErrorsOnly
 
+      - name: Download messenger artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: Messenger
+          path: messenger_artifact
+
+      - name: Copy messenger to build folder
+        run: |
+          $buildDir = Join-Path "$env:Solution_Name_Unpacked\bin" "x64\$env:Configuration_unpacked"
+          $dest = Join-Path $buildDir "Messenger"
+          New-Item -ItemType Directory -Force -Path $dest | Out-Null
+          Copy-Item -Path "messenger_artifact\*" -Destination $dest -Recurse -Force
+
       - name: Package build folder x64
         run: |
           $buildDir = Join-Path "$env:Solution_Name_Unpacked\bin" "x64\$env:Configuration_unpacked"
@@ -108,7 +158,7 @@ jobs:
 
   # ============ JOB 3: Сборка EXE (x86) ============
   build_exe_x86:
-    needs: prepare
+    needs: [prepare, build_messenger]
     runs-on: windows-latest
     env:
       Solution_Name_Unpacked: "VK UI3"
@@ -147,6 +197,19 @@ jobs:
             /p:TreatWarningsAsErrors=false `
             /clp:ErrorsOnly
 
+      - name: Download messenger artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: Messenger
+          path: messenger_artifact
+
+      - name: Copy messenger to build folder
+        run: |
+          $buildDir = Join-Path "$env:Solution_Name_Unpacked\bin" "x86\$env:Configuration_unpacked"
+          $dest = Join-Path $buildDir "Messenger"
+          New-Item -ItemType Directory -Force -Path $dest | Out-Null
+          Copy-Item -Path "messenger_artifact\*" -Destination $dest -Recurse -Force
+
       - name: Package build folder x86
         run: |
           $buildDir = Join-Path "$env:Solution_Name_Unpacked\bin" "x86\$env:Configuration_unpacked"
@@ -164,7 +227,7 @@ jobs:
 
   # ============ JOB 4: Сборка EXE (ARM64) ============
   build_exe_arm64:
-    needs: prepare
+    needs: [prepare, build_messenger]
     runs-on: windows-latest
     env:
       Solution_Name_Unpacked: "VK UI3"
@@ -202,6 +265,19 @@ jobs:
             /p:WarningLevel=0 `
             /p:TreatWarningsAsErrors=false `
             /clp:ErrorsOnly
+
+      - name: Download messenger artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: Messenger
+          path: messenger_artifact
+
+      - name: Copy messenger to build folder
+        run: |
+          $buildDir = Join-Path "$env:Solution_Name_Unpacked\bin" "ARM64\$env:Configuration_unpacked"
+          $dest = Join-Path $buildDir "Messenger"
+          New-Item -ItemType Directory -Force -Path $dest | Out-Null
+          Copy-Item -Path "messenger_artifact\*" -Destination $dest -Recurse -Force
 
       - name: Package build folder ARM64
         run: |
@@ -266,6 +342,8 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           path: artifacts
+          # Мессенджер уже лежит внутри zip-сборок VK UI3, отдельно в релиз не выкладываем.
+          pattern: "EXE_*,Setup_Installer"
 
       - name: Проверить существование релиза
         id: check_release

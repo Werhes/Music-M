@@ -255,6 +255,27 @@
                         <Border>
                             <local:DisableDiscordIntegration AutomationProperties.HelpText="Отключает отображение информации о воспроизводимой музыке в статусе Discord" AutomationProperties.Name="Отключить интеграцию с Discord" />
                         </Border>
+                        <Border>
+                            <StackPanel Spacing="8">
+                                <TextBlock
+                                    FontWeight="SemiBold"
+                                    Text="Режим мессенджера (Music M)" />
+                                <TextBlock
+                                    x:Name="MessengerStatusText"
+                                    Opacity="0.7"
+                                    TextWrapping="Wrap"
+                                    AutomationProperties.HelpText="Статус режима мессенджера"
+                                    AutomationProperties.Name="Статус мессенджера"
+                                    Text="Мессенджер не запущен." />
+                                <Button
+                                    x:Name="LaunchMessengerButton"
+                                    HorizontalAlignment="Stretch"
+                                    Content="Переключиться в режим мессенджера"
+                                    Click="LaunchMessengerButton_Click"
+                                    AutomationProperties.HelpText="Запускает отдельный мессенджер, авторизованный токеном текущего аккаунта Music M"
+                                    AutomationProperties.Name="Переключиться в режим мессенджера" />
+                            </StackPanel>
+                        </Border>
                     </StackPanel>
                 </Expander.Content>
             </Expander>

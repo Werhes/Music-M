@@ -5,6 +5,7 @@ using System;
 using System.Threading.Tasks;
 using VK_UI3.DB;
 using VK_UI3.Helpers;
+using VK_UI3.Services;
 using VK_UI3.Views;
 
 // To learn more about WinUI, the WinUI project structure,
@@ -215,6 +216,30 @@ namespace VK_UI3.Views.Settings
             var logViewer = new LogViewerWindow();
             logViewer.XamlRoot = this.XamlRoot;
             await logViewer.ShowAsync();
+        }
+
+        private async void LaunchMessengerButton_Click(object sender, RoutedEventArgs e)
+        {
+            LaunchMessengerButton.IsEnabled = false;
+            MessengerStatusText.Text = "Запуск мессенджера…";
+            try
+            {
+                MessengerStatusText.Text = await MessengerModeService.LaunchMessengerAsync();
+
+                // Мессенджер открылся — прячем Music M в трей.
+                if (MessengerStatusText.Text.Contains("запущен"))
+                {
+                    MainWindow.mainWindow?.HideFromTaskbar();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessengerStatusText.Text = "Ошибка: " + ex.Message;
+            }
+            finally
+            {
+                LaunchMessengerButton.IsEnabled = true;
+            }
         }
     }
 }
