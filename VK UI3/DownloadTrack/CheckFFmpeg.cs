@@ -77,33 +77,16 @@ namespace VK_UI3.DownloadTrack
 
         public bool IsExist()
         {
-            string directory = GetFFmpegDirectory();
-
-            if (!Directory.Exists(directory))
+            // Проверяем наличие главного бинарника FFmpeg (DLL-библиотеки могут
+            // отличаться в зависимости от версии сборки, поэтому не привязываемся к ним).
+            try
+            {
+                return File.Exists(GetFFmpegPath());
+            }
+            catch
             {
                 return false;
             }
-
-            string[] requiredFiles = new string[]
-            {
-                "avcodec-61.dll",
-                "avdevice-61.dll",
-                "avfilter-10.dll",
-                "avformat-61.dll",
-                "avutil-59.dll",
-                "swresample-5.dll",
-                "swscale-8.dll"
-            };
-
-            foreach (string file in requiredFiles)
-            {
-                if (!File.Exists(Path.Combine(directory, file)))
-                {
-                    return false;
-                }
-            }
-
-            return true;
         }
 
         public string? getLinkFFMPEG()
@@ -228,15 +211,32 @@ namespace VK_UI3.DownloadTrack
             // Extract archive
             ZipFile.ExtractToDirectory(zipPath, extractPath);
 
-            // On Windows, the binary is in the 'bin' subdirectory
+            // На Windows бинарник лежит в подпапке 'bin' вместе с DLL.
+            // Переносим ВСЕ содержимое 'bin' в корень папки FFmpeg, чтобы
+            // ffmpeg.exe и библиотеки были рядом (этого ждёт IsExist/FFmpegLoader).
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                string binPath = Path.Combine(extractPath, "bin", ffmpegBinaryName);
-                if (File.Exists(binPath))
+                string binPath = Path.Combine(extractPath, "bin");
+                if (Directory.Exists(binPath))
                 {
-                    string destinationPath = Path.Combine(extractPath, ffmpegBinaryName);
-                    File.Move(binPath, destinationPath);
+                    foreach (var file in Directory.GetFiles(binPath))
+                    {
+                        string dest = Path.Combine(extractPath, Path.GetFileName(file));
+                        try
+                        {
+                            if (File.Exists(dest)) File.Delete(dest);
+                            File.Move(file, dest);
+                        }
+                        catch { }
+                    }
+                    try { Directory.Delete(binPath, true); } catch { }
                 }
+            }
+
+            // Убеждаемся, что бинарник на месте
+            if (!File.Exists(Path.Combine(extractPath, ffmpegBinaryName)))
+            {
+                throw new FileNotFoundException($"FFmpeg ({ffmpegBinaryName}) не найден после распаковки.");
             }
 
             // Clean up

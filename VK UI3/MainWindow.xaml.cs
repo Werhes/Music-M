@@ -124,6 +124,9 @@ namespace VK_UI3
         private const uint WS_EX_TOOLWINDOW = 0x00000080;
 
         private TrayIconManager _trayIconManager = null;
+        private DateTime? _hiddenToTraySinceUtc = null;
+        private Microsoft.UI.Xaml.DispatcherTimer _lockTimer = null;
+
         public void HideFromTaskbar()
         {
             var hwnd = WindowNative.GetWindowHandle(this);
@@ -135,11 +138,21 @@ namespace VK_UI3
                 (IntPtr)(extendedStyle.ToInt64() | WS_EX_TOOLWINDOW));
 
             ShowWindow(hwnd, 0);
+            _hiddenToTraySinceUtc = DateTime.UtcNow;
         }
         private const int WS_EX_APPWINDOW = 0x00040000;
 
         public void ShowWindowAgain()
         {
+            // Если установлен код и приложение заблокировано — показываем экран блокировки
+            if (VK_UI3.Helpers.LockManager.IsLocked)
+            {
+                try { new VK_UI3.Views.LockScreenWindow().Activate(); } catch { }
+                return;
+            }
+
+            _hiddenToTraySinceUtc = null;
+
             var hwnd = WindowNative.GetWindowHandle(this);
             if (hwnd == IntPtr.Zero)
                 return;
@@ -439,7 +452,9 @@ namespace VK_UI3
                 UpdateTitleBarRegions();
             }
 #if !DEBUG
-            checkUpdate();
+            // Автообновление запускается только если оно включено в настройках
+            if (IsAutoUpdateEnabled())
+                checkUpdate();
 #endif
             checkNotifications();
             InitializeSnow();
@@ -450,6 +465,68 @@ namespace VK_UI3
 
             // Проверка версии и запуск приветственного конфетти при обновлении
             CheckVersionAndFireConfetti();
+
+            // Инициализация защиты кодом (запрос при запуске + автоблокировка в трее)
+            InitializeLockProtection();
+        }
+
+        /// <summary>
+        /// Если установлен код — блокирует приложение при запуске,
+        /// а также запускает таймер автоблокировки при длительном нахождении в трее.
+        /// </summary>
+        private void InitializeLockProtection()
+        {
+            try
+            {
+                if (VK_UI3.Helpers.LockManager.IsPinEnabled())
+                {
+                    VK_UI3.Helpers.LockManager.IsLocked = true;
+                    this.DispatcherQueue.TryEnqueue(() =>
+                    {
+                        try
+                        {
+                            new VK_UI3.Views.LockScreenWindow().Activate();
+                            HideFromTaskbar();
+                        }
+                        catch { }
+                    });
+                }
+
+                if (_lockTimer == null)
+                {
+                    _lockTimer = new Microsoft.UI.Xaml.DispatcherTimer
+                    {
+                        Interval = TimeSpan.FromSeconds(30)
+                    };
+                    _lockTimer.Tick += LockTimer_Tick;
+                    _lockTimer.Start();
+                }
+            }
+            catch { }
+        }
+
+        /// <summary>
+        /// Если приложение 15 минут находится в трее без действий и установлен код —
+        /// блокируем его.
+        /// </summary>
+        private void LockTimer_Tick(object sender, object e)
+        {
+            try
+            {
+                if (!VK_UI3.Helpers.LockManager.IsPinEnabled()) return;
+                if (VK_UI3.Helpers.LockManager.IsLocked) return;
+                if (_hiddenToTraySinceUtc == null) return;
+
+                if ((DateTime.UtcNow - _hiddenToTraySinceUtc.Value) >= TimeSpan.FromMinutes(15))
+                {
+                    VK_UI3.Helpers.LockManager.IsLocked = true;
+                    this.DispatcherQueue.TryEnqueue(() =>
+                    {
+                        try { new VK_UI3.Views.LockScreenWindow().Activate(); } catch { }
+                    });
+                }
+            }
+            catch { }
         }
 
         private void CheckVersionAndFireConfetti()
@@ -462,7 +539,14 @@ namespace VK_UI3
                 var savedVersion = SettingsTable.GetSetting("appVersion");
                 if (savedVersion == null || savedVersion.settingValue != currentVersion)
                 {
+                    bool wasInstalledBefore = savedVersion != null;
                     SettingsTable.SetSetting("appVersion", currentVersion);
+
+                    // Это реальное обновление (версия уже была раньше) — показываем уведомление
+                    if (wasInstalledBefore)
+                    {
+                        ShowUpdateSuccessNotification(currentVersion);
+                    }
 
                     // Если конфетти включено, запускаем приветственный салют
                     if (ConfettiService != null)
@@ -474,6 +558,39 @@ namespace VK_UI3
             catch
             {
                 // Игнорируем ошибки при проверке версии
+            }
+        }
+
+        /// <summary>
+        /// Проверяет, включено ли автообновление (по умолчанию включено).
+        /// </summary>
+        private static bool IsAutoUpdateEnabled()
+        {
+            var s = SettingsTable.GetSetting("autoUpdateEnabled");
+            if (s == null)
+                return true;
+            return s.settingValue != "0";
+        }
+
+        /// <summary>
+        /// Показывает уведомление об успешном обновлении приложения:
+        /// внутри приложения и системное (balloon в трее).
+        /// </summary>
+        private void ShowUpdateSuccessNotification(string version)
+        {
+            try
+            {
+                string message = $"Приложение успешно обновлено до версии {version}";
+
+                // Уведомление внутри приложения
+                new VK_UI3.Views.Notification.Notification("Music M", message);
+
+                // Системное уведомление от иконки в трее
+                _trayIconManager?.ShowBalloon("Music M", message);
+            }
+            catch
+            {
+                // Игнорируем ошибки уведомления
             }
         }
 

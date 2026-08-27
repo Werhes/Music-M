@@ -23,10 +23,10 @@
 
         <!-- Заголовок "Сейчас играет" -->
         <TextBlock
-            Margin="0,20,0,0"
+            Margin="0,16,0,0"
             HorizontalAlignment="Center"
             VerticalAlignment="Top"
-            FontSize="22"
+            FontSize="18"
             FontWeight="SemiBold"
             Opacity="0.7"
             Text="Сейчас играет"
@@ -69,12 +69,12 @@
             <StackPanel
                 Grid.Row="1"
                 VerticalAlignment="Center"
-                Spacing="16">
+                Spacing="12">
                 <!-- Обложка -->
                 <Grid>
                     <Border
-                        Width="500"
-                        Height="500"
+                        Width="440"
+                        Height="440"
                         Background="#B3000000"
                         CornerRadius="10"
                         AutomationProperties.Name="Тень обложки">
@@ -83,8 +83,8 @@
                         </Border.RenderTransform>
                     </Border>
                     <Border
-                        Width="500"
-                        Height="500"
+                        Width="440"
+                        Height="440"
                         CornerRadius="10"
                         AutomationProperties.Name="Обложка альбома">
                         <Image
@@ -95,7 +95,7 @@
                     </Border>
                     <FontIcon
                         x:Name="CoverNote"
-                        FontSize="460"
+                        FontSize="380"
                         Glyph="&#xEC4F;"
                         Visibility="Collapsed"
                         AutomationProperties.Name="Иконка ноты" />
@@ -110,7 +110,7 @@
                     AutomationProperties.Name="Название трека">
                     <TextBlock
                         x:Name="TrackName"
-                        FontSize="20"
+                        FontSize="16"
                         FontWeight="SemiBold"
                         Text="Название трека"
                         TextAlignment="Center"
@@ -128,7 +128,7 @@
                     AutomationProperties.Name="Исполнитель">
                     <TextBlock
                         x:Name="ArtistName"
-                        FontSize="15"
+                        FontSize="13"
                         Opacity="0.6"
                         Text="Имя исполнителя"
                         TextAlignment="Center"
@@ -220,7 +220,7 @@
                     Margin="0,0,0,8">
                     <TextBlock
                         VerticalAlignment="Center"
-                        FontSize="14"
+                        FontSize="12"
                         Opacity="0.6"
                         Text="Источник:"
                         AutomationProperties.Name="Источник текста" />
@@ -244,14 +244,14 @@
                     HorizontalAlignment="Center"
                     Visibility="Visible">
                     <TextBlock
-                        FontSize="24"
+                        FontSize="17"
                         FontWeight="SemiBold"
                         Opacity="0.8"
                         Text="У этого трека"
                         TextAlignment="Center"
                         AutomationProperties.Name="Нет текста" />
                     <TextBlock
-                        FontSize="20"
+                        FontSize="14"
                         Opacity="0.5"
                         Text="Пока что нет текста"
                         TextAlignment="Center"
@@ -275,7 +275,7 @@
                             <DataTemplate>
                                 <TextBlock
                                     Margin="0,2"
-                                    FontSize="18"
+                                    FontSize="13"
                                     Text="{Binding}"
                                     TextWrapping="Wrap"
                                     AutomationProperties.Name="Строка текста" />

@@ -36,7 +36,7 @@ namespace VK_UI3.Views
         private DispatcherTimer _timer;
         private DateTime _lastPositionUpdate = DateTime.MinValue;
         private readonly GeniusService _geniusService;
-        private readonly HttpClient _lyricsHttpClient;
+        private HttpClient _lyricsHttpClient;
 
         // Для синхронизированного текста
         private List<(int milliseconds, string line)> _timedLyricsLines = new();
@@ -606,8 +606,12 @@ namespace VK_UI3.Views
         {
             try
             {
+                // Http-клиент может быть не инициализирован (или уже освобождён) —
+                // создаём при необходимости, чтобы не падать с NullReferenceException.
+                _lyricsHttpClient ??= new HttpClient();
+
                 var artist = audioTrack.MainArtists?.FirstOrDefault()?.Name ?? audioTrack.Artist ?? "";
-                var title = audioTrack.Title;
+                var title = audioTrack.Title ?? "";
 
                 // Remove (feat. ...) parts from title if present
                 var featIndex = title.IndexOf("(feat.");
@@ -738,6 +742,7 @@ namespace VK_UI3.Views
         }
 
         /// <summary>
+        /// 
         /// Модель для ответа LRCLib API
         /// </summary>
         private class LrcLibResult

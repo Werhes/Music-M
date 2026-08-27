@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Window
+    x:Class="VK_UI3.Views.LockScreenWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    x:Name="lockWnd"
+    mc:Ignorable="d">
+
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- Кастомный заголовок как в главном окне (справа оставляем место под кнопки окна) -->
+        <Grid
+            x:Name="AppTitleBar"
+            Grid.Row="0"
+            Height="32"
+            Margin="0,0,140,0"
+            Padding="12,4,4,4"
+            VerticalAlignment="Top">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Spacing="8">
+                <ImageIcon
+                    Width="20"
+                    Height="20"
+                    AutomationProperties.Name="Логотип приложения"
+                    Source="ms-appx:///Assets/StoreLogo.scale-400.png" />
+                <TextBlock
+                    VerticalAlignment="Center"
+                    FontWeight="SemiBold"
+                    Text="Music M"
+                    AutomationProperties.Name="Название приложения" />
+            </StackPanel>
+        </Grid>
+
+        <!-- Контент блокировки -->
+        <StackPanel
+            Grid.Row="1"
+            Width="320"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"
+            Spacing="14">
+
+            <FontIcon
+                FontSize="48"
+                Glyph="&#xE72E;"
+                HorizontalAlignment="Center"
+                Opacity="0.7" />
+
+            <TextBlock
+                Text="Music M заблокирован"
+                FontSize="22"
+                FontWeight="SemiBold"
+                HorizontalAlignment="Center" />
+
+            <PasswordBox
+                x:Name="PinBox"
+                PlaceholderText="Введите код"
+                KeyDown="PinBox_KeyDown" />
+
+            <TextBlock
+                x:Name="ErrorText"
+                Foreground="#E81123"
+                TextWrapping="Wrap"
+                Visibility="Collapsed" />
+
+            <Button
+                x:Name="UnlockButton"
+                Content="Разблокировать"
+                HorizontalAlignment="Stretch"
+                Click="Unlock_Click" />
+
+            <Button
+                Content="Закрыть"
+                HorizontalAlignment="Stretch"
+                Click="Close_Click" />
+        </StackPanel>
+    </Grid>
+</Window>

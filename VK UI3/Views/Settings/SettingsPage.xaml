@@ -56,6 +56,42 @@
                             <local:CreateDesktopShortcut AutomationProperties.HelpText="Создает ярлык приложения на рабочем столе" AutomationProperties.Name="Создать ярлык на рабочем столе" />
                         </Border>
                         <Border>
+                            <CheckBox
+                                x:Name="autoUpdateToggle"
+                                Content="Автоматически проверять обновления"
+                                Checked="AutoUpdateToggle_Changed"
+                                Unchecked="AutoUpdateToggle_Changed"
+                                AutomationProperties.HelpText="При включении приложение автоматически проверяет наличие обновлений при запуске"
+                                AutomationProperties.Name="Автоматически проверять обновления" />
+                        </Border>
+                        <Border>
+                            <StackPanel Spacing="8">
+                                <TextBlock
+                                    FontWeight="SemiBold"
+                                    Text="Защита кодом" />
+                                <TextBlock
+                                    x:Name="LockStatusText"
+                                    Opacity="0.7"
+                                    Text="Код не установлен" />
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <Button
+                                        x:Name="SetLockButton"
+                                        Content="Установить код"
+                                        Click="SetLockButton_Click" />
+                                    <Button
+                                        x:Name="ChangeLockButton"
+                                        Content="Изменить код"
+                                        Visibility="Collapsed"
+                                        Click="ChangeLockButton_Click" />
+                                    <Button
+                                        x:Name="DeleteLockButton"
+                                        Content="Удалить код"
+                                        Visibility="Collapsed"
+                                        Click="DeleteLockButton_Click" />
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+                        <Border>
                             <StackPanel Orientation="Horizontal">
                                 <local:CheckUpdate AutomationProperties.HelpText="Проверяет наличие новых версий приложения" AutomationProperties.Name="Проверить обновления" />
                                 <TextBlock
@@ -289,6 +325,40 @@
                             <local:FullScreenLyricsSetting AutomationProperties.HelpText="При включении этой опции текст песни не будет загружаться и отображаться в полноэкранном режиме плеера" AutomationProperties.Name="Не отображать текст в полноэкранном плеере" />
                         </Border>
 
+                        <!--  Кроссфейд  -->
+                        <Border Padding="12" CornerRadius="4">
+                            <StackPanel Spacing="8">
+                                <CheckBox
+                                    x:Name="crossfadeToggle"
+                                    Content="Кроссфейд между треками"
+                                    Checked="CrossfadeToggle_Changed"
+                                    Unchecked="CrossfadeToggle_Changed"
+                                    AutomationProperties.Name="Кроссфейд между треками" />
+
+                                <StackPanel>
+                                    <TextBlock Text="Длительность кроссфейда" />
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <Slider
+                                            x:Name="crossfadeDuration"
+                                            Grid.Column="0"
+                                            Minimum="300"
+                                            Maximum="5000"
+                                            StepFrequency="100"
+                                            ValueChanged="CrossfadeDuration_ValueChanged" />
+                                        <TextBlock
+                                            x:Name="crossfadeDurationValue"
+                                            Grid.Column="1"
+                                            Margin="10,0,0,0"
+                                            VerticalAlignment="Center" />
+                                    </Grid>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+
                     </StackPanel>
                 </Expander.Content>
             </Expander>
@@ -462,7 +532,7 @@
                 AutomationProperties.HelpText="Ссылка на Telegram канал разработчика"
                 AutomationProperties.Name="Ссылка на Telegram"
                 TextAlignment="Center">
-                <Hyperlink NavigateUri="https://t.me/VK_M_creator">Music M в telegram</Hyperlink>
+                <Hyperlink NavigateUri="https://t.me/music_m_rework">Music M в telegram</Hyperlink>
             </TextBlock>
 
         </StackPanel>

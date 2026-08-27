@@ -36,6 +36,10 @@ namespace VK_UI3.Services
         public static CancellationTokenSource? _tokenSource;
         public static CancellationTokenSource? _nextTrackTokenSource;
 
+        // ===== Кроссфейд =====
+        private static CancellationTokenSource? _crossfadeCts = null;
+        private static double _crossfadeTargetVolume = 1.0;
+
         private static bool _isInitialized = false;
         private static Window _mainWindow;
 
@@ -337,6 +341,7 @@ namespace VK_UI3.Services
         public static void Cleanup()
         {
             System.Diagnostics.Debug.WriteLine("[MemoryLeakDebug] Cleanup started");
+            StopCrossfade();
             if (!_isInitialized) return;
 
             if (_mediaPlayer != null)
@@ -636,6 +641,20 @@ namespace VK_UI3.Services
                 _nextTrackTokenSource?.Cancel();
                 _nextTrackTokenSource?.Dispose();
                 _nextTrack = null;
+
+                // Кроссфейд: плавно убавляем громкость текущего трека перед переключением
+                StopCrossfade();
+                if (IsCrossfadeEnabled())
+                {
+                    _crossfadeTargetVolume = Volume;
+                    if (_mediaPlayer.Source != null &&
+                        _mediaPlayer.PlaybackSession.PlaybackState == MediaPlaybackState.Playing)
+                    {
+                        _crossfadeCts = new CancellationTokenSource();
+                        await FadeVolumeAsync(0, GetCrossfadeDurationMs() / 2, _crossfadeCts.Token);
+                    }
+                }
+
                 _mediaPlayer.Position = new TimeSpan(0);
                 _mediaPlayer.Source = null;
 
@@ -679,6 +698,74 @@ namespace VK_UI3.Services
 
 
 
+
+        #region Crossfade
+
+        /// <summary>
+        /// Проверяет, включён ли кроссфейд в настройках (по умолчанию включён).
+        /// </summary>
+        private static bool IsCrossfadeEnabled()
+        {
+            var s = SettingsTable.GetSetting("crossfadeEnabled");
+            if (s == null)
+                return true;
+            return s.settingValue != "0";
+        }
+
+        /// <summary>
+        /// Возвращает длительность кроссфейда в миллисекундах (по умолчанию 1200 мс).
+        /// </summary>
+        private static int GetCrossfadeDurationMs()
+        {
+            var s = SettingsTable.GetSetting("crossfadeDurationMs");
+            if (s == null || !int.TryParse(s.settingValue, out int v))
+                return 1200;
+            return Math.Clamp(v, 300, 5000);
+        }
+
+        private static void StopCrossfade()
+        {
+            try { _crossfadeCts?.Cancel(); } catch { }
+            _crossfadeCts = null;
+        }
+
+        /// <summary>
+        /// Плавно меняет громкость от текущей к указанному значению.
+        /// Используется для кроссфейда при переключении треков.
+        /// </summary>
+        private static async Task FadeVolumeAsync(double to, int durationMs, CancellationToken token)
+        {
+            if (durationMs <= 0)
+            {
+                _mediaPlayer.Volume = to;
+                return;
+            }
+
+            double from = _mediaPlayer.Volume;
+            if (Math.Abs(from - to) < 0.001)
+                return;
+
+            const int steps = 30;
+            int stepMs = Math.Max(1, durationMs / steps);
+            for (int i = 1; i <= steps; i++)
+            {
+                if (token.IsCancellationRequested)
+                {
+                    _mediaPlayer.Volume = to;
+                    return;
+                }
+                _mediaPlayer.Volume = from + (to - from) * (i / (double)steps);
+                try { await Task.Delay(stepMs, token); }
+                catch (OperationCanceledException)
+                {
+                    _mediaPlayer.Volume = to;
+                    return;
+                }
+            }
+            _mediaPlayer.Volume = to;
+        }
+
+        #endregion
 
         private async static void SetVKStatus(ExtendedAudio trackdata)
         {
@@ -811,7 +898,21 @@ namespace VK_UI3.Services
                 // Обновить отображение в SystemMediaTransportControls
                 UpdateSystemMediaDisplay(trackdata);
 
+                // Кроссфейд: начинаем новый трек с нулевой громкости и плавно её наращиваем
+                if (IsCrossfadeEnabled())
+                {
+                    _mediaPlayer.Volume = 0;
+                }
+
                 _mediaPlayer.Play();
+
+                // Плавно возвращаем громкость к уровню пользователя (кроссфейд)
+                if (IsCrossfadeEnabled())
+                {
+                    StopCrossfade();
+                    _crossfadeCts = new CancellationTokenSource();
+                    _ = FadeVolumeAsync(_crossfadeTargetVolume, GetCrossfadeDurationMs() / 2, _crossfadeCts.Token);
+                }
 
                 System.Diagnostics.Debug.WriteLine($"[TrackSwitch] LoadAndPlayTrack completed for track: {trackdata.audio.Title}");
 

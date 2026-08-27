@@ -9,10 +9,13 @@ namespace VK_UI3
     public class TrayIconManager : IDisposable
     {
         private const uint NIM_ADD = 0x00000000;
+        private const uint NIM_MODIFY = 0x00000001;
         private const uint NIM_DELETE = 0x00000002;
         private const uint NIF_MESSAGE = 0x00000001;
         private const uint NIF_ICON = 0x00000002;
         private const uint NIF_TIP = 0x00000004;
+        private const uint NIF_INFO = 0x00000010;
+        private const uint NIIF_INFO = 0x00000001;
         private const uint WM_APP = 0x8000;
         private const uint WM_TRAYICON = WM_APP + 1;
         private const int WM_LBUTTONUP = 0x0202;
@@ -32,6 +35,11 @@ namespace VK_UI3
             public IntPtr hIcon;
             [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 128)]
             public string szTip;
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 256)]
+            public string szInfo;
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 64)]
+            public string szInfoTitle;
+            public uint dwInfoFlags;
         }
 
         private readonly IntPtr _windowHandle;
@@ -108,6 +116,28 @@ namespace VK_UI3
                 nid.hIcon = _trayIconHandle;
                 _iconAdded = Shell_NotifyIcon(NIM_ADD, ref nid);
             }
+        }
+
+        /// <summary>
+        /// Показывает системное всплывающее уведомление (balloon) от иконки в трее.
+        /// </summary>
+        public void ShowBalloon(string title, string message)
+        {
+            if (!_iconAdded)
+                return;
+
+            var nid = new NOTIFYICONDATA
+            {
+                cbSize = (uint)Marshal.SizeOf(typeof(NOTIFYICONDATA)),
+                hWnd = _windowHandle,
+                uID = _iconId,
+                uFlags = NIF_INFO,
+                szInfo = message ?? string.Empty,
+                szInfoTitle = title ?? string.Empty,
+                dwInfoFlags = NIIF_INFO
+            };
+
+            Shell_NotifyIcon(NIM_MODIFY, ref nid);
         }
 
         private void RemoveTrayIcon()

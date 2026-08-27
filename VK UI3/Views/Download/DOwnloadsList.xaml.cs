@@ -27,11 +27,9 @@ namespace VK_UI3.Views.Download
 
         private void DownloadsList_Loading(FrameworkElement sender, object args)
         {
-            if (MainWindow.downloadFileWithProgress != null)
-            {
-                DownloadFFmpegController header = new DownloadFFmpegController();
-                TrackListView.Header = header;
-            }
+            // Уведомление "Загрузка дополнения" (FFmpeg) больше не показываем.
+            // Сам FFmpeg по-прежнему скачивается в фоне при необходимости.
+            TrackListView.Header = null;
         }
     }
 }
