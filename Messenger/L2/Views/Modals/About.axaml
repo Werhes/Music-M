@@ -28,7 +28,6 @@
       <vkui:Cell x:Name="dotnetVersionCell" Header="Runtime"/>
       <vkui:Cell x:Name="launchTimeCell" Header="{x:Static i18n:Resources.launch_time}"/>
       <Rectangle Classes="Separator" Margin="12,6"/>
-      </Button>
       <Button x:Name="b00" Classes="Tertiary" Click="b00_Click">
         <vkui:Cell Header="Source code on GitHub"/>
       </Button>
