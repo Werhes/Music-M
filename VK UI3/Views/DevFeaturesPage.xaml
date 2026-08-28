@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Page
+    x:Class="VK_UI3.Views.DevFeaturesPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    NavigationCacheMode="Enabled"
+    mc:Ignorable="d"
+    AutomationProperties.Name="Dev-функции"
+    AutomationProperties.HelpText="Раздел с dev-функциями для разработчиков">
+
+    <ScrollViewer AutomationProperties.Name="Прокрутка dev-функций" AutomationProperties.HelpText="Область прокрутки раздела dev-функций">
+        <StackPanel
+            Margin="16"
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Stretch"
+            Spacing="8">
+
+            <TextBlock
+                FontFamily="{StaticResource VKSansBold}"
+                FontSize="22"
+                Text="Dev-функции" />
+
+            <!--  Модалка  -->
+            <Button
+                x:Name="OpenModal"
+                Width="300"
+                HorizontalAlignment="Left"
+                Click="OpenModal_Click"
+                Content="Открыть модалку" />
+
+            <!--  Получить id и ссылку трека  -->
+            <Button
+                x:Name="GetTrackId"
+                Width="300"
+                Margin="0,20,0,0"
+                HorizontalAlignment="Left"
+                Click="GetTrackId_Click"
+                Content="Получить id и ссылку текущего трека" />
+
+            <!--  Модалка создания плейлиста  -->
+            <Button
+                x:Name="OpenCreatePlaylistModal"
+                Width="300"
+                Margin="0,20,0,0"
+                HorizontalAlignment="Left"
+                Click="OpenCreatePlaylistModal_Click"
+                Content="Открыть модалку создания плейлиста" />
+
+            <!--  Модалка генерации плейлиста  -->
+            <Button
+                x:Name="OpenGeneratePlaylistModal"
+                Width="300"
+                Margin="0,10,0,0"
+                HorizontalAlignment="Left"
+                Click="OpenGeneratePlaylistModal_Click"
+                Content="Открыть модалку генерации плейлиста" />
+
+            <!--  Открыть секцию по id  -->
+            <TextBlock
+                Margin="0,20,0,0"
+                FontFamily="{StaticResource VKSansBold}"
+                FontSize="18"
+                Text="Открыть секцию по id" />
+            <TextBox
+                x:Name="section"
+                Width="400"
+                Margin="0,10,0,0"
+                HorizontalAlignment="Left"
+                PlaceholderText="id секции" />
+            <Button
+                x:Name="OpenSectionButton"
+                Width="300"
+                Margin="0,10,0,0"
+                HorizontalAlignment="Left"
+                Click="OpenSectionButton_Click"
+                Content="Открыть" />
+
+            <!--  Открыть страницу исполнителя по id  -->
+            <TextBlock
+                Margin="0,20,0,0"
+                FontFamily="{StaticResource VKSansBold}"
+                FontSize="18"
+                Text="Открыть страницу исполнителя по id" />
+            <TextBox
+                x:Name="artist"
+                Width="400"
+                Margin="0,10,0,0"
+                HorizontalAlignment="Left"
+                PlaceholderText="id исполнителя" />
+            <Button
+                x:Name="openArtist"
+                Width="300"
+                Margin="0,10,0,0"
+                HorizontalAlignment="Left"
+                Click="OpenArtist_Click"
+                Content="Открыть" />
+
+            <!--  Уведомление  -->
+            <Button
+                x:Name="showNotification"
+                Width="300"
+                Margin="0,20,0,0"
+                HorizontalAlignment="Left"
+                Click="ShowNotification_Click"
+                Content="Показать уведомление" />
+
+            <!--  Скачать трек по ссылке  -->
+            <TextBlock
+                Margin="0,20,0,0"
+                FontFamily="{StaticResource VKSansBold}"
+                FontSize="18"
+                Text="Скачать трек по ссылке" />
+            <TextBox
+                x:Name="url"
+                Width="400"
+                Margin="0,10,0,0"
+                HorizontalAlignment="Left"
+                PlaceholderText="ссылка на аудио" />
+            <Button
+                x:Name="download"
+                Width="300"
+                Margin="0,10,0,0"
+                HorizontalAlignment="Left"
+                Click="Download_Click"
+                Content="Скачать" />
+
+            <!--  Капча  -->
+            <Button
+                x:Name="RaiseCaptcha"
+                Width="300"
+                Margin="0,20,0,0"
+                HorizontalAlignment="Left"
+                Click="RaiseCaptcha_Click"
+                Content="Вызвать капчу" />
+
+            <!--  Управление громкостью  -->
+            <TextBlock
+                Margin="0,20,0,0"
+                FontFamily="{StaticResource VKSansBold}"
+                FontSize="18"
+                Text="Управление громкостью" />
+            <TextBlock
+                x:Name="CurrentMixer"
+                Text="Текущее значение" />
+            <TextBox
+                x:Name="ValueMixer"
+                Width="200"
+                HorizontalAlignment="Left"
+                PlaceholderText="громкость 0..1" />
+            <StackPanel Orientation="Horizontal" Spacing="8">
+                <Button
+                    x:Name="Mixer"
+                    Click="Mixer_Click"
+                    Content="Применить громкость" />
+                <Button
+                    x:Name="MixerGet"
+                    Click="MixerGet_Click"
+                    Content="Получить текущую громкость" />
+            </StackPanel>
+
+            <!--  JSON плеера  -->
+            <Button
+                x:Name="PlaylistSerialize"
+                Width="300"
+                Margin="0,20,0,0"
+                HorizontalAlignment="Left"
+                Click="PlayerJson_Click"
+                Content="Получить JSON плеера" />
+
+            <TextBlock
+                x:Name="PlayerJsonOutput"
+                Margin="0,8,0,0"
+                Opacity="0.7"
+                TextWrapping="Wrap"
+                Visibility="Collapsed" />
+
+            <!--  Системные действия  -->
+            <Button
+                x:Name="HideToTray"
+                Width="300"
+                Margin="0,20,0,0"
+                HorizontalAlignment="Left"
+                Click="HideToTray_Click"
+                Content="Спрятать в трей" />
+
+            <Button
+                x:Name="SendSystemToast"
+                Width="300"
+                Margin="0,10,0,0"
+                HorizontalAlignment="Left"
+                Click="SendSystemToast_Click"
+                Content="Отправить сообщение в систему (тост)" />
+
+            <!--  BetterPlayer  -->
+            <CheckBox
+                x:Name="BetterPlayerToggle"
+                Margin="0,20,0,0"
+                Content="(ALPHA) Включить BetterPlayer"
+                Checked="BetterPlayerToggle_Changed"
+                Unchecked="BetterPlayerToggle_Changed"
+                AutomationProperties.Name="Включить BetterPlayer"
+                AutomationProperties.HelpText="Включает альфа-плеер в нижней панели в стиле MusicX" />
+
+            <!--  Скрыть кнопки в плеере  -->
+            <TextBlock
+                Margin="0,20,0,0"
+                FontFamily="{StaticResource VKSansBold}"
+                FontSize="18"
+                Text="Скрыть кнопки в плеере" />
+            <TextBlock
+                Opacity="0.6"
+                Text="Нажмите на кнопку, чтобы скрыть или показать её в нижней панели плеера."
+                TextWrapping="Wrap" />
+            <StackPanel
+                x:Name="PlayerButtonsPanel"
+                Margin="0,8,0,0"
+                Spacing="8" />
+
+            <!--  Дополнительные кнопки в трее  -->
+            <TextBlock
+                Margin="0,20,0,0"
+                FontFamily="{StaticResource VKSansBold}"
+                FontSize="18"
+                Text="Дополнительные кнопки в трее" />
+            <TextBlock
+                Opacity="0.6"
+                Text="Нажмите на кнопку, чтобы включить или отключить её в контекстном меню иконки в трее."
+                TextWrapping="Wrap" />
+            <StackPanel
+                x:Name="TrayButtonsPanel"
+                Margin="0,8,0,0"
+                Spacing="8" />
+
+        </StackPanel>
+    </ScrollViewer>
+</Page>

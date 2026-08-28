@@ -185,6 +185,10 @@
 
         public static unsafe Task DownloadAndConvertWithFFmpegAutogenWithOptions(string inputUrl, string outputPath, IReadOnlyDictionary<string, string>? options)
         {
+            // Гарантируем, что библиотеки FFmpeg загружены до вызова нативных функций,
+            // иначе FFmpeg.AutoGen выбрасывает NotSupportedException "Specified method is not supported."
+            LoadFFmpeg();
+
             return Task.Run(() =>
             {
                 // Регистрируем все кодеки и форматы

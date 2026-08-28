@@ -271,7 +271,8 @@ namespace VK_UI3.VKs
             {
                 var parameters = new VkParameters
                 {
-                    { "audio_ids", $"{OwnerId}_{Id}" }
+                    { "audio_id", Id },
+                    { "owner_id", OwnerId }
                 };
 
                 var response = await api.CallAsync("audio.addLike", parameters);
@@ -297,7 +298,8 @@ namespace VK_UI3.VKs
             {
                 var parameters = new VkParameters
                 {
-                    { "audio_ids", $"{OwnerId}_{Id}" }
+                    { "audio_id", Id },
+                    { "owner_id", OwnerId }
                 };
 
                 var response = await api.CallAsync("audio.removeLike", parameters);
@@ -310,6 +312,25 @@ namespace VK_UI3.VKs
                 {
                     return false;
                 }
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public static async Task<bool> IsAudioLiked(long Id, long OwnerId)
+        {
+            try
+            {
+                var parameters = new VkParameters
+                {
+                    { "audio_ids", $"{OwnerId}_{Id}" }
+                };
+
+                var response = await api.CallAsync("audio.isAdded", parameters);
+                string raw = response.RawJson?.Trim() ?? string.Empty;
+                return raw == "1" || raw == "[1]" || raw.Contains("\"1\"");
             }
             catch
             {

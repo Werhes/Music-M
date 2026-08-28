@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using VK_UI3.DB;
@@ -40,6 +41,18 @@ namespace VK_UI3.Services
         /// <summary>Максимальное количество файлов в кеше изображений</summary>
         public const string ImageCacheMaxFilesKey = "imageCacheMaxFiles";
 
+        /// <summary>Включить dev-функции</summary>
+        public const string DevFeaturesEnabledKey = "devFeaturesEnabled";
+
+        /// <summary>Список скрытых кнопок плеера (id через запятую)</summary>
+        public const string HiddenPlayerButtonsKey = "hiddenPlayerButtons";
+
+        /// <summary>Список отключённых дополнительных кнопок в трее (id через запятую)</summary>
+        public const string DisabledTrayButtonsKey = "disabledTrayButtons";
+
+        /// <summary>Включить BetterPlayer (альфа-плеер в стиле MusicX)</summary>
+        public const string BetterPlayerEnabledKey = "betterPlayerEnabled";
+
         // ===== Значения по умолчанию =====
 
         public const int DefaultPhotoCacheSizeMb = 100;
@@ -51,6 +64,9 @@ namespace VK_UI3.Services
         public const int DefaultMemoryCacheCheckIntervalMs = 1000;
         public const bool DefaultAutoClearImageCacheOnStart = false;
         public const int DefaultImageCacheMaxFiles = 5000;
+
+        /// <summary>Dev-функции выключены по умолчанию</summary>
+        public const bool DefaultDevFeaturesEnabled = false;
 
         // ===== Методы для чтения настроек =====
 
@@ -171,6 +187,106 @@ namespace VK_UI3.Services
         public static void SetImageCacheMaxFiles(int maxFiles)
         {
             SettingsTable.SetSetting(ImageCacheMaxFilesKey, Math.Clamp(maxFiles, 100, 50000).ToString());
+        }
+
+        /// <summary>
+        /// Включены ли dev-функции (по умолчанию выключены)
+        /// </summary>
+        public static bool IsDevFeaturesEnabled()
+        {
+            var setting = SettingsTable.GetSetting(DevFeaturesEnabledKey);
+            if (setting == null)
+                return DefaultDevFeaturesEnabled;
+            return setting.settingValue.Equals("1");
+        }
+
+        /// <summary>
+        /// Включает или выключает dev-функции
+        /// </summary>
+        public static void SetDevFeaturesEnabled(bool enabled)
+        {
+            SettingsTable.SetSetting(DevFeaturesEnabledKey, enabled ? "1" : "0");
+        }
+
+        /// <summary>
+        /// Возвращает множество id скрытых кнопок плеера
+        /// </summary>
+        public static HashSet<string> GetHiddenPlayerButtons()
+        {
+            var setting = SettingsTable.GetSetting(HiddenPlayerButtonsKey);
+            if (setting == null || string.IsNullOrEmpty(setting.settingValue))
+                return new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+            return new HashSet<string>(
+                setting.settingValue.Split(',', StringSplitOptions.RemoveEmptyEntries),
+                StringComparer.OrdinalIgnoreCase);
+        }
+
+        /// <summary>
+        /// Добавляет или убирает кнопку плеера из списка скрытых
+        /// </summary>
+        public static void SetPlayerButtonHidden(string buttonId, bool hidden)
+        {
+            if (string.IsNullOrWhiteSpace(buttonId))
+                return;
+
+            var set = GetHiddenPlayerButtons();
+            if (hidden)
+                set.Add(buttonId);
+            else
+                set.Remove(buttonId);
+
+            SettingsTable.SetSetting(HiddenPlayerButtonsKey, string.Join(",", set));
+        }
+
+        /// <summary>
+        /// Возвращает множество id отключённых дополнительных кнопок в трее
+        /// </summary>
+        public static HashSet<string> GetDisabledTrayButtons()
+        {
+            var setting = SettingsTable.GetSetting(DisabledTrayButtonsKey);
+            if (setting == null || string.IsNullOrEmpty(setting.settingValue))
+                return new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+            return new HashSet<string>(
+                setting.settingValue.Split(',', StringSplitOptions.RemoveEmptyEntries),
+                StringComparer.OrdinalIgnoreCase);
+        }
+
+        /// <summary>
+        /// Включает или отключает дополнительную кнопку в трее
+        /// </summary>
+        public static void SetTrayButtonDisabled(string buttonId, bool disabled)
+        {
+            if (string.IsNullOrWhiteSpace(buttonId))
+                return;
+
+            var set = GetDisabledTrayButtons();
+            if (disabled)
+                set.Add(buttonId);
+            else
+                set.Remove(buttonId);
+
+            SettingsTable.SetSetting(DisabledTrayButtonsKey, string.Join(",", set));
+        }
+
+        /// <summary>
+        /// Включён ли BetterPlayer (альфа-плеер в стиле MusicX), по умолчанию выключен
+        /// </summary>
+        public static bool IsBetterPlayerEnabled()
+        {
+            var setting = SettingsTable.GetSetting(BetterPlayerEnabledKey);
+            if (setting == null)
+                return false;
+            return setting.settingValue.Equals("1");
+        }
+
+        /// <summary>
+        /// Включает или выключает BetterPlayer
+        /// </summary>
+        public static void SetBetterPlayerEnabled(bool enabled)
+        {
+            SettingsTable.SetSetting(BetterPlayerEnabledKey, enabled ? "1" : "0");
         }
 
         /// <summary>

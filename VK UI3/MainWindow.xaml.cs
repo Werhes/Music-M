@@ -133,6 +133,16 @@ namespace VK_UI3
             if (hwnd == IntPtr.Zero)
                 return;
 
+            // Убеждаемся, что иконка в трее отображается, чтобы окно можно было вернуть
+            if (_trayIconManager == null)
+            {
+                _trayIconManager = new TrayIconManager(hwnd, this);
+            }
+            else
+            {
+                _trayIconManager.ShowTrayIconAgain();
+            }
+
             var extendedStyle = GetWindowLongPtr(hwnd, GWL_EXSTYLE);
             SetWindowLongPtr(hwnd, GWL_EXSTYLE,
                 (IntPtr)(extendedStyle.ToInt64() | WS_EX_TOOLWINDOW));

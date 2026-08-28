@@ -128,6 +128,17 @@
                     <NavigationViewItemSeparator />
                     <NavigationViewItemHeader />
 
+                    <NavigationViewItem
+                        x:Name="DevFeaturesNavItem"
+                        Content="Dev-функции"
+                        AutomationProperties.Name="Dev-функции"
+                        AutomationProperties.HelpText="Перейти к dev-функциям"
+                        Visibility="Collapsed">
+                        <NavigationViewItem.Icon>
+                            <FontIcon Glyph="&#xE950;" AutomationProperties.Name="Иконка dev-функций" AutomationProperties.HelpText="Иконка раздела dev-функций" />
+                        </NavigationViewItem.Icon>
+                    </NavigationViewItem>
+
                 </NavigationView.MenuItems>
                 <Grid
                     x:Name="MainGridLir"
@@ -178,13 +189,23 @@
                 AutomationProperties.Name="Список воспроизведения"
                 AutomationProperties.HelpText="Отображает список треков в текущем плейлисте" />
         </Grid>
-        <Frame
+        <Grid
             Grid.Row="1"
             VerticalAlignment="Bottom"
-            BorderThickness="0,1,0,0"
             AutomationProperties.Name="Плеер"
             AutomationProperties.HelpText="Основной музыкальный плеер приложения">
-            <custom:AudioPlayer Margin="0,0,0,0" AutomationProperties.Name="Аудио плеер" AutomationProperties.HelpText="Компонент управления воспроизведением музыки" />
-        </Frame>
+            <Frame
+                x:Name="StandardPlayerFrame"
+                VerticalAlignment="Bottom"
+                BorderThickness="0,1,0,0">
+                <custom:AudioPlayer Margin="0,0,0,0" AutomationProperties.Name="Аудио плеер" AutomationProperties.HelpText="Компонент управления воспроизведением музыки" />
+            </Frame>
+            <custom:BetterPlayer
+                x:Name="BetterPlayerCtrl"
+                VerticalAlignment="Bottom"
+                Visibility="Collapsed"
+                AutomationProperties.Name="BetterPlayer"
+                AutomationProperties.HelpText="Альфа-плеер в стиле MusicX" />
+        </Grid>
     </Grid>
 </Page>

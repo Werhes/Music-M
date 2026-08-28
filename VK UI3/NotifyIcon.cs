@@ -220,22 +220,72 @@ namespace VK_UI3
         private const uint TPM_LEFTALIGN = 0x0000;
         private const uint TPM_RETURNCMD = 0x0100;
 
+        private const int CMD_CLOSE = 1;
+        private const int CMD_PLAY_PAUSE = 2;
+        private const int CMD_NEXT = 3;
+        private const int CMD_PREVIOUS = 4;
+        private const int CMD_EXPAND = 5;
+        private const int CMD_SETTINGS = 6;
+
         private void ShowContextMenu()
         {
             IntPtr hMenu = CreatePopupMenu();
             try
             {
-                AppendMenu(hMenu, 0, 1, "Закрыть");
+                var disabled = VK_UI3.Services.CacheSettingsManager.GetDisabledTrayButtons();
+
+                AppendMenu(hMenu, 0, CMD_CLOSE, "Закрыть");
+                AppendMenu(hMenu, 0x00000001, 0, "-"); // Separator
+
+                if (!disabled.Contains("playPause"))
+                    AppendMenu(hMenu, 0, CMD_PLAY_PAUSE, "Плей / Пауза");
+                if (!disabled.Contains("next"))
+                    AppendMenu(hMenu, 0, CMD_NEXT, "Следующий трек");
+                if (!disabled.Contains("previous"))
+                    AppendMenu(hMenu, 0, CMD_PREVIOUS, "Предыдущий трек");
+                if (!disabled.Contains("expand"))
+                    AppendMenu(hMenu, 0, CMD_EXPAND, "Развернуть");
+                if (!disabled.Contains("settings"))
+                    AppendMenu(hMenu, 0, CMD_SETTINGS, "Открыть настройки");
 
                 POINT cursorPos;
                 GetCursorPos(out cursorPos);
                 SetForegroundWindow(_windowHandle);
                 int command = TrackPopupMenu(hMenu, TPM_LEFTALIGN | TPM_RETURNCMD, cursorPos.X, cursorPos.Y, 0, _windowHandle, IntPtr.Zero);
 
-                if (command == 1)
+                switch (command)
                 {
-                    _window.justClose = true;
-                    _window.DispatcherQueue.TryEnqueue(() => _window.Close());
+                    case CMD_CLOSE:
+                        _window.justClose = true;
+                        _window.DispatcherQueue.TryEnqueue(() => _window.Close());
+                        break;
+
+                    case CMD_PLAY_PAUSE:
+                        _window.DispatcherQueue.TryEnqueue(() =>
+                        {
+                            var mp = VK_UI3.Services.MediaPlayerService.MediaPlayer;
+                            if (mp.PlaybackSession.PlaybackState == Windows.Media.Playback.MediaPlaybackState.Playing)
+                                mp.Pause();
+                            else
+                                mp.Play();
+                        });
+                        break;
+
+                    case CMD_NEXT:
+                        _window.DispatcherQueue.TryEnqueue(() => VK_UI3.Services.MediaPlayerService.PlayNextTrack());
+                        break;
+
+                    case CMD_PREVIOUS:
+                        _window.DispatcherQueue.TryEnqueue(() => VK_UI3.Services.MediaPlayerService.PlayPreviousTrack());
+                        break;
+
+                    case CMD_EXPAND:
+                        _window.DispatcherQueue.TryEnqueue(() => _window.ShowWindowAgain());
+                        break;
+
+                    case CMD_SETTINGS:
+                        _window.DispatcherQueue.TryEnqueue(() => VK_UI3.Views.MainView.OpenSettingsPage());
+                        break;
                 }
             }
             finally

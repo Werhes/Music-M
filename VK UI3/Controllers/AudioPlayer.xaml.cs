@@ -172,13 +172,45 @@ namespace VK_UI3.Controllers
 
         #region Constructor and Initialization
 
+        /// <summary>
+        /// Текущий экземпляр плеера (для применения настроек скрытия кнопок)
+        /// </summary>
+        public static AudioPlayer Current { get; private set; }
+
         public AudioPlayer()
         {
             this.InitializeComponent();
+            Current = this;
             InitializeEvents();
             InitializeAnimations();
             InitializeSettings();
             InitializeListenTogether();
+        }
+
+        /// <summary>
+        /// Применяет настройки скрытия кнопок плеера из раздела dev-функций
+        /// </summary>
+        public void ApplyHiddenButtons()
+        {
+            var hidden = VK_UI3.Services.CacheSettingsManager.GetHiddenPlayerButtons();
+            this.DispatcherQueue.TryEnqueue(() =>
+            {
+                SetButtonHidden(openFullScreenBTN, "fullscreen", hidden);
+                SetButtonHidden(openLirycBTN, "lyrics", hidden);
+                SetButtonHidden(OpenEqalizer, "equalizer", hidden);
+                SetButtonHidden(goToPlayListBTN, "playlist", hidden);
+                SetButtonHidden(TranslatetoStatus, "status", hidden);
+                SetButtonHidden(trackDoingBTN, "trackActions", hidden);
+                SetButtonHidden(listenTogetherBTN, "listenTogether", hidden);
+                SetButtonHidden(repeatBTN, "repeat", hidden);
+            });
+        }
+
+        private static void SetButtonHidden(FrameworkElement button, string id, HashSet<string> hidden)
+        {
+            if (button == null)
+                return;
+            button.Visibility = hidden.Contains(id) ? Visibility.Collapsed : Visibility.Visible;
         }
 
         private void InitializeListenTogether()
@@ -271,6 +303,7 @@ namespace VK_UI3.Controllers
         private void AudioPlayer_Loaded(object sender, RoutedEventArgs e)
         {
             actualHeight = pageRa.ActualHeight;
+            ApplyHiddenButtons();
             if (iVKGetAudio == null)
             {
                 DisableAllChildren(this);

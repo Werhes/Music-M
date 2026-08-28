@@ -201,6 +201,9 @@ namespace VK_UI3.Views
             _ = CreateNavigation();
             dispatcherQueue = this.DispatcherQueue;
 
+            UpdateDevFeaturesMenuVisibility();
+            UpdateBetterPlayerVisibility();
+
             MainWindow.mainWindow.MainWindow_showRefresh();
 
             _ = CheckMemberVK();
@@ -664,6 +667,37 @@ namespace VK_UI3.Views
 
 
 
+        /// <summary>
+        /// Показывает или скрывает пункт меню "Dev-функции" в зависимости от настройки
+        /// </summary>
+        public void UpdateDevFeaturesMenuVisibility()
+        {
+            bool enabled = VK_UI3.Services.CacheSettingsManager.IsDevFeaturesEnabled();
+            this.DispatcherQueue.TryEnqueue(() =>
+            {
+                if (DevFeaturesNavItem != null)
+                    DevFeaturesNavItem.Visibility = enabled ? Visibility.Visible : Visibility.Collapsed;
+            });
+        }
+
+        /// <summary>
+        /// Переключает нижнюю панель между стандартным плеером и BetterPlayer
+        /// </summary>
+        public void UpdateBetterPlayerVisibility()
+        {
+            bool enabled = VK_UI3.Services.CacheSettingsManager.IsBetterPlayerEnabled();
+            this.DispatcherQueue.TryEnqueue(() =>
+            {
+                if (BetterPlayerCtrl == null || StandardPlayerFrame == null)
+                    return;
+                BetterPlayerCtrl.Visibility = enabled ? Visibility.Visible : Visibility.Collapsed;
+                StandardPlayerFrame.Visibility = enabled ? Visibility.Collapsed : Visibility.Visible;
+            });
+        }
+
+
+
+
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
@@ -830,6 +864,15 @@ namespace VK_UI3.Views
             frame.Navigate(typeof(WaitView), sectionView, new DrillInNavigationTransitionInfo());
         }
 
+        public static void OpenSettingsPage()
+        {
+            if (mainView == null || frame == null)
+                return;
+
+            mainView.hideSearch();
+            frame.Navigate(typeof(Settings.SettingsPage), null, new DrillInNavigationTransitionInfo());
+        }
+
 
         public void SearchSetText(string Text)
         {
@@ -975,6 +1018,8 @@ namespace VK_UI3.Views
             if (invokedItem != null && invokedItem.Content != null)
             {
 
+                UpdateDevFeaturesMenuVisibility();
+
                 navToAnotherPage = true;
                 switch (invokedItem.Content.ToString().ToLower())
                 {
@@ -1016,6 +1061,11 @@ namespace VK_UI3.Views
 
                     case "что слушают":
                         frame.Navigate(typeof(WhatListeningPage), _whatListeningData, new DrillInNavigationTransitionInfo());
+                        break;
+
+                    case "dev-функции":
+                        mainView.hideSearch();
+                        frame.Navigate(typeof(DevFeaturesPage), null, new DrillInNavigationTransitionInfo());
                         break;
 
                     default:

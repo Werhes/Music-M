@@ -384,6 +384,7 @@
 				</Button>
 
 				<Button
+					x:Name="goToPlayListBTN"
 					Grid.Column="0"
 					Width="32"
 					Height="32"
