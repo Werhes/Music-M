@@ -8,11 +8,11 @@
 ; ============================================================================
 
 #ifndef MyAppName
-  #define MyAppName "Music M
+  #define MyAppName "Music M"
 #endif
 
 #ifndef MyAppVersion
-  #define MyAppVersion "1.0.3
+  #define MyAppVersion "1.0.3"
 #endif
 
 #ifndef MyAppPublisher
@@ -31,6 +31,25 @@
   #define MyAppOutputBase "VK_M_Setup"
 #endif
 
+; Архитектура сборки: x64 | x86 | arm64
+#ifndef MyAppArch
+  #define MyAppArch "x64"
+#endif
+
+#if MyAppArch == "x86"
+  #define MyArchAllowed "x86compatible"
+  #define MyArchInstall ""
+  #define MyExeSuffix "x86"
+#elif MyAppArch == "arm64"
+  #define MyArchAllowed "arm64"
+  #define MyArchInstall "arm64"
+  #define MyExeSuffix "arm64"
+#else
+  #define MyArchAllowed "x64compatible"
+  #define MyArchInstall "x64compatible"
+  #define MyExeSuffix "x64"
+#endif
+
 #define MyAppExeName "VK M.exe"
 
 [Setup]
@@ -46,14 +65,16 @@ DisableProgramGroupPage=yes
 PrivilegesRequired=lowest
 PrivilegesRequiredOverridesAllowed=dialog
 OutputDir={#MyAppOutputDir}
-OutputBaseFilename={#MyAppOutputBase}_{#MyAppVersion}
+OutputBaseFilename={#MyAppOutputBase}_{#MyAppVersion}_{#MyExeSuffix}
 SetupIconFile=..\VK UI3\icon.ico
 UninstallDisplayIcon={app}\{#MyAppExeName}
 Compression=lzma2
 SolidCompression=yes
 WizardStyle=modern
-ArchitecturesAllowed=x64compatible
-ArchitecturesInstallIn64BitMode=x64compatible
+ArchitecturesAllowed={#MyArchAllowed}
+#if MyAppArch != "x86"
+ArchitecturesInstallIn64BitMode={#MyArchInstall}
+#endif
 LicenseFile=..\LICENSE.txt
 
 [Languages]
